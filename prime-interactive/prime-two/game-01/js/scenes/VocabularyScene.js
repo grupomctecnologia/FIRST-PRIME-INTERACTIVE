@@ -11,6 +11,7 @@ class VocabularyScene extends Phaser.Scene {
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "travel");
+    if (window.Art && window.Art.ready(this)) window.Art.prop(this, "phonebox", this.scale.width * 0.085, this.scale.height + 4, this.scale.height * 0.64);
     window.AudioManager.playMusic("adventure");
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 2 · " + window.S("vocabTitle") });
     this.iconEmoji = { suitcase: "🧳", ticket: "🎫", map: "🗺️", passport: "🛂", camera: "📷", key: "🔑", phone: "📱", wallet: "👛" };

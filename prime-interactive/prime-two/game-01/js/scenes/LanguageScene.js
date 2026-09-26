@@ -11,6 +11,7 @@ class LanguageScene extends Phaser.Scene {
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "tech");
+    if (window.Art && window.Art.ready(this)) window.Art.prop(this, "museum", this.scale.width * 0.5, this.scale.height + 4, this.scale.height * 0.42, { alpha: 0.55, depth: -6 });
     window.AudioManager.playMusic("adventure");
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 5 · " + window.S("languageTitle") });
     this.stage = this.add.container(0, 0);

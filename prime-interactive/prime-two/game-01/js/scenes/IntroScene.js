@@ -10,9 +10,9 @@ class IntroScene extends Phaser.Scene {
     window.SubtitleManager.mount(this);
 
     if (window.Art && window.Art.ready(this)) {
-      // chegada a Londres (arte oficial) + protagonista com tablet (briefing)
-      window.Art.background(this, "travel");
-      window.Art.character(this, "girl_brief", w * 0.84, h + 8, h * 0.74, { flip: false, depth: 5 });
+      // chegada a Londres (arte oficial) + protagonista (Alex) no aeroporto
+      window.Art.background(this, "intro");
+      window.Art.character(this, "boy_intro", w * 0.82, h + 8, h * 0.80, { flip: false, depth: 5 });
     } else {
       const sky = this.add.graphics();
       sky.fillGradientStyle(0x1a0b3d, 0x2a1b5e, 0x0b2540, 0x123a63, 1); sky.fillRect(0, 0, w, h);

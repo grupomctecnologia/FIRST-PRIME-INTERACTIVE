@@ -1,14 +1,15 @@
 /* =============================================================================
- *  Art — camada CINEMATOGRÁFICA baseada na ARTE OFICIAL APROVADA.
- *  Usa o casal de protagonistas e o cenário de Londres recortados da referência
- *  (references/game-01/reference-approved.png), embutidos em PRIME_ART (base64).
- *  Quando os assets existem, os fundos das cenas passam a ser a foto de Londres
- *  com grade de cor por fase; senão, cai no fundo vetorial (fallback).
+ *  Art — camada CINEMATOGRÁFICA baseada na ARTE OFICIAL APROVADA (v2, realista).
+ *  Casal de protagonistas + Londres + props por fase, recortados da referência
+ *  (references/game-01/reference-approved-2.png), em PRIME_ART (base64).
+ *  Backdrop de Londres (rua/aeroporto) com grade de cor por fase; a Final usa o
+ *  MAPA (progressão até o destino). Sem arte → fallback vetorial.
  * ===========================================================================*/
 window.Art = {
-  keys: ["bg_london", "char_boy", "char_girl", "char_girl_brief", "char_boy_goggles"],
+  keys: ["bg_london", "bg_map", "char_boy", "char_girl", "char_couple",
+         "char_boy_intro", "char_girl_head", "prop_phonebox", "prop_bigben",
+         "prop_bus", "prop_museum"],
 
-  /* Carrega as texturas (chamar no preload de PreloadScene) */
   preload(scene) {
     const A = window.PRIME_ART;
     if (!A) return;
@@ -17,71 +18,73 @@ window.Art = {
     });
   },
 
-  ready(scene) {
-    return !!(window.PRIME_ART && scene.textures.exists("art_bg_london"));
-  },
+  ready(scene) { return !!(window.PRIME_ART && scene.textures.exists("art_bg_london")); },
 
-  /* Grade de cor (clima) por fase — mesma Londres, humor diferente */
+  /* Grade de cor (clima) por fase — mesma Londres realista, humor diferente */
   grades: {
-    home:     { tint: 0x1a2a55, tintA: 0.30, warm: 0x2a3f7a },
-    travel:   { tint: 0xff9c4a, tintA: 0.26, warm: 0xffb14a },  // amanhecer/viagem
-    audio:    { tint: 0x1fb6d6, tintA: 0.30, warm: 0x2ad0c0 },  // frio/escuta
-    dialogue: { tint: 0xff6fa8, tintA: 0.26, warm: 0xff9a5c },  // entardecer/conversa
-    tech:     { tint: 0x27d6b0, tintA: 0.30, warm: 0x38e1ff },  // digital
-    mission:  { tint: 0x7a6bff, tintA: 0.30, warm: 0x5ce1ff },  // clímax
-    result:   { tint: 0xffcf5c, tintA: 0.24, warm: 0xffe08a }   // comemorativo
+    home:     { tint: 0x16244e, tintA: 0.20, warm: 0xffb14a },
+    intro:    { tint: 0x1a2a55, tintA: 0.16, warm: 0xffc06a },
+    travel:   { tint: 0xff9c4a, tintA: 0.18, warm: 0xffb14a },
+    audio:    { tint: 0x1f8fd6, tintA: 0.20, warm: 0x2ad0c0 },
+    dialogue: { tint: 0xff6fa8, tintA: 0.18, warm: 0xff9a5c },
+    tech:     { tint: 0x27a6b0, tintA: 0.20, warm: 0x38e1ff },
+    mission:  { tint: 0x2a3a66, tintA: 0.12, warm: 0x8a7bff },  // mapa (mais claro)
+    result:   { tint: 0x1c2c58, tintA: 0.18, warm: 0xffe08a }
   },
 
-  /* Fundo cinematográfico de Londres com grade da fase (depth negativo) */
+  bgTexFor(key) {
+    return (key === "mission") ? "art_bg_map" : "art_bg_london";
+  },
+
+  /* Fundo cinematográfico com grade da fase (depth negativo) */
   background(scene, key = "home") {
     const { width: w, height: h } = scene.scale;
     const g = this.grades[key] || this.grades.home;
+    const tex = this.bgTexFor(key);
 
-    // base preta (garante fundo mesmo antes da imagem)
     scene.add.rectangle(w / 2, h / 2, w, h, 0x05070f).setDepth(-20);
+    const img = scene.add.image(w / 2, h / 2, scene.textures.exists(tex) ? tex : "art_bg_london").setDepth(-14);
+    const s = Math.max(w / img.width, h / img.height); img.setScale(s);
+    img.setTint(0xaebfe0);
 
-    // foto de Londres em cover-fit
-    const img = scene.add.image(w / 2, h / 2, "art_bg_london").setDepth(-14);
-    const s = Math.max(w / img.width, h / img.height);
-    img.setScale(s);
-    img.setTint(0x9fb2d8); // leve dessaturação para não competir com a UI
-
-    // escurecimento base (legibilidade sobre a foto)
+    // escurecimento base + grade de cor da fase
     const base = scene.add.graphics().setDepth(-13);
-    base.fillStyle(0x05070f, 0.30); base.fillRect(0, 0, w, h);
-    // grade de cor da fase (multiplica o clima)
+    base.fillStyle(0x05070f, key === "mission" ? 0.20 : 0.30); base.fillRect(0, 0, w, h);
     const grade = scene.add.graphics().setDepth(-12);
     grade.fillStyle(g.tint, g.tintA); grade.fillRect(0, 0, w, h);
-    // brilho quente no topo (rim/atmosfera)
     const warm = scene.add.graphics().setDepth(-11);
-    warm.fillStyle(g.warm, 0.14); warm.fillCircle(w * 0.5, -h * 0.12, w * 0.6);
-    warm.setBlendMode(Phaser.BlendModes.ADD);
+    warm.fillStyle(g.warm, 0.12); warm.fillCircle(w * 0.5, -h * 0.12, w * 0.6); warm.setBlendMode(Phaser.BlendModes.ADD);
 
-    // escurecimento superior + inferior (legibilidade do texto/HUD)
+    // escurecimento topo/base + vinheta (legibilidade)
     const scrim = scene.add.graphics().setDepth(-10);
-    scrim.fillStyle(0x05070f, 0.58); scrim.fillRect(0, 0, w, h * 0.22);
-    scrim.fillStyle(0x05070f, 0.70); scrim.fillRect(0, h * 0.62, w, h * 0.38);
-    // vinheta lateral (esconde bordas/artefatos do recorte)
-    scrim.fillStyle(0x05070f, 0.40); scrim.fillRect(0, 0, w * 0.08, h); scrim.fillRect(w * 0.92, 0, w * 0.08, h);
+    scrim.fillStyle(0x05070f, 0.58); scrim.fillRect(0, 0, w, h * 0.20);
+    scrim.fillStyle(0x05070f, key === "mission" ? 0.55 : 0.66); scrim.fillRect(0, h * 0.64, w, h * 0.36);
+    scrim.fillStyle(0x05070f, 0.36); scrim.fillRect(0, 0, w * 0.07, h); scrim.fillRect(w * 0.93, 0, w * 0.07, h);
 
-    // partículas de atmosfera
     if (window.Theme) window.Theme.particles(scene, g.warm).setDepth(-8);
     return img;
   },
 
-  /* Coloca um protagonista (imagem recortada) na cena */
+  /* Protagonista recortado (arte oficial aprovada) */
   character(scene, key, x, y, targetH, opts = {}) {
     const tex = "art_char_" + key;
     if (!scene.textures.exists(tex)) return null;
     const img = scene.add.image(x, y, tex).setOrigin(opts.originX != null ? opts.originX : 0.5, opts.originY != null ? opts.originY : 1);
-    const s = targetH / img.height; img.setScale(s);
-    if (opts.flip) img.setFlipX(true);
+    img.setScale(targetH / img.height); if (opts.flip) img.setFlipX(true);
     img.setDepth(opts.depth != null ? opts.depth : -3);
-    // sombra de contato
-    const sh = scene.add.ellipse(x, y - 4, img.displayWidth * 0.7, 20, 0x000000, 0.35).setDepth(img.depth - 1);
-    // respiração sutil
+    scene.add.ellipse(x, y - 4, img.displayWidth * 0.7, 20, 0x000000, 0.35).setDepth(img.depth - 1);
     scene.tweens.add({ targets: img, y: y - (opts.float || 5), duration: 2200, yoyo: true, repeat: -1, ease: "Sine.inOut" });
-    img._shadow = sh;
+    return img;
+  },
+
+  /* Prop temático da fase (cabine, Big Ben, ônibus, museu) — bottom-anchored */
+  prop(scene, key, x, y, targetH, opts = {}) {
+    const tex = "art_prop_" + key;
+    if (!scene.textures.exists(tex)) return null;
+    const img = scene.add.image(x, y, tex).setOrigin(0.5, 1);
+    img.setScale(targetH / img.height); if (opts.flip) img.setFlipX(true);
+    img.setDepth(opts.depth != null ? opts.depth : -5);
+    img.setAlpha(opts.alpha != null ? opts.alpha : 0.92);
     return img;
   }
 };

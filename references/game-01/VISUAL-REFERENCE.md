@@ -1,6 +1,16 @@
 # PRIME TWO — Game 01 · Referência Visual Oficial
 
-**Arquivo:** `reference-approved.png` (1536×1024, storyboard com 10 painéis)
+> **ATUALIZAÇÃO (referência principal):** `reference-approved-2.png` é a
+> **referência oficial de LAYOUT e estilo** — personagens **mais realistas**
+> (menos infantis) e mapeia 1:1 as 7 telas do jogo, cada uma com seu cenário
+> de Londres (aeroporto, cabine telefônica, Big Ben, rua/museu e o **mapa de
+> progressão** na Final). O casal e os cenários usados no jogo são recortados
+> desta imagem. `reference-approved.png` (storyboard, abaixo) permanece como
+> referência complementar. Regra do Márcio: **o mais realista possível**.
+> A lógica (jogo único, sem modos; EN/ES; pontuação; mobile) é preservada —
+> os botões "Modo Professor/Desafio" que aparecem na arte NÃO são reativados.
+
+**Arquivo (complementar):** `reference-approved.png` (1536×1024, storyboard com 10 painéis)
 **Status:** REFERÊNCIA VISUAL OFICIAL — pré-aprovada pelo Márcio.
 Toda implementação visual do Game 01 (home, personagens, cenários, iluminação,
 paleta, botões, interface e progressão) deve ser comparada com esta arte.
