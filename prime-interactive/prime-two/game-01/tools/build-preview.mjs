@@ -17,10 +17,10 @@ const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 
 const scripts = [
   'lib/phaser.min.js',
-  'js/data/content.js', 'js/data/brand.js',
+  'js/data/strings.js', 'js/data/content.en.js', 'js/data/content.es.js', 'js/data/brand.js',
   'js/managers/GameState.js', 'js/managers/AudioManager.js', 'js/managers/SubtitleManager.js',
   'js/ui/theme.js', 'js/ui/brand.js', 'js/ui/quiz.js', 'js/ui/hud.js', 'js/ui/flow.js',
-  'js/scenes/BootScene.js', 'js/scenes/PreloadScene.js', 'js/scenes/MenuScene.js',
+  'js/scenes/BootScene.js', 'js/scenes/PreloadScene.js', 'js/scenes/LanguageSelectScene.js', 'js/scenes/MenuScene.js',
   'js/scenes/IntroScene.js', 'js/scenes/VocabularyScene.js', 'js/scenes/ListeningScene.js',
   'js/scenes/ConversationScene.js', 'js/scenes/LanguageScene.js', 'js/scenes/FinalScene.js',
   'js/scenes/ResultScene.js', 'js/config.js', 'js/main.js'
@@ -45,15 +45,15 @@ ${css}
 <div id="game-container">
   <div id="rotate-hint" aria-hidden="true">
     <div class="rh-icon">📱↻</div>
-    <div class="rh-title">Gire o dispositivo</div>
-    <div class="rh-text">Para a melhor experiência, use o modo paisagem (horizontal).</div>
+    <div class="rh-title">Rotate your device · Gira tu dispositivo</div>
+    <div class="rh-text">Play in landscape mode · Juega en modo horizontal</div>
   </div>
   <div id="boot-loader">
-    <div class="bl-logo-slot">LOGO OFICIAL · FIRST PRIME<br><span>aguardando arquivo oficial — não recriar</span></div>
+    <div class="bl-logo-slot">OFFICIAL LOGO · FIRST PRIME<br><span>awaiting official file — do not recreate</span></div>
     <div class="bl-title">PRIME TWO</div>
-    <div class="bl-sub">THE ENGLISH ADVENTURE</div>
+    <div class="bl-sub">FIRST PRIME INTERACTIVE</div>
     <div class="bl-spinner"></div>
-    <div class="bl-hint">Carregando… toque na tela para ativar o áudio</div>
+    <div class="bl-hint">Loading… · Cargando…</div>
   </div>
 </div>
 <script>

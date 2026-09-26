@@ -107,13 +107,20 @@ prime-interactive/prime-two/game-01/
 7. **Resultado** — pontuação total, estrelas, precisão, mensagem, *jogar novamente*
    e *voltar ao menu* (com confete na vitória / Game Over no Desafio).
 
-## Modos
+## Idiomas e jogo único
 
-- **Interface 100% em inglês** (produto de escola de inglês) — sem português na experiência do aluno.
-- **Modo Professor** — legendas sempre visíveis, avanço manual (sem cronômetro), repetir
-  áudio, pausar, sem cronômetro, avanço manual, feedback pedagógico, tela cheia.
-- **Modo Desafio** — pontuação, estrelas, **3 vidas**, sequência de fases, menos
-  dicas (avanço automático), resultado final (Game Over ao perder as vidas).
+- **Seleção de idioma na abertura**: 🇺🇸 **ENGLISH — PLAY** / 🇪🇸 **ESPAÑOL — JUGAR**.
+  Toda a experiência (interface, perguntas, alternativas, instruções, legendas,
+  narração/voz, feedbacks, resultados e botões) roda **exclusivamente no idioma
+  escolhido**. Sem português e sem tradução simultânea.
+- **Um único jogo** (sem Modo Professor/Desafio): fluxo `abrir → escolher idioma
+  → PLAY/JUGAR → jogar`.
+- **Pontuação, estrelas e 3 vidas**. Resposta errada → feedback no idioma +
+  **nova tentativa** (a resposta correta **não** é revelada); perde uma vida a
+  cada erro; ao zerar as vidas → tela final (Game Over).
+- Conteúdo pedagógico **separado por idioma** (`content.en.js` / `content.es.js`),
+  ambos **placeholder** — o espanhol **não** é tradução automática do inglês e
+  deve ser substituído pelo currículo real de cada curso.
 
 ## Controles e acessibilidade
 

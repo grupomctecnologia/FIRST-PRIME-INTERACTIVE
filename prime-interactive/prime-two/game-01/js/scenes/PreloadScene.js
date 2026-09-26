@@ -33,7 +33,7 @@ class PreloadScene extends Phaser.Scene {
       bar.clear();
       bar.fillStyle(0x1e2750, 1); bar.fillRoundedRect(bx, by, bw, 10, 5);
       bar.fillStyle(T.colors.accent, 1); bar.fillRoundedRect(bx, by, bw * p, 10, 5);
-      if (p >= 1) this.time.delayedCall(150, () => this.scene.start("MenuScene"));
+      if (p >= 1) this.time.delayedCall(150, () => this.scene.start("LanguageSelectScene"));
     }});
   }
 

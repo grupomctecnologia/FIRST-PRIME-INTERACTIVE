@@ -12,23 +12,26 @@
   <div id="game-container">
     <div id="rotate-hint" aria-hidden="true">
       <div class="rh-icon">📱↻</div>
-      <div class="rh-title">Rotate your device</div>
-      <div class="rh-text">For the best experience, play in landscape mode.</div>
+      <div class="rh-title">Rotate your device · Gira tu dispositivo</div>
+      <div class="rh-text">Play in landscape mode · Juega en modo horizontal</div>
     </div>
     <div id="boot-loader">
       <div class="bl-logo-slot">OFFICIAL LOGO · FIRST PRIME<br><span>awaiting official file — do not recreate</span></div>
       <div class="bl-title">PRIME TWO</div>
-      <div class="bl-sub">THE ENGLISH ADVENTURE</div>
+      <div class="bl-sub">FIRST PRIME INTERACTIVE</div>
       <div class="bl-spinner"></div>
-      <div class="bl-hint">Loading… tap the screen to enable audio</div>
+      <div class="bl-hint">Loading… · Cargando…</div>
     </div>
   </div>
 
   <!-- Biblioteca -->
   <script src="lib/phaser.min.js"></script>
 
-  <!-- Dados / Conteúdo (PLACEHOLDER — substituível) -->
-  <script src="js/data/content.js"></script>
+  <!-- Idioma (UI strings EN/ES) -->
+  <script src="js/data/strings.js"></script>
+  <!-- Conteúdo pedagógico por idioma (PLACEHOLDER — substituível) -->
+  <script src="js/data/content.en.js"></script>
+  <script src="js/data/content.es.js"></script>
   <!-- Identidade visual (logo oficial First Prime — placeholder até receber arquivo) -->
   <script src="js/data/brand.js"></script>
 
@@ -47,6 +50,7 @@
   <!-- Cenas -->
   <script src="js/scenes/BootScene.js"></script>
   <script src="js/scenes/PreloadScene.js"></script>
+  <script src="js/scenes/LanguageSelectScene.js"></script>
   <script src="js/scenes/MenuScene.js"></script>
   <script src="js/scenes/IntroScene.js"></script>
   <script src="js/scenes/VocabularyScene.js"></script>

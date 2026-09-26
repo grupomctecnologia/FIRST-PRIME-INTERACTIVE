@@ -163,13 +163,14 @@ window.AudioManager = {
   /* ---- VOZ / NARRAÇÃO (TTS placeholder) ---------------------------------- */
   _pickVoice() {
     if (!("speechSynthesis" in window)) return;
-    const load = () => {
-      const voices = speechSynthesis.getVoices();
-      this._voice = voices.find(v => /en[-_]US/i.test(v.lang)) ||
-                    voices.find(v => /^en/i.test(v.lang)) || voices[0] || null;
-    };
-    load();
-    speechSynthesis.onvoiceschanged = load;
+    speechSynthesis.onvoiceschanged = () => {};
+  },
+  _voiceFor(lang) {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = speechSynthesis.getVoices();
+    const pref = lang === "es" ? /^es/i : /^en/i;
+    const exact = lang === "es" ? /es[-_]ES/i : /en[-_]US/i;
+    return voices.find(v => exact.test(v.lang)) || voices.find(v => pref.test(v.lang)) || voices[0] || null;
   },
 
   /* key: opcional, para futuro áudio real via manifest (voice[key]) */
@@ -186,9 +187,12 @@ window.AudioManager = {
     if (!("speechSynthesis" in window) || s.muted) return;
     try {
       speechSynthesis.cancel();
+      const lang = window.GameState.settings.lang || "en";
+      const voiceLang = window.GameState.voiceLang ? window.GameState.voiceLang() : (lang === "es" ? "es-ES" : "en-US");
       const u = new SpeechSynthesisUtterance(text);
-      if (this._voice) u.voice = this._voice;
-      u.lang = "en-US";
+      const v = this._voiceFor(lang);
+      if (v) u.voice = v;
+      u.lang = voiceLang;
       u.rate = opts.rate || 0.98;
       u.pitch = opts.pitch != null ? opts.pitch : 1.0;
       u.volume = s.volume;

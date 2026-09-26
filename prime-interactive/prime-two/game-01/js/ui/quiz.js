@@ -1,18 +1,19 @@
 /* =============================================================================
- *  Quiz — grade de opções de múltipla escolha reutilizável.
- *  Destaca acerto/erro, desabilita após responder e dispara callback.
+ *  Quiz — multiple-choice grid with RETRY on wrong answers.
+ *  Wrong: that option is disabled/greyed (correct answer is NEVER revealed),
+ *  and the player may try the remaining options. Correct: all disabled, proceed.
+ *  onAnswer(index, isCorrect) is called on EACH attempt.
  * ===========================================================================*/
 window.Quiz = {
-  /* opts: { x, y, width, options:[str], correctIndex, cols, onAnswer(idx, isCorrect) } */
   options(scene, opts) {
     const T = window.Theme;
     const c = scene.add.container(0, 0);
     const options = opts.options;
     const cols = opts.cols || (options.length <= 2 ? options.length : 2);
     const rows = Math.ceil(options.length / cols);
-    const bw = opts.buttonWidth || 340;
-    const bh = opts.buttonHeight || 66;
-    const gapX = 24, gapY = 18;
+    const bw = opts.buttonWidth || 320;
+    const bh = opts.buttonHeight || 60;
+    const gapX = 24, gapY = 16;
     const totalW = cols * bw + (cols - 1) * gapX;
     const startX = opts.x - totalW / 2 + bw / 2;
     const startY = opts.y;
@@ -24,22 +25,26 @@ window.Quiz = {
       const bx = startX + col * (bw + gapX);
       const by = startY + row * (bh + gapY);
       const b = T.button(scene, bx, by, bw, bh, label, {
-        color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text,
-        fontSize: 22,
+        color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, fontSize: 22,
         onClick: () => {
           if (answered) return;
-          answered = true;
           const correct = i === opts.correctIndex;
-          // recolore
-          buttons.forEach((bb, j) => {
-            if (bb.hit) bb.hit.disableInteractive();
-            if (j === opts.correctIndex) { bb._draw = null; this._recolor(scene, bb, T.colors.good); }
-            else if (j === i) this._recolor(scene, bb, T.colors.bad);
-            else bb.setAlpha(0.5);
-          });
-          window.AudioManager.sfx(correct ? "correct" : "wrong");
-          T.flashFeedback(scene, correct);
-          if (opts.onAnswer) opts.onAnswer(i, correct);
+          if (correct) {
+            answered = true;
+            buttons.forEach((bb) => { if (bb.hit) bb.hit.disableInteractive(); });
+            this._recolor(scene, b, T.colors.good);
+            window.AudioManager.sfx("correct");
+            T.flashFeedback(scene, true);
+            if (opts.onAnswer) opts.onAnswer(i, true);
+          } else {
+            // disable ONLY this wrong option; allow retry on the rest
+            if (b.hit) b.hit.disableInteractive();
+            this._recolor(scene, b, T.colors.bad);
+            b.setAlpha(0.75);
+            window.AudioManager.sfx("wrong");
+            T.flashFeedback(scene, false);
+            if (opts.onAnswer) opts.onAnswer(i, false);
+          }
         }
       });
       buttons.push(b);

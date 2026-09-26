@@ -18,7 +18,7 @@ window.GAME_CONFIG = {
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },
   scene: [
-    BootScene, PreloadScene, MenuScene,
+    BootScene, PreloadScene, LanguageSelectScene, MenuScene,
     IntroScene, VocabularyScene, ListeningScene,
     ConversationScene, LanguageScene, FinalScene, ResultScene
   ]

@@ -1,4 +1,5 @@
-/* STAGE 2 — VOCABULARY MISSION (English). Object + gap sentence, pick the word. */
+/* STAGE 2 — VOCABULARY MISSION. Object + gap sentence, pick the word.
+ * Wrong = lose a life + "try again" (answer is not revealed). */
 class VocabularyScene extends Phaser.Scene {
   constructor() { super("VocabularyScene"); }
 
@@ -7,12 +8,12 @@ class VocabularyScene extends Phaser.Scene {
     this.phaseKey = "Vocabulary";
     this.items = window.PRIME_CONTENT.vocabulary.items;
     this.idx = 0;
-    this.cameras.main.fadeIn(300, 5, 7, 20);
+    this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.background(this, 0);
     this.T.particles(this, this.T.colors.accent);
     window.AudioManager.playMusic("adventure");
-    this.hud = new window.Hud(this, { phaseTitle: "STAGE 2 · Vocabulary Mission" });
+    this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 2 · " + window.S("vocabTitle") });
     this.iconEmoji = { suitcase: "🧳", ticket: "🎫", map: "🗺️", passport: "🛂", camera: "📷", key: "🔑", phone: "📱", wallet: "👛" };
     this.stage = this.add.container(0, 0);
     this.render();
@@ -20,12 +21,11 @@ class VocabularyScene extends Phaser.Scene {
 
   render() {
     this.stage.removeAll(true);
-    this._answered = false;
+    this._done = false;
     const T = this.T, w = this.scale.width;
     const item = this.items[this.idx];
     this.progressDots(w / 2, 72, this.items.length, this.idx);
 
-    // object card
     const objCard = T.card(this, w / 2, 168, 210, 156, { border: T.colors.accent2, fill: T.colors.panelLight });
     this.stage.add(objCard);
     const glow = this.add.graphics(); glow.fillStyle(T.colors.accent2, 0.12); glow.fillCircle(w / 2, 162, 82); glow.setBlendMode(Phaser.BlendModes.ADD);
@@ -34,49 +34,39 @@ class VocabularyScene extends Phaser.Scene {
     this.stage.add(emoji);
     this.tweens.add({ targets: emoji, y: 154, duration: 1600, yoyo: true, repeat: -1, ease: "Sine.inOut" });
 
-    const listen = T.iconButton(this, w / 2 + 132, 168, "🔊", { radius: 24, onClick: () => this.sayWord(item) });
-    this.stage.add(listen);
+    this.stage.add(T.iconButton(this, w / 2 + 132, 168, "🔊", { radius: 24, onClick: () => window.AudioManager.speak(item.word) }));
 
-    // prompt (English gap sentence)
-    const promptTxt = this.add.text(w / 2, 288, item.prompt, {
-      fontFamily: T.font, fontSize: "30px", fontStyle: "bold", color: T.colors.text, align: "center"
-    }).setOrigin(0.5);
-    this.stage.add(promptTxt);
+    this.stage.add(this.add.text(w / 2, 288, item.prompt, {
+      fontFamily: T.font, fontSize: "30px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 120 }
+    }).setOrigin(0.5));
+
+    this.feedback = this.add.text(w / 2, 498, "", { fontFamily: T.font, fontSize: "22px", fontStyle: "bold", align: "center", wordWrap: { width: w - 100 } }).setOrigin(0.5);
+    this.stage.add(this.feedback);
 
     const correctIndex = item.options.indexOf(item.word);
     this.quiz = window.Quiz.options(this, {
-      x: w / 2, y: 358, options: item.options, correctIndex,
-      buttonWidth: 320, buttonHeight: 60,
+      x: w / 2, y: 358, options: item.options, correctIndex, buttonWidth: 320, buttonHeight: 60,
       onAnswer: (i, correct) => this.onAnswer(correct, item)
     });
     this.stage.add(this.quiz);
 
-    this.time.delayedCall(300, () => this.sayWord(item));
+    this.time.delayedCall(300, () => window.AudioManager.speak(item.word));
   }
 
-  sayWord(item) { window.AudioManager.speak(item.word, { key: "vocab_" + item.id }); }
-
   onAnswer(correct, item) {
-    this._answered = true;
-    window.GameState.registerAnswer(correct, this.phaseKey);
-    this.hud.updateScore();
-    window.AudioManager.speak(item.word);
     const T = this.T, w = this.scale.width;
-    const msg = correct ? "Correct!  " + item.word : "The word is: " + item.word;
-    this.stage.add(this.add.text(w / 2, 498, msg, {
-      fontFamily: T.font, fontSize: "22px", fontStyle: "bold",
-      color: correct ? T.hex(T.colors.good) : T.hex(T.colors.bad), align: "center"
-    }).setOrigin(0.5));
-
-    if (window.GameState.isGameOver()) {
-      this.time.delayedCall(1100, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
+    if (!correct) {
+      window.GameState.loseLife(this.phaseKey); this.hud.updateScore();
+      this.feedback.setColor(T.hex(T.colors.bad)); this.feedback.setText(window.S("tryAgain"));
+      if (window.GameState.isGameOver()) { this.time.delayedCall(900, () => this.scene.start("ResultScene", { gameOver: true })); }
       return;
     }
+    this._done = true;
+    window.GameState.registerCorrect(this.phaseKey); this.hud.updateScore();
+    window.AudioManager.speak(item.word);
+    this.feedback.setColor(T.hex(T.colors.good)); this.feedback.setText(window.S("correct") + "  " + item.word);
     const last = this.idx >= this.items.length - 1;
-    this.stage.add(T.button(this, w / 2, 552, 240, 52, last ? "Finish stage  ✓" : "Next  ▶", {
-      fontSize: 20, onClick: () => this.advance()
-    }));
-    if (window.GameState.settings.mode !== "teacher") this.time.delayedCall(1500, () => { if (this.scene.isActive()) this.advance(); });
+    this.stage.add(T.button(this, w / 2, 552, 240, 52, last ? window.S("finishStage") : window.S("next"), { fontSize: 20, onClick: () => this.advance() }));
   }
 
   advance() {

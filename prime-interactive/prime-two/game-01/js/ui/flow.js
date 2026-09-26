@@ -13,7 +13,7 @@ window.Flow = {
     const bg = scene.add.graphics(); bg.fillStyle(0x05070f, 0.85); bg.fillRect(0, 0, w, h); layer.add(bg);
     const card = T.card(scene, w / 2, h / 2, 460, 300, { border: T.colors.accent2 });
     layer.add(card);
-    layer.add(T.title(scene, w / 2, h / 2 - 100, "STAGE COMPLETE!", 32, T.colors.text));
+    layer.add(T.title(scene, w / 2, h / 2 - 100, window.S("stageComplete"), 32, T.colors.text));
     const row = T.starRow(scene, w / 2, h / 2 - 28, 0, 3, 46);
     layer.add(row);
     // revela as estrelas ganhas imediatamente (com um "pop" via tween — sem
@@ -25,13 +25,13 @@ window.Flow = {
       scene.tweens.add({ targets: star, scale: { from: 1.6, to: 1 }, duration: 300, delay: i * 140, ease: "Back.out" });
     }
     window.AudioManager.sfx("star");
-    const r = window.GameState.session.phaseResults[phaseKey] || { correct: 0, total: 0 };
-    layer.add(scene.add.text(w / 2, h / 2 + 36, `Correct: ${r.correct}/${r.total}  ·  +${r.correct * 100} pts`, {
+    const r = window.GameState.session.phaseResults[phaseKey] || { total: 0 };
+    layer.add(scene.add.text(w / 2, h / 2 + 36, `${window.S("correctLabel")}: ${r.total}/${r.total}  ·  +${r.total * 100} pts`, {
       fontFamily: T.font, fontSize: "20px", color: T.colors.textDim
     }).setOrigin(0.5));
 
     // Botão Continue criado IMEDIATAMENTE (sempre presente e clicável)
-    const btn = T.button(scene, w / 2, h / 2 + 100, 260, 54, "Continue  ▶", {
+    const btn = T.button(scene, w / 2, h / 2 + 100, 260, 54, window.S("continueBtn"), {
       onClick: () => { window.AudioManager.sfx("transition"); this.next(scene, phaseKey); }
     });
     layer.add(btn);
