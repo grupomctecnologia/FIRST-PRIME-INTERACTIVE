@@ -10,8 +10,7 @@ class ConversationScene extends Phaser.Scene {
     this.step = 0;
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
-    this.T.background(this, 0);
-    this.T.particles(this, this.T.colors.accent);
+    this.T.scenic(this, { route: false });
     window.AudioManager.playMusic("adventure");
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 4 · " + window.S("conversationTitle") });
 
@@ -31,7 +30,12 @@ class ConversationScene extends Phaser.Scene {
     const T = this.T, c = this.add.container(x, y);
     const av = this.add.image(0, 0, tex).setScale(0.6); if (flip) av.setFlipX(true);
     c.add(this.add.ellipse(0, 72, 110, 22, 0x000000, 0.35)); c.add(av);
-    if (face) c.add(this.add.text(0, 2, face, { fontSize: "60px" }).setOrigin(0.5));
+    // monograma elegante (assinatura premium) em vez de rosto infantil
+    const mono = this.add.text(0, -2, (name || "?").charAt(0).toUpperCase(), {
+      fontFamily: 'Georgia, "Times New Roman", serif', fontSize: "72px", fontStyle: "bold", color: T.hex(T.colors.accent2)
+    }).setOrigin(0.5);
+    mono.setShadow(0, 2, "rgba(0,0,0,0.55)", 8, true, true);
+    c.add(mono);
     c.add(this.add.text(0, 86, name, { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5));
     c.add(this.add.text(0, 106, role, { fontFamily: T.font, fontSize: "13px", color: T.colors.textDim }).setOrigin(0.5));
     c.avatar = av;

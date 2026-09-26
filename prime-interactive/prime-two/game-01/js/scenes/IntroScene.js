@@ -25,14 +25,14 @@ class IntroScene extends Phaser.Scene {
     T.particles(this, T.colors.accent2);
 
     const lines = window.PRIME_CONTENT.intro.titleLines;
-    const l1 = window.Brand.render(this, w / 2, 120, 300, 62, { onDark: true }).setAlpha(0);
-    const l2 = this.add.text(w / 2, 182, lines[1], { fontFamily: T.font, fontSize: "60px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5).setAlpha(0);
+    const l1 = window.Brand.render(this, w / 2, 96, 208, 116, { onDark: true }).setAlpha(0);
+    const l2 = this.add.text(w / 2, 196, lines[1], { fontFamily: T.font, fontSize: "56px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5).setAlpha(0);
     l2.setShadow(0, 6, "rgba(0,0,0,0.6)", 16, true, true);
-    const l3 = this.add.text(w / 2, 232, lines[2], { fontFamily: T.font, fontSize: "28px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5).setAlpha(0);
+    const l3 = this.add.text(w / 2, 242, lines[2], { fontFamily: T.font, fontSize: "26px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5).setAlpha(0);
     l3.setShadow(0, 0, T.hex(T.colors.accent2), 16, true, true);
-    this.tweens.add({ targets: l1, alpha: 1, y: 112, duration: 900, delay: 300, ease: "Cubic.out" });
+    this.tweens.add({ targets: l1, alpha: 1, y: 88, duration: 900, delay: 300, ease: "Cubic.out" });
     this.tweens.add({ targets: l2, alpha: 1, scale: { from: 0.8, to: 1 }, duration: 1000, delay: 900, ease: "Back.out" });
-    this.tweens.add({ targets: l3, alpha: 1, y: 226, duration: 900, delay: 1700, ease: "Cubic.out" });
+    this.tweens.add({ targets: l3, alpha: 1, y: 236, duration: 900, delay: 1700, ease: "Cubic.out" });
 
     const narration = window.PRIME_CONTENT.intro.narration;
     const times = [2500, 5200, 8200];

@@ -6,19 +6,19 @@ class MenuScene extends Phaser.Scene {
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     window.SubtitleManager.hide();
-    T.background(this, 1);
-    T.particles(this, T.colors.accent);
+    T.scenic(this);
     window.GameState.resetSession();
 
     const unlock = () => { window.AudioManager.unlock(); window.AudioManager.playMusic("menu"); };
     this.input.once("pointerdown", unlock);
     this.input.keyboard.once("keydown", unlock);
 
-    window.Brand.render(this, w / 2, 52, 250, 50, { onDark: true });
-    const pt = this.add.text(w / 2, 108, "PRIME TWO", { fontFamily: T.font, fontSize: "48px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
-    pt.setShadow(0, 4, "rgba(0,0,0,0.55)", 12, true, true);
-    this.add.text(w / 2, 150, window.S("subTagline"), { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5);
-    this.add.text(w / 2, 178, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5);
+    window.Brand.render(this, w / 2, 72, 206, 112, { onDark: true });
+    const pt = this.add.text(w / 2, 156, "PRIME TWO", { fontFamily: T.font, fontSize: "38px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
+    pt.setShadow(0, 3, "rgba(0,0,0,0.55)", 10, true, true);
+    pt.setLetterSpacing && pt.setLetterSpacing(3);
+    this.add.text(w / 2, 190, window.S("subTagline"), { fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5);
+    this.add.text(w / 2, 214, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5);
 
     // Single PLAY / JUGAR button
     const play = T.button(this, w / 2, 300, 320, 82, window.S("play"), {

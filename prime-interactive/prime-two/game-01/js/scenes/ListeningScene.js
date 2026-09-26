@@ -9,8 +9,7 @@ class ListeningScene extends Phaser.Scene {
     this.idx = 0;
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
-    this.T.background(this, 1);
-    this.T.particles(this, this.T.colors.accentPink);
+    this.T.scenic(this, { route: false });
     window.AudioManager.playMusic("adventure");
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 3 · " + window.S("listeningTitle") });
     this.stage = this.add.container(0, 0);

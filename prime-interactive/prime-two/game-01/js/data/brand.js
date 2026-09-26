@@ -20,14 +20,16 @@
  *  Use somente versões oficiais autorizadas.
  * ===========================================================================*/
 window.PRIME_BRAND = {
-  placeholder: true,          // ← mude para false quando o logo OFICIAL estiver plugado
+  // Logo OFICIAL da First Prime plugado (fonte: Google Drive · Referências
+  // Visuais/Logos — variação "First Prime", V03). Embutido como data-URI em
+  // js/data/brand-logo.js (window.PRIME_BRAND_LOGO) para funcionar no bundle único.
+  placeholder: false,
 
-  logo:      null,            // ex.: "assets/brand/first-prime-logo.png"
-  logoLight: null,            // ex.: "assets/brand/first-prime-logo-light.png" (fundo escuro)
-  logoDark:  null,            // ex.: "assets/brand/first-prime-logo-dark.png"  (fundo claro)
+  logo:      (typeof window !== "undefined" && window.PRIME_BRAND_LOGO) || "assets/brand/first-prime-logo.png",
+  logoLight: (typeof window !== "undefined" && window.PRIME_BRAND_LOGO) || "assets/brand/first-prime-logo.png", // dourado sobre fundo escuro
+  logoDark:  (typeof window !== "undefined" && window.PRIME_BRAND_LOGO) || "assets/brand/first-prime-logo.png",
 
-  // proporção nominal (largura/altura) do logo — ajuste ao arquivo real, se necessário
-  aspect: 3.4,
+  aspect: 458 / 330,
 
-  note: "Aguardando o arquivo OFICIAL do logo da First Prime. Não recriar por IA."
+  note: "Logo oficial First Prime (V03). Não recriar por IA."
 };

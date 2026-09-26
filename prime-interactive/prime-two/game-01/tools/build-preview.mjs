@@ -17,9 +17,9 @@ const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 
 const scripts = [
   'lib/phaser.min.js',
-  'js/data/strings.js', 'js/data/content.en.js', 'js/data/content.es.js', 'js/data/brand.js',
+  'js/data/strings.js', 'js/data/content.en.js', 'js/data/content.es.js', 'js/data/brand-logo.js', 'js/data/brand.js',
   'js/managers/GameState.js', 'js/managers/AudioManager.js', 'js/managers/SubtitleManager.js',
-  'js/ui/theme.js', 'js/ui/brand.js', 'js/ui/quiz.js', 'js/ui/hud.js', 'js/ui/flow.js',
+  'js/ui/theme.js', 'js/ui/brand.js', 'js/ui/flags.js', 'js/ui/quiz.js', 'js/ui/hud.js', 'js/ui/flow.js',
   'js/scenes/BootScene.js', 'js/scenes/PreloadScene.js', 'js/scenes/LanguageSelectScene.js', 'js/scenes/MenuScene.js',
   'js/scenes/IntroScene.js', 'js/scenes/VocabularyScene.js', 'js/scenes/ListeningScene.js',
   'js/scenes/ConversationScene.js', 'js/scenes/LanguageScene.js', 'js/scenes/FinalScene.js',

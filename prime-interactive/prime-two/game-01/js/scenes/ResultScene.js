@@ -7,8 +7,7 @@ class ResultScene extends Phaser.Scene {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     this.cameras.main.fadeIn(400, 5, 7, 20);
     window.SubtitleManager.hide();
-    T.background(this, this.gameOver ? 0 : 1);
-    T.particles(this, this.gameOver ? T.colors.bad : T.colors.accent2);
+    T.scenic(this, { route: false });
 
     const S = window.GameState.session;
     const totalStars = window.GameState.totalStars();
@@ -60,7 +59,7 @@ class ResultScene extends Phaser.Scene {
       onClick: () => { window.AudioManager.stopMusic(); this.scene.start("MenuScene"); }
     });
 
-    window.Brand.render(this, w / 2, h - 46, 180, 42, { onDark: true });
+    window.Brand.render(this, w / 2, h - 60, 128, 74, { onDark: true });
     this.add.text(w / 2, h - 16, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5);
 
     if (!this.gameOver) {

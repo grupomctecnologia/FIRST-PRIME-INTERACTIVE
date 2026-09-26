@@ -44,6 +44,76 @@ window.Theme = {
     return g;
   },
 
+  /* Fundo PREMIUM atmosférico: gradiente + aurora + estrelas + skyline
+     distante + rota pontilhada (tema aventura/viagem) + vinheta. */
+  scenic(scene, opts = {}) {
+    const { width: w, height: h } = scene.scale;
+    // gradiente profundo
+    const g = scene.add.graphics();
+    g.fillGradientStyle(0x0a0f2e, 0x151a4c, 0x0b2440, 0x113153, 1);
+    g.fillRect(0, 0, w, h);
+    // aurora / nebulosa (blobs suaves)
+    const a = scene.add.graphics();
+    a.fillStyle(this.colors.accent, 0.12); a.fillCircle(w * 0.16, -h * 0.08, w * 0.5);
+    a.fillStyle(this.colors.accentPink, 0.09); a.fillCircle(w * 0.86, h * 0.02, w * 0.42);
+    a.fillStyle(this.colors.accent2, 0.06); a.fillCircle(w * 0.55, h * 0.42, w * 0.6);
+    a.setBlendMode(Phaser.BlendModes.ADD);
+    // estrelas estáticas
+    const st = scene.add.graphics();
+    for (let i = 0; i < 90; i++) {
+      const sx = Math.random() * w, sy = Math.random() * h * 0.72;
+      st.fillStyle(0xffffff, 0.15 + Math.random() * 0.5);
+      st.fillCircle(sx, sy, Math.random() < 0.15 ? 1.8 : 1);
+    }
+    st.setBlendMode(Phaser.BlendModes.ADD);
+    // rota pontilhada em arco + losango (viagem/missão)
+    if (opts.route !== false) {
+      const rg = scene.add.graphics();
+      rg.fillStyle(this.colors.accent2, 0.5);
+      const steps = 26;
+      for (let i = 0; i <= steps; i++) {
+        const t = i / steps;
+        const rx = w * 0.12 + t * w * 0.76;
+        const ry = h * 0.30 - Math.sin(t * Math.PI) * h * 0.14;
+        rg.fillCircle(rx, ry, 2);
+      }
+      rg.setBlendMode(Phaser.BlendModes.ADD);
+      const dx = w * 0.88, dy = h * 0.30 - Math.sin(1 * Math.PI) * h * 0.14;
+      const dm = scene.add.text(w * 0.12, h * 0.30, "✈", { fontFamily: this.font, fontSize: "22px", color: this.hex(this.colors.accent2) }).setOrigin(0.5).setAngle(20);
+      dm.setShadow(0, 0, this.hex(this.colors.accent2), 10, true, true);
+    }
+    // skyline distante (2 camadas silhueta)
+    this._silhouette(scene, w, h, 0x0c1233, 0.9, h - 66, 30, 92);
+    this._silhouette(scene, w, h, 0x172052, 1.0, h - 46, 22, 120);
+    // brilho no horizonte
+    const hg = scene.add.graphics();
+    hg.fillStyle(this.colors.accent, 0.10); hg.fillRect(0, h - 120, w, 120); hg.setBlendMode(Phaser.BlendModes.ADD);
+    // partículas flutuantes
+    this.particles(scene, this.colors.accent);
+    // vinheta
+    const vg = scene.add.graphics();
+    vg.fillStyle(0x05070f, 0.4); vg.fillRect(0, h * 0.72, w, h * 0.28);
+    vg.fillStyle(0x05070f, 0.22); vg.fillRect(0, 0, w, 8); vg.fillRect(0, h - 8, w, 8);
+    return g;
+  },
+
+  _silhouette(scene, w, h, color, alpha, baseY, minH, maxH) {
+    const g = scene.add.graphics(); g.fillStyle(color, alpha);
+    let x = -20;
+    while (x < w + 40) {
+      const bw = Phaser.Math.Between(38, 78), bh = Phaser.Math.Between(minH, maxH);
+      g.fillRect(x, baseY - bh, bw, bh + 80);
+      // luzes de janela discretas
+      g.fillStyle(0xffe9b0, alpha * 0.35);
+      for (let wy = baseY - bh + 10; wy < baseY - 6; wy += 16) {
+        for (let wx = x + 6; wx < x + bw - 6; wx += 13) if (Math.random() > 0.6) g.fillRect(wx, wy, 5, 7);
+      }
+      g.fillStyle(color, alpha);
+      x += bw + Phaser.Math.Between(4, 14);
+    }
+    return g;
+  },
+
   /* Textura de partícula (uma vez) */
   ensureParticleTexture(scene) {
     if (scene.textures.exists("t_dot")) return;
