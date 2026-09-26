@@ -13,10 +13,19 @@ class MenuScene extends Phaser.Scene {
     this.input.once("pointerdown", unlock);
     this.input.keyboard.once("keydown", unlock);
 
-    // holofote suave atrás da marca (dá foco / hierarquia à home)
+    // casal de protagonistas (arte oficial aprovada), ladeando a marca
+    if (window.Art && window.Art.ready(this)) {
+      window.Art.character(this, "boy", w * 0.135, h + 8, h * 0.82, { flip: false });
+      window.Art.character(this, "girl", w * 0.865, h + 8, h * 0.82, { flip: true });
+    }
+
+    // scrim escuro atrás da marca (legibilidade sobre a foto)
+    const scrim = this.add.graphics();
+    scrim.fillStyle(0x05070f, 0.5); scrim.fillEllipse(w / 2, 132, 620, 280);
+    // holofote suave (foco / hierarquia)
     const spot = this.add.graphics();
-    spot.fillStyle(T.colors.accent, 0.10); spot.fillEllipse(w / 2, 120, 620, 260);
-    spot.fillStyle(T.colors.accent2, 0.06); spot.fillEllipse(w / 2, 96, 380, 180);
+    spot.fillStyle(T.colors.accent, 0.10); spot.fillEllipse(w / 2, 120, 560, 240);
+    spot.fillStyle(T.colors.accent2, 0.06); spot.fillEllipse(w / 2, 96, 360, 170);
     spot.setBlendMode(Phaser.BlendModes.ADD);
 
     window.Brand.render(this, w / 2, 72, 214, 116, { onDark: true, glow: true });
@@ -31,10 +40,10 @@ class MenuScene extends Phaser.Scene {
     this.add.text(w / 2, 200, window.S("subTagline"), { fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5);
     this.add.text(w / 2, 224, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5);
 
-    // Single PLAY / JUGAR button
-    const play = T.button(this, w / 2, 300, 320, 82, window.S("play"), {
+    // Single PLAY / JUGAR button (pílula dourada — CTA da referência)
+    const play = T.button(this, w / 2, 300, 320, 82, window.S("play"), T.goldOpts({
       fontSize: 32, onClick: () => this.startGame()
-    });
+    }));
 
     // Change-language button (small)
     const langBtn = T.button(this, w / 2, 400, 260, 48, (window.GameState.settings.lang === "es" ? "🇪🇸 Español" : "🇺🇸 English") + "  ▾", {

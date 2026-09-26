@@ -7,7 +7,13 @@ class ResultScene extends Phaser.Scene {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     this.cameras.main.fadeIn(400, 5, 7, 20);
     window.SubtitleManager.hide();
-    T.scene(this, "mission");
+    T.scene(this, this.gameOver ? "mission" : "result");
+
+    // casal comemorando (arte oficial) nos cantos, atrás do painel
+    if (!this.gameOver && window.Art && window.Art.ready(this)) {
+      window.Art.character(this, "boy", w * 0.12, h + 10, h * 0.66, { flip: false, depth: -2 });
+      window.Art.character(this, "girl", w * 0.88, h + 10, h * 0.66, { flip: true, depth: -2 });
+    }
 
     const S = window.GameState.session;
     const totalStars = window.GameState.totalStars();
@@ -51,9 +57,9 @@ class ResultScene extends Phaser.Scene {
     else msg = window.S("msgGood");
     this.add.text(w / 2, 388, msg, { fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: T.hex(T.colors.accent) }).setOrigin(0.5);
 
-    T.button(this, w / 2 - 150, 470, 280, 58, window.S("playAgain"), {
+    T.button(this, w / 2 - 150, 470, 280, 58, window.S("playAgain"), T.goldOpts({
       onClick: () => { window.GameState.resetSession(); window.AudioManager.stopMusic(); this.scene.start("IntroScene"); }
-    });
+    }));
     T.button(this, w / 2 + 150, 470, 280, 58, window.S("backToMenu"), {
       color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text,
       onClick: () => { window.AudioManager.stopMusic(); this.scene.start("MenuScene"); }

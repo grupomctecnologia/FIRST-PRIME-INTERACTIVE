@@ -78,7 +78,16 @@ window.Theme = {
    *  específico do tema → brilho de horizonte → partículas → vinheta.
    *  Retorna um container "backdrop" com profundidade -10 (fica atrás de tudo).
    * =======================================================================*/
+  /* Opções de botão "pílula dourada" (CTA primário, estilo da referência) */
+  goldOpts(extra = {}) {
+    return Object.assign({
+      color: 0xffd35c, color2: 0xef9f2e, textColor: "#20140a", radius: 999
+    }, extra);
+  },
+
   scene(scene, key = "home") {
+    // Se a arte cinematográfica (casal + Londres) estiver carregada, usa a foto.
+    if (window.Art && window.Art.ready(scene)) { window.Art.background(scene, key); return; }
     const th = this.themes[key] || this.themes.home;
     const { width: w, height: h } = scene.scale;
 
@@ -344,7 +353,7 @@ window.Theme = {
   button(scene, x, y, w, h, label, opts = {}) {
     const c = scene.add.container(x, y);
     c.width = w; c.height = h;
-    const r = opts.radius || 16;
+    const r = Math.min(opts.radius || 16, h / 2, w / 2);   // clamp p/ pílula
     // cor base do botão (um só tom → gradiente é derivado dele)
     const base = opts.color || this.colors.accent;
     const base2 = opts.color2 != null ? opts.color2 : this._darken(base, 0.32);

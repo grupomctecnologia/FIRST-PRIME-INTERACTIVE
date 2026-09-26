@@ -9,20 +9,24 @@ class IntroScene extends Phaser.Scene {
     window.AudioManager.playMusic("adventure");
     window.SubtitleManager.mount(this);
 
-    const sky = this.add.graphics();
-    sky.fillGradientStyle(0x1a0b3d, 0x2a1b5e, 0x0b2540, 0x123a63, 1); sky.fillRect(0, 0, w, h);
-    const moon = this.add.graphics();
-    moon.fillStyle(0xffe9b0, 0.9); moon.fillCircle(w - 170, 100, 40);
-    moon.fillStyle(0xffe9b0, 0.15); moon.fillCircle(w - 170, 100, 80); moon.setBlendMode(Phaser.BlendModes.ADD);
-
-    T.ensureParticleTexture(this);
-    this.add.particles(0, 0, "t_dot", { x: { min: 0, max: w }, y: { min: 0, max: h * 0.5 }, lifespan: 4000, scale: { start: 0.25, end: 0 }, alpha: { start: 0.8, end: 0 }, quantity: 2, frequency: 250, tint: 0xffffff, blendMode: "ADD" });
-
-    this.buildSkyline(w, h, 0x0d1030, 0.9, h - 100, 50, 120, 6000);
-    this.buildSkyline(w, h, 0x151a45, 1.0, h - 74, 34, 160, 4200);
-    this.buildSkyline(w, h, 0x232a63, 1.0, h - 50, 26, 190, 2800);
-    const glow = this.add.graphics(); glow.fillStyle(T.colors.accent, 0.10); glow.fillRect(0, h - 140, w, 140); glow.setBlendMode(Phaser.BlendModes.ADD);
-    T.particles(this, T.colors.accent2);
+    if (window.Art && window.Art.ready(this)) {
+      // chegada a Londres (arte oficial) + protagonista com tablet (briefing)
+      window.Art.background(this, "travel");
+      window.Art.character(this, "girl_brief", w * 0.84, h + 8, h * 0.74, { flip: false, depth: 5 });
+    } else {
+      const sky = this.add.graphics();
+      sky.fillGradientStyle(0x1a0b3d, 0x2a1b5e, 0x0b2540, 0x123a63, 1); sky.fillRect(0, 0, w, h);
+      const moon = this.add.graphics();
+      moon.fillStyle(0xffe9b0, 0.9); moon.fillCircle(w - 170, 100, 40);
+      moon.fillStyle(0xffe9b0, 0.15); moon.fillCircle(w - 170, 100, 80); moon.setBlendMode(Phaser.BlendModes.ADD);
+      T.ensureParticleTexture(this);
+      this.add.particles(0, 0, "t_dot", { x: { min: 0, max: w }, y: { min: 0, max: h * 0.5 }, lifespan: 4000, scale: { start: 0.25, end: 0 }, alpha: { start: 0.8, end: 0 }, quantity: 2, frequency: 250, tint: 0xffffff, blendMode: "ADD" });
+      this.buildSkyline(w, h, 0x0d1030, 0.9, h - 100, 50, 120, 6000);
+      this.buildSkyline(w, h, 0x151a45, 1.0, h - 74, 34, 160, 4200);
+      this.buildSkyline(w, h, 0x232a63, 1.0, h - 50, 26, 190, 2800);
+      const glow = this.add.graphics(); glow.fillStyle(T.colors.accent, 0.10); glow.fillRect(0, h - 140, w, 140); glow.setBlendMode(Phaser.BlendModes.ADD);
+      T.particles(this, T.colors.accent2);
+    }
 
     const lines = window.PRIME_CONTENT.intro.titleLines;
     const l1 = window.Brand.render(this, w / 2, 96, 208, 116, { onDark: true }).setAlpha(0);
@@ -39,7 +43,7 @@ class IntroScene extends Phaser.Scene {
     narration.forEach((line, i) => { this.time.delayedCall(times[i], () => { window.SubtitleManager.show(line); window.AudioManager.speak(line); }); });
     this.time.delayedCall(11500, () => window.SubtitleManager.hide());
 
-    const startBtn = T.button(this, w / 2, h - 92, 340, 66, window.S("startAdventure"), { fontSize: 26, onClick: () => this.begin() }).setAlpha(0);
+    const startBtn = T.button(this, w / 2, h - 92, 340, 66, window.S("startAdventure"), T.goldOpts({ fontSize: 26, onClick: () => this.begin() })).setAlpha(0);
     this.tweens.add({ targets: startBtn, alpha: 1, y: h - 100, duration: 700, delay: 2600, ease: "Cubic.out" });
 
     const skip = this.add.text(w - 18, 22, window.S("skip"), { fontFamily: T.font, fontSize: "16px", color: T.colors.textDim }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });

@@ -15,10 +15,10 @@ class ConversationScene extends Phaser.Scene {
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 4 · " + window.S("conversationTitle") });
 
     const w = this.scale.width;
-    this.emma = this.buildCharacter(w * 0.26, 200, "av_emma", this.data.speakerA.name, this.data.speakerA.role, false, "👩");
-    this.you = this.buildCharacter(w * 0.74, 200, "av_you", this.data.speakerB.name, this.data.speakerB.role, true, "🧑");
-    this.bubbleA = this.buildBubble(w * 0.26, 106, false);
-    this.bubbleB = this.buildBubble(w * 0.74, 106, true);
+    this.emma = this.buildCharacter(w * 0.20, 176, "av_emma", this.data.speakerA.name, this.data.speakerA.role, false, "👩");
+    this.you = this.buildCharacter(w * 0.80, 176, "av_you", this.data.speakerB.name, this.data.speakerB.role, true, "🧑");
+    this.bubbleA = this.buildBubble(w * 0.30, 84, false);
+    this.bubbleB = this.buildBubble(w * 0.70, 84, true);
     this.bubbleB.container.setVisible(false);
 
     this.optionsC = this.add.container(0, 0);
@@ -28,21 +28,29 @@ class ConversationScene extends Phaser.Scene {
 
   buildCharacter(x, y, tex, name, role, flip, face) {
     const T = this.T, c = this.add.container(x, y);
-    const av = this.add.image(0, 0, tex).setScale(0.6); if (flip) av.setFlipX(true);
-    c.add(this.add.ellipse(0, 72, 110, 22, 0x000000, 0.35)); c.add(av);
-    // monograma elegante (assinatura premium) em vez de rosto infantil
-    const mono = this.add.text(0, -2, (name || "?").charAt(0).toUpperCase(), {
-      fontFamily: 'Georgia, "Times New Roman", serif', fontSize: "72px", fontStyle: "bold", color: T.hex(T.colors.accent2)
-    }).setOrigin(0.5);
-    mono.setShadow(0, 2, "rgba(0,0,0,0.55)", 8, true, true);
-    c.add(mono);
-    c.add(this.add.text(0, 86, name, { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5));
-    c.add(this.add.text(0, 106, role, { fontFamily: T.font, fontSize: "13px", color: T.colors.textDim }).setOrigin(0.5));
-    c.avatar = av;
-    this.tweens.add({ targets: av, y: -6, duration: 1800, yoyo: true, repeat: -1, ease: "Sine.inOut" });
+    const artKey = (tex === "av_emma") ? "girl" : "boy";
+    let av;
+    if (window.Art && window.Art.ready(this)) {
+      // protagonista real (arte oficial aprovada)
+      av = this.add.image(0, 0, "art_char_" + artKey).setOrigin(0.5);
+      const H = 188; av.setScale(H / av.height); if (flip) av.setFlipX(true);
+      c.add(this.add.ellipse(0, 96, av.displayWidth * 0.7, 18, 0x000000, 0.34));
+      c.add(av);
+    } else {
+      av = this.add.image(0, 0, tex).setScale(0.6); if (flip) av.setFlipX(true);
+      c.add(this.add.ellipse(0, 72, 110, 22, 0x000000, 0.35)); c.add(av);
+      const mono = this.add.text(0, -2, (name || "?").charAt(0).toUpperCase(), {
+        fontFamily: 'Georgia, "Times New Roman", serif', fontSize: "72px", fontStyle: "bold", color: T.hex(T.colors.accent2)
+      }).setOrigin(0.5);
+      mono.setShadow(0, 2, "rgba(0,0,0,0.55)", 8, true, true); c.add(mono);
+    }
+    c.add(this.add.text(0, 108, name, { fontFamily: T.font, fontSize: "19px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5));
+    c.add(this.add.text(0, 128, role, { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5));
+    c.avatar = av; c._baseScale = av.scaleY;
+    this.tweens.add({ targets: av, y: av.y - 6, duration: 1800, yoyo: true, repeat: -1, ease: "Sine.inOut" });
     return c;
   }
-  talk(ch) { this.tweens.add({ targets: ch.avatar, scale: { from: 0.6, to: 0.66 }, duration: 160, yoyo: true, repeat: 3 }); }
+  talk(ch) { const s = ch._baseScale || ch.avatar.scaleY; this.tweens.add({ targets: ch.avatar, scaleX: s * 1.06, scaleY: s * 1.06, duration: 160, yoyo: true, repeat: 3 }); }
 
   buildBubble(x, y, flip) {
     const T = this.T, c = this.add.container(x, y);
