@@ -5,6 +5,7 @@ class IntroScene extends Phaser.Scene {
 
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
+    this._begun = false;   // reset por partida (instância é reutilizada pelo Phaser)
     window.AudioManager.unlock();
     window.AudioManager.playMusic("adventure");
     window.SubtitleManager.mount(this);

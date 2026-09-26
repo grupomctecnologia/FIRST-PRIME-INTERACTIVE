@@ -2138,6 +2138,7 @@ class LanguageSelectScene extends Phaser.Scene {
 
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
+    this._chosen = false;   // reset por visita (instância reutilizada pelo Phaser)
     window.SubtitleManager.hide();
     T.scene(this, "home");
 
@@ -2210,6 +2211,7 @@ class MenuScene extends Phaser.Scene {
 
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
+    this._starting = false;   // reset por visita (instância reutilizada pelo Phaser)
     window.SubtitleManager.hide();
     T.scene(this, "home");
     window.GameState.resetSession();
@@ -2298,6 +2300,7 @@ class IntroScene extends Phaser.Scene {
 
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
+    this._begun = false;   // reset por partida (instância é reutilizada pelo Phaser)
     window.AudioManager.unlock();
     window.AudioManager.playMusic("adventure");
     window.SubtitleManager.mount(this);
@@ -2383,7 +2386,7 @@ class VocabularyScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Vocabulary";
     this.items = window.PRIME_CONTENT.vocabulary.items;
-    this.idx = 0;
+    this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "travel");
@@ -2479,7 +2482,7 @@ class ListeningScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Listening";
     this.items = window.PRIME_CONTENT.listening.items;
-    this.idx = 0;
+    this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "audio");
@@ -2591,7 +2594,7 @@ class ConversationScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Conversation";
     this.data = window.PRIME_CONTENT.conversation;
-    this.step = 0;
+    this.step = 0; this._advancing = false; this._answered = false;   // reset por partida
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "dialogue");
@@ -2735,7 +2738,7 @@ class LanguageScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Language";
     this.items = window.PRIME_CONTENT.language.items;
-    this.idx = 0;
+    this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "tech");
@@ -2885,7 +2888,7 @@ class FinalScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Final";
     this.items = window.PRIME_CONTENT.final.items;
-    this.idx = 0;
+    this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "mission");

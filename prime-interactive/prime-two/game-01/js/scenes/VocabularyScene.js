@@ -7,7 +7,7 @@ class VocabularyScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Vocabulary";
     this.items = window.PRIME_CONTENT.vocabulary.items;
-    this.idx = 0;
+    this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "travel");

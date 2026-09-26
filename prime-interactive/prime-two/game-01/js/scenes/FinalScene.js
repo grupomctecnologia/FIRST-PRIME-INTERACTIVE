@@ -6,7 +6,7 @@ class FinalScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Final";
     this.items = window.PRIME_CONTENT.final.items;
-    this.idx = 0;
+    this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "mission");

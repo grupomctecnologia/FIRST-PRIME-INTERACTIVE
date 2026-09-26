@@ -5,6 +5,7 @@ class MenuScene extends Phaser.Scene {
 
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
+    this._starting = false;   // reset por visita (instância reutilizada pelo Phaser)
     window.SubtitleManager.hide();
     T.scene(this, "home");
     window.GameState.resetSession();

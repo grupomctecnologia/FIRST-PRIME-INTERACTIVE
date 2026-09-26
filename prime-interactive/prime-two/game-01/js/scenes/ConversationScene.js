@@ -9,7 +9,7 @@ class ConversationScene extends Phaser.Scene {
     this.T = window.Theme;
     this.phaseKey = "Conversation";
     this.data = window.PRIME_CONTENT.conversation;
-    this.step = 0;
+    this.step = 0; this._advancing = false; this._answered = false;   // reset por partida
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "dialogue");
