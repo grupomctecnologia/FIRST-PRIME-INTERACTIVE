@@ -57,12 +57,8 @@ window.Quiz = {
   },
 
   _recolor(scene, btn, color) {
-    const g = btn.list[0];
-    const w = btn.width, h = btn.height, r = 16;
-    g.clear();
-    g.fillStyle(0x000000, 0.35); g.fillRoundedRect(-w / 2 + 3, -h / 2 + 6, w, h, r);
-    g.fillStyle(color, 1); g.fillRoundedRect(-w / 2, -h / 2, w, h, r);
-    g.fillStyle(0xffffff, 0.18); g.fillRoundedRect(-w / 2, -h / 2, w, h * 0.42, { tl: r, tr: r, bl: 0, br: 0 });
-    if (btn.label) btn.label.setColor("#0b1026");
+    // reusa o acabamento premium do botão (glow/gloss/borda), só troca a cor
+    if (btn.recolor) { btn.recolor(color); }
+    if (btn.label) btn.label.setColor("#08122c");
   }
 };

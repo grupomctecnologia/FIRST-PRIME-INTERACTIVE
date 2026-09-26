@@ -10,7 +10,7 @@ class ConversationScene extends Phaser.Scene {
     this.step = 0;
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
-    this.T.scenic(this, { route: false });
+    this.T.scene(this, "dialogue");
     window.AudioManager.playMusic("adventure");
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 4 · " + window.S("conversationTitle") });
 

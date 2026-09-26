@@ -6,19 +6,30 @@ class MenuScene extends Phaser.Scene {
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     window.SubtitleManager.hide();
-    T.scenic(this);
+    T.scene(this, "home");
     window.GameState.resetSession();
 
     const unlock = () => { window.AudioManager.unlock(); window.AudioManager.playMusic("menu"); };
     this.input.once("pointerdown", unlock);
     this.input.keyboard.once("keydown", unlock);
 
-    window.Brand.render(this, w / 2, 72, 206, 112, { onDark: true });
-    const pt = this.add.text(w / 2, 156, "PRIME TWO", { fontFamily: T.font, fontSize: "38px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
-    pt.setShadow(0, 3, "rgba(0,0,0,0.55)", 10, true, true);
-    pt.setLetterSpacing && pt.setLetterSpacing(3);
-    this.add.text(w / 2, 190, window.S("subTagline"), { fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5);
-    this.add.text(w / 2, 214, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5);
+    // holofote suave atrás da marca (dá foco / hierarquia à home)
+    const spot = this.add.graphics();
+    spot.fillStyle(T.colors.accent, 0.10); spot.fillEllipse(w / 2, 120, 620, 260);
+    spot.fillStyle(T.colors.accent2, 0.06); spot.fillEllipse(w / 2, 96, 380, 180);
+    spot.setBlendMode(Phaser.BlendModes.ADD);
+
+    window.Brand.render(this, w / 2, 72, 214, 116, { onDark: true, glow: true });
+    const pt = this.add.text(w / 2, 158, "PRIME TWO", { fontFamily: T.font, fontSize: "40px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
+    pt.setShadow(0, 3, "rgba(0,0,0,0.55)", 12, true, true);
+    pt.setLetterSpacing && pt.setLetterSpacing(4);
+    // filete dourado sob o título (divisor premium)
+    const div = this.add.graphics();
+    div.fillGradientStyle(T.colors.accent, T.colors.accent2, T.colors.accent2, T.colors.accent, 1);
+    div.fillRoundedRect(w / 2 - 120, 184, 240, 3, 2);
+    div.setBlendMode(Phaser.BlendModes.ADD);
+    this.add.text(w / 2, 200, window.S("subTagline"), { fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5);
+    this.add.text(w / 2, 224, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5);
 
     // Single PLAY / JUGAR button
     const play = T.button(this, w / 2, 300, 320, 82, window.S("play"), {

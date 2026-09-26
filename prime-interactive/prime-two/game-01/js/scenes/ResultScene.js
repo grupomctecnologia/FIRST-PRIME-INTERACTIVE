@@ -7,7 +7,7 @@ class ResultScene extends Phaser.Scene {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     this.cameras.main.fadeIn(400, 5, 7, 20);
     window.SubtitleManager.hide();
-    T.scenic(this, { route: false });
+    T.scene(this, "mission");
 
     const S = window.GameState.session;
     const totalStars = window.GameState.totalStars();

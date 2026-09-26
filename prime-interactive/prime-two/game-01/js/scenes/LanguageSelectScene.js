@@ -6,7 +6,7 @@ class LanguageSelectScene extends Phaser.Scene {
   create() {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     window.SubtitleManager.hide();
-    T.scenic(this);
+    T.scene(this, "home");
 
     const unlock = () => window.AudioManager.unlock();
     this.input.once("pointerdown", unlock);
