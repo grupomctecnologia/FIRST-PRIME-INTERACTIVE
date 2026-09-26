@@ -8,7 +8,9 @@
 <title>PRIME TWO Adventure</title>
 <style>
 /* =============================================================================
- *  PRIME TWO — The English Adventure · estilos do container e overlays DOM
+ *  PRIME TWO — The English Adventure · container + overlays (English UI)
+ *  Mobile-first. Subtitles are rendered INSIDE the canvas (see SubtitleManager),
+ *  so there is no DOM subtitle element anymore.
  * ===========================================================================*/
 :root {
   --bg: #0b1026;
@@ -32,9 +34,11 @@ html, body {
   touch-action: manipulation;
 }
 
+/* iPhone safe areas: keep the canvas clear of the notch / home indicator */
 #game-container {
   position: fixed; inset: 0;
   width: 100vw; height: 100vh; height: 100dvh;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   display: flex; align-items: center; justify-content: center;
   background:
     radial-gradient(1200px 600px at 50% -10%, rgba(56,225,255,0.10), transparent 60%),
@@ -56,8 +60,8 @@ canvas { display: block; touch-action: none; }
   padding: 12px 22px; background: rgba(15,22,54,0.4);
 }
 .bl-logo-slot span { display: block; font-size: 11px; font-weight: 400; color: var(--dim); letter-spacing: 0; }
-.bl-title { font-size: 56px; font-weight: 800; text-shadow: 0 4px 18px rgba(0,0,0,0.6); }
-.bl-sub   { font-size: 22px; font-weight: 700; color: var(--gold); text-shadow: 0 0 16px rgba(255,207,92,0.5); }
+.bl-title { font-size: 52px; font-weight: 800; text-shadow: 0 4px 18px rgba(0,0,0,0.6); }
+.bl-sub   { font-size: 21px; font-weight: 700; color: var(--gold); text-shadow: 0 0 16px rgba(255,207,92,0.5); }
 .bl-hint  { font-size: 13px; color: var(--dim); margin-top: 14px; }
 .bl-spinner {
   margin-top: 22px; width: 46px; height: 46px; border-radius: 50%;
@@ -66,59 +70,7 @@ canvas { display: block; touch-action: none; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---- Barra de legendas (overlay sobre o canvas) ---- */
-#subtitle-bar {
-  position: absolute; left: 50%; bottom: 3.5%;
-  transform: translateX(-50%);
-  width: min(90%, 900px);
-  z-index: 40;
-  pointer-events: none;
-  text-align: center;
-  opacity: 0; transition: opacity 0.25s ease;
-}
-#subtitle-bar.visible { opacity: 1; }
-#subtitle-bar .sub-en {
-  display: inline-block;
-  background: rgba(6,10,24,0.82);
-  border: 1px solid rgba(56,225,255,0.35);
-  border-radius: 12px;
-  padding: 10px 22px;
-  font-size: clamp(16px, 2.4vw, 24px);
-  font-weight: 700;
-  line-height: 1.35;
-  text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
-}
-#subtitle-bar .sub-pt {
-  margin-top: 6px;
-  display: inline-block;
-  background: rgba(6,10,24,0.7);
-  border-radius: 10px;
-  padding: 6px 16px;
-  font-size: clamp(13px, 1.8vw, 18px);
-  color: var(--gold);
-  font-weight: 600;
-}
-
-/* Acessibilidade: fonte grande */
-#subtitle-bar.large-font .sub-en { font-size: clamp(22px, 3.2vw, 32px); }
-#subtitle-bar.large-font .sub-pt { font-size: clamp(17px, 2.4vw, 24px); }
-
-/* Acessibilidade: alto contraste */
-#subtitle-bar.high-contrast .sub-en {
-  background: #000; color: #fff; border-color: #fff; text-shadow: none;
-}
-#subtitle-bar.high-contrast .sub-pt { background: #000; color: #ffe066; }
-
-body.high-contrast #game-container { background: #000; }
-
-/* Responsivo — orientação retrato (celular em pé) */
-@media (max-width: 640px) {
-  .bl-title { font-size: 40px; }
-  .bl-sub { font-size: 17px; }
-}
-
-/* Overlay: sugerir modo paisagem em celulares no retrato */
+/* ---- Landscape hint for portrait phones (the game is designed for landscape) ---- */
 #rotate-hint {
   position: fixed; inset: 0; z-index: 50;
   display: none;
@@ -131,9 +83,13 @@ body.high-contrast #game-container { background: #000; }
 .rh-text { font-size: 16px; color: var(--dim); max-width: 320px; line-height: 1.5; }
 @keyframes rock { 0%,100% { transform: rotate(-12deg); } 50% { transform: rotate(12deg); } }
 
-/* Mostra apenas em telas pequenas no modo retrato */
 @media (max-width: 820px) and (orientation: portrait) {
   #rotate-hint { display: flex; }
+}
+
+@media (max-width: 640px) {
+  .bl-title { font-size: 40px; }
+  .bl-sub { font-size: 17px; }
 }
 
 </style>
@@ -161,19 +117,13 @@ body.high-contrast #game-container { background: #000; }
 /* ===== js/data/content.js ===== */
 /* =============================================================================
  *  PRIME TWO — THE ENGLISH ADVENTURE  ·  GAME 01
- *  CONTEÚDO PEDAGÓGICO
+ *  PEDAGOGICAL CONTENT — ENGLISH ONLY (100% English student experience)
  * -----------------------------------------------------------------------------
- *  ⚠️  ATENÇÃO — CONTEÚDO DEMONSTRATIVO (PLACEHOLDER)
- *
- *  Este arquivo contém conteúdo DEMONSTRATIVO, criado apenas para exercitar o
- *  MOTOR do jogo. NÃO representa o conteúdo oficial do livro PRIME TWO.
- *
- *  Todo item marcado com  placeholder: true  deve ser substituído pelo
- *  conteúdo real da Unidade correspondente do PRIME TWO (vocabulário,
- *  estruturas, diálogos, áudios e objetivos pedagógicos reais).
- *
- *  COMO SUBSTITUIR: veja  CONTENT_GUIDE.md  na raiz de  game-01/.
- *  A estrutura de dados abaixo permanece igual; troque apenas os valores.
+ *  ⚠️  DEMO / PLACEHOLDER CONTENT
+ *  This file holds DEMONSTRATION content, created only to exercise the game
+ *  ENGINE. It does NOT represent the official PRIME TWO book content.
+ *  Replace every value with the real Unit content (see CONTENT_GUIDE.md).
+ *  All player-facing text is English only — no translations.
  * ===========================================================================*/
 
 window.PRIME_CONTENT = {
@@ -182,156 +132,133 @@ window.PRIME_CONTENT = {
     unit: "Unit 1 (DEMO)",
     theme: "Arrival — Travel, City & Introductions",
     language: "en",
-    translationLanguage: "pt-BR",
     placeholder: true,
-    note: "Conteúdo demonstrativo. Substituir pela Unidade 1 real do PRIME TWO."
+    note: "Demonstration content. Replace with real PRIME TWO Unit 1."
   },
 
-  /* ---- FASE 1 · CINEMATIC INTRO ------------------------------------------ */
+  /* ---- STAGE 1 · CINEMATIC INTRO ---------------------------------------- */
   intro: {
     placeholder: true,
     titleLines: ["FIRST PRIME INTERACTIVE", "PRIME TWO", "THE ENGLISH ADVENTURE"],
     subtitle: "An interactive English adventure",
     narration: [
-      { en: "Welcome, traveler.", pt: "Bem-vindo, viajante." },
-      { en: "Your English adventure begins now.", pt: "Sua aventura em inglês começa agora." },
-      { en: "Explore the city, learn new words, and complete every mission.", pt: "Explore a cidade, aprenda novas palavras e complete cada missão." }
+      "Welcome, traveler.",
+      "Your English adventure begins now.",
+      "Explore the city, learn new words, and complete every mission."
     ]
   },
 
-  /* ---- FASE 2 · VOCABULARY MISSION --------------------------------------- */
-  /* O aluno vê um objeto no cenário e escolhe a palavra correta em inglês.   */
+  /* ---- STAGE 2 · VOCABULARY MISSION ------------------------------------- */
   vocabulary: {
     placeholder: true,
-    intro: { en: "Tap the correct word for each object.", pt: "Toque na palavra correta para cada objeto." },
+    intro: "Tap the correct word for each object.",
     items: [
-      { id: "v1", icon: "suitcase", word: "Suitcase", translation: "Mala",
-        prompt: { en: "This is my ___.", pt: "Esta é a minha ___." },
+      { id: "v1", icon: "suitcase", word: "Suitcase", prompt: "This is my ___.",
         options: ["Suitcase", "Ticket", "Map", "Camera"] },
-      { id: "v2", icon: "ticket", word: "Ticket", translation: "Passagem / Bilhete",
-        prompt: { en: "I need my ___ to board.", pt: "Preciso da minha ___ para embarcar." },
+      { id: "v2", icon: "ticket", word: "Ticket", prompt: "I need my ___ to board.",
         options: ["Passport", "Ticket", "Suitcase", "Key"] },
-      { id: "v3", icon: "map", word: "Map", translation: "Mapa",
-        prompt: { en: "Let's check the ___.", pt: "Vamos ver o ___." },
+      { id: "v3", icon: "map", word: "Map", prompt: "Let's check the ___.",
         options: ["Map", "Phone", "Camera", "Ticket"] },
-      { id: "v4", icon: "passport", word: "Passport", translation: "Passaporte",
-        prompt: { en: "Show your ___, please.", pt: "Mostre seu ___, por favor." },
+      { id: "v4", icon: "passport", word: "Passport", prompt: "Show your ___, please.",
         options: ["Wallet", "Map", "Passport", "Key"] },
-      { id: "v5", icon: "camera", word: "Camera", translation: "Câmera",
-        prompt: { en: "Take a photo with the ___.", pt: "Tire uma foto com a ___." },
+      { id: "v5", icon: "camera", word: "Camera", prompt: "Take a photo with the ___.",
         options: ["Camera", "Phone", "Map", "Ticket"] }
     ]
   },
 
-  /* ---- FASE 3 · LISTENING MISSION ---------------------------------------- */
-  /* Áudio (voz sintetizada placeholder) + legenda sincronizada + múltipla escolha. */
+  /* ---- STAGE 3 · LISTENING MISSION -------------------------------------- */
   listening: {
     placeholder: true,
-    intro: { en: "Listen carefully and choose the correct answer.", pt: "Ouça com atenção e escolha a resposta correta." },
+    intro: "Listen carefully and choose the correct answer.",
     items: [
       { id: "l1",
         audioText: "Good morning! Welcome to the city. My name is Emma and I am your guide.",
-        subtitle: { en: "Good morning! Welcome to the city. My name is Emma and I am your guide.",
-                    pt: "Bom dia! Bem-vindo à cidade. Meu nome é Emma e eu sou sua guia." },
-        question: { en: "What is the guide's name?", pt: "Qual é o nome da guia?" },
+        subtitle: "Good morning! Welcome to the city. My name is Emma and I am your guide.",
+        question: "What is the guide's name?",
         options: ["Emma", "Anna", "Emily", "Olivia"], answer: 0 },
       { id: "l2",
         audioText: "The train leaves at nine o'clock. Please, don't be late.",
-        subtitle: { en: "The train leaves at nine o'clock. Please, don't be late.",
-                    pt: "O trem parte às nove horas. Por favor, não se atrase." },
-        question: { en: "What time does the train leave?", pt: "A que horas o trem parte?" },
+        subtitle: "The train leaves at nine o'clock. Please, don't be late.",
+        question: "What time does the train leave?",
         options: ["8 o'clock", "9 o'clock", "10 o'clock", "11 o'clock"], answer: 1 },
       { id: "l3",
         audioText: "The museum is next to the old library, on Green Street.",
-        subtitle: { en: "The museum is next to the old library, on Green Street.",
-                    pt: "O museu fica ao lado da antiga biblioteca, na Rua Green." },
-        question: { en: "Where is the museum?", pt: "Onde fica o museu?" },
+        subtitle: "The museum is next to the old library, on Green Street.",
+        question: "Where is the museum?",
         options: ["Next to the park", "Next to the library", "Next to the hotel", "Next to the station"], answer: 1 }
     ]
   },
 
-  /* ---- FASE 4 · CONVERSATION CHALLENGE ----------------------------------- */
-  /* Dois personagens conversam; o aluno escolhe a resposta correta.          */
+  /* ---- STAGE 4 · CONVERSATION CHALLENGE --------------------------------- */
   conversation: {
     placeholder: true,
-    intro: { en: "Continue the conversation. Choose the best reply.", pt: "Continue a conversa. Escolha a melhor resposta." },
+    intro: "Continue the conversation. Choose the best reply.",
     speakerA: { name: "Emma", role: "Guide" },
     speakerB: { name: "You", role: "Traveler" },
     steps: [
-      { speaker: "A", line: { en: "Hi! Welcome. How are you today?", pt: "Oi! Bem-vindo. Como você está hoje?" },
+      { speaker: "A", line: "Hi! Welcome. How are you today?",
         options: [
-          { text: "I'm fine, thank you!", correct: true, feedback: { en: "Great greeting!", pt: "Ótimo cumprimento!" } },
-          { text: "I am a table.", correct: false, feedback: { en: "That doesn't answer the question.", pt: "Isso não responde à pergunta." } },
-          { text: "Goodbye!", correct: false, feedback: { en: "It's too early to say goodbye.", pt: "É cedo demais para se despedir." } }
+          { text: "I'm fine, thank you!", correct: true, feedback: "Great greeting!" },
+          { text: "I am a table.", correct: false, feedback: "That doesn't answer the question." },
+          { text: "Goodbye!", correct: false, feedback: "It's too early to say goodbye." }
         ] },
-      { speaker: "A", line: { en: "Where are you from?", pt: "De onde você é?" },
+      { speaker: "A", line: "Where are you from?",
         options: [
-          { text: "I'm from Brazil.", correct: true, feedback: { en: "Perfect answer!", pt: "Resposta perfeita!" } },
-          { text: "I'm fine.", correct: false, feedback: { en: "That answers 'how are you', not 'where'.", pt: "Isso responde 'como vai', não 'de onde'." } },
-          { text: "It's a car.", correct: false, feedback: { en: "Not related to the question.", pt: "Não tem relação com a pergunta." } }
+          { text: "I'm from Brazil.", correct: true, feedback: "Perfect answer!" },
+          { text: "I'm fine.", correct: false, feedback: "That answers 'how are you', not 'where'." },
+          { text: "It's a car.", correct: false, feedback: "Not related to the question." }
         ] },
-      { speaker: "A", line: { en: "Nice! Do you want to visit the museum?", pt: "Legal! Você quer visitar o museu?" },
+      { speaker: "A", line: "Nice! Do you want to visit the museum?",
         options: [
-          { text: "Yes, I'd love to!", correct: true, feedback: { en: "Excellent, let's go!", pt: "Excelente, vamos!" } },
-          { text: "I'm ten pencils.", correct: false, feedback: { en: "That makes no sense here.", pt: "Isso não faz sentido aqui." } },
-          { text: "No thanks, I am blue.", correct: false, feedback: { en: "Odd reply — keep it natural.", pt: "Resposta estranha — mantenha natural." } }
+          { text: "Yes, I'd love to!", correct: true, feedback: "Excellent, let's go!" },
+          { text: "I'm ten pencils.", correct: false, feedback: "That makes no sense here." },
+          { text: "No thanks, I am blue.", correct: false, feedback: "Odd reply — keep it natural." }
         ] }
     ]
   },
 
-  /* ---- FASE 5 · LANGUAGE CHALLENGE (drag & drop) ------------------------- */
-  /* Arraste as palavras para formar a frase correta.                         */
+  /* ---- STAGE 5 · LANGUAGE CHALLENGE (drag & drop) ----------------------- */
   language: {
     placeholder: true,
-    intro: { en: "Drag the words to build the correct sentence.", pt: "Arraste as palavras para formar a frase correta." },
+    intro: "Drag the words to build the correct sentence.",
     items: [
       { id: "g1", words: ["She", "is", "from", "London"], answer: "She is from London",
-        translation: "Ela é de Londres.",
-        hint: { en: "Subject + verb 'to be' + place.", pt: "Sujeito + verbo 'to be' + lugar." } },
+        hint: "Subject + verb 'to be' + place." },
       { id: "g2", words: ["They", "are", "at", "the", "airport"], answer: "They are at the airport",
-        translation: "Eles estão no aeroporto.",
-        hint: { en: "Use 'are' with 'they'.", pt: "Use 'are' com 'they'." } },
+        hint: "Use 'are' with 'they'." },
       { id: "g3", words: ["I", "have", "two", "tickets"], answer: "I have two tickets",
-        translation: "Eu tenho dois bilhetes.",
-        hint: { en: "Subject + 'have' + number + noun.", pt: "Sujeito + 'have' + número + substantivo." } }
+        hint: "Subject + 'have' + number + noun." }
     ]
   },
 
-  /* ---- FASE 6 · FINAL MISSION -------------------------------------------- */
-  /* Mistura de vocabulário, listening e compreensão.                         */
+  /* ---- STAGE 6 · FINAL MISSION ------------------------------------------ */
   final: {
     placeholder: true,
-    intro: { en: "Final Mission! Use everything you learned.", pt: "Missão Final! Use tudo o que você aprendeu." },
+    intro: "Final Mission! Use everything you learned.",
     items: [
-      { kind: "vocab", question: { en: "Which word means 'Mala'?", pt: "Qual palavra significa 'Mala'?" },
+      { kind: "vocab", question: "Which word means a bag for travel?",
         options: ["Ticket", "Suitcase", "Map", "Camera"], answer: 1 },
       { kind: "listening", audioText: "The hotel is on the right, near the big fountain.",
-        subtitle: { en: "The hotel is on the right, near the big fountain.",
-                    pt: "O hotel fica à direita, perto da grande fonte." },
-        question: { en: "Where is the hotel?", pt: "Onde fica o hotel?" },
+        subtitle: "The hotel is on the right, near the big fountain.",
+        question: "Where is the hotel?",
         options: ["On the left", "On the right", "Behind the park", "Next to the train"], answer: 1 },
-      { kind: "comprehension", question: { en: "Choose the correct reply: 'Where are you from?'", pt: "Escolha a resposta correta: 'De onde você é?'" },
+      { kind: "comprehension", question: "Choose the correct reply: 'Where are you from?'",
         options: ["I'm fine.", "I'm from Brazil.", "It's nine o'clock.", "Yes, please."], answer: 1 },
-      { kind: "grammar", question: { en: "Complete: 'They ___ at the airport.'", pt: "Complete: 'They ___ at the airport.'" },
+      { kind: "grammar", question: "Complete: 'They ___ at the airport.'",
         options: ["is", "am", "are", "be"], answer: 2 }
     ]
   }
 };
 
 /* -----------------------------------------------------------------------------
- *  MANIFESTO DE ÁUDIO (para substituição futura por áudios reais do PRIME TWO)
- * -----------------------------------------------------------------------------
- *  Enquanto os arquivos reais não existem, o jogo usa:
- *    - Música/efeitos: sintetizados via Web Audio API (royalty-free por natureza)
- *    - Vozes/narração: SpeechSynthesis do navegador (TTS placeholder)
- *
- *  Para usar áudios reais: coloque os arquivos em  assets/audio/  e preencha
- *  os caminhos abaixo. O AudioManager dá prioridade a arquivos quando existirem.
+ *  AUDIO MANIFEST (for future replacement with real PRIME TWO audio)
+ *  While real files don't exist, the game uses Web Audio (music/SFX) and the
+ *  browser TTS (voice/narration). Fill paths below to prefer real files.
  * ---------------------------------------------------------------------------*/
 window.PRIME_AUDIO_MANIFEST = {
   placeholder: true,
-  music: { menu: null, adventure: null, victory: null },      // ex.: "assets/audio/music_menu.mp3"
-  voice: {}                                                    // ex.: { "l1": "assets/audio/l1.mp3" }
+  music: { menu: null, adventure: null, victory: null },
+  voice: {}
 };
 
 
@@ -384,14 +311,13 @@ window.GameState = {
   /* Estado de sessão (zerado a cada partida) */
   session: null,
 
-  /* Configurações persistentes */
+  /* Configurações persistentes (interface 100% em inglês — sem tradução) */
   settings: {
-    mode: "teacher",         // "teacher" (Modo Professor) | "challenge" (Modo Desafio)
-    subtitles: true,         // legendas visíveis
-    showTranslation: false,  // tradução PT-BR (padrão ligado no Modo Professor)
+    mode: "teacher",         // "teacher" (Teacher Mode) | "challenge" (Challenge Mode)
+    subtitles: true,         // English subtitles visible
     volume: 0.7,             // 0..1
     muted: false,
-    largeFont: false,        // acessibilidade
+    largeFont: false,        // accessibility
     highContrast: false
   },
 
@@ -416,10 +342,7 @@ window.GameState = {
   setMode(mode) {
     this.settings.mode = mode;
     if (mode === "teacher") {
-      this.settings.subtitles = true;
-      this.settings.showTranslation = true;   // tradução ligada por padrão no Modo Professor
-    } else {
-      this.settings.showTranslation = false;
+      this.settings.subtitles = true;   // subtitles always on in Teacher Mode
     }
     this.save();
     this.resetSession();
@@ -707,53 +630,65 @@ window.AudioManager = {
 
 /* ===== js/managers/SubtitleManager.js ===== */
 /* =============================================================================
- *  SubtitleManager — legendas sincronizadas (overlay DOM sobre o canvas)
- *  - Inglês como principal, tradução PT-BR opcional (Modo Professor)
- *  - Respeita acessibilidade (fonte grande, alto contraste)
+ *  SubtitleManager — IN-CANVAS English subtitles (single source of truth).
+ *  Rendered inside the Phaser canvas so it scales with the game and NEVER
+ *  detaches or overlaps buttons on mobile. English only (no translation).
+ *  Mounted per gameplay scene; positioned in a reserved bottom band.
  * ===========================================================================*/
 window.SubtitleManager = {
-  el: null,
-  enEl: null,
-  ptEl: null,
+  scene: null,
+  _last: "",
 
-  ensure() {
-    if (this.el) return;
-    const wrap = document.createElement("div");
-    wrap.id = "subtitle-bar";
-    wrap.setAttribute("role", "region");
-    wrap.setAttribute("aria-label", "Legendas");
-    wrap.innerHTML = '<div class="sub-en"></div><div class="sub-pt"></div>';
-    document.getElementById("game-container").appendChild(wrap);
-    this.el = wrap;
-    this.enEl = wrap.querySelector(".sub-en");
-    this.ptEl = wrap.querySelector(".sub-pt");
-    this.applyA11y();
+  /* Called in each gameplay scene's create() */
+  mount(scene) {
+    this.scene = scene;
+    this._last = "";
+    const c = scene.add.container(0, 0).setDepth(80);
+    const g = scene.add.graphics();
+    const t = scene.add.text(0, 0, "", { fontFamily: window.Theme.font }).setOrigin(0.5);
+    c.add(g); c.add(t);
+    c.setVisible(false);
+    scene._subUI = { c, g, t };
+    scene.events.once("shutdown", () => { if (this.scene === scene) this.scene = null; });
+    scene.events.once("destroy", () => { if (this.scene === scene) this.scene = null; });
+    return c;
   },
 
-  applyA11y() {
-    if (!this.el) return;
-    const s = window.GameState.settings;
-    this.el.classList.toggle("large-font", !!s.largeFont);
-    this.el.classList.toggle("high-contrast", !!s.highContrast);
+  _ui() {
+    const s = this.scene;
+    if (!s || !s.sys || !s.sys.isActive() || !s._subUI) return null;
+    return s._subUI;
   },
 
-  /* line = { en, pt }  ou  string */
-  show(line) {
-    this.ensure();
-    const s = window.GameState.settings;
-    if (!s.subtitles) { this.hide(); return; }
-    const en = typeof line === "string" ? line : (line.en || "");
-    const pt = typeof line === "string" ? "" : (line.pt || "");
-    this.enEl.textContent = en;
-    this.ptEl.textContent = (s.showTranslation && pt) ? pt : "";
-    this.ptEl.style.display = (s.showTranslation && pt) ? "block" : "none";
-    this.el.classList.add("visible");
-    this.applyA11y();
+  /* text: plain English string */
+  show(text) {
+    const ui = this._ui(); if (!ui) return;
+    const set = window.GameState.settings;
+    if (!set.subtitles || !text) { this.hide(); return; }
+    this._last = text;
+    const s = this.scene, T = window.Theme, w = s.scale.width, h = s.scale.height;
+    const fs = set.largeFont ? 23 : 18;
+    ui.t.setStyle({
+      fontFamily: T.font, fontSize: fs + "px", fontStyle: "bold",
+      color: set.highContrast ? "#ffffff" : T.colors.text, align: "center",
+      wordWrap: { width: Math.min(w - 80, 880) }
+    });
+    ui.t.setText(text);
+    const pad = 14, tw = ui.t.width, th = ui.t.height;
+    const y = h - th / 2 - 14;
+    ui.t.setPosition(w / 2, y);
+    ui.g.clear();
+    ui.g.fillStyle(set.highContrast ? 0x000000 : 0x060a18, set.highContrast ? 1 : 0.86);
+    ui.g.fillRoundedRect(w / 2 - tw / 2 - pad * 1.4, y - th / 2 - pad * 0.55, tw + pad * 2.8, th + pad * 1.1, 12);
+    ui.g.lineStyle(2, T.colors.accent, set.highContrast ? 0 : 0.45);
+    ui.g.strokeRoundedRect(w / 2 - tw / 2 - pad * 1.4, y - th / 2 - pad * 0.55, tw + pad * 2.8, th + pad * 1.1, 12);
+    ui.c.setVisible(true);
   },
 
-  hide() { if (this.el) this.el.classList.remove("visible"); },
+  hide() { const ui = this._ui(); if (ui) ui.c.setVisible(false); },
 
-  refresh() { this.applyA11y(); }
+  /* Re-apply styling (e.g. after toggling large font / high contrast) */
+  refresh() { if (this._last && this._ui() && this._ui().c.visible) this.show(this._last); }
 };
 
 
@@ -903,17 +838,21 @@ window.Theme = {
     c.label = txt;
 
     c.setSize(w, h);
-    c.setInteractive(new Phaser.Geom.Rectangle(-w / 2, -h / 2, w, h), Phaser.Geom.Rectangle.Contains);
-    c.on("pointerover", () => { draw(false, true); scene.tweens.add({ targets: c, scale: 1.03, duration: 120 }); window.AudioManager.sfx("hover"); });
-    c.on("pointerout",  () => { draw(false, false); scene.tweens.add({ targets: c, scale: 1.0, duration: 120 }); });
-    c.on("pointerdown", () => { draw(true, true); });
-    c.on("pointerup",   () => { draw(false, true); window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
+    // Hit target = an interactive ZONE (GameObject). Interactive Zones receive
+    // BOTH mouse and touch at any container nesting depth — unlike interactive
+    // Containers, whose touch hit-testing is unreliable on mobile.
+    const hit = scene.add.zone(0, 0, w, h).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    c.add(hit); c.hit = hit;
+    hit.on("pointerover", () => { draw(false, true); scene.tweens.add({ targets: c, scale: 1.03, duration: 120 }); window.AudioManager.sfx("hover"); });
+    hit.on("pointerout",  () => { draw(false, false); scene.tweens.add({ targets: c, scale: 1.0, duration: 120 }); });
+    hit.on("pointerdown", () => { draw(true, true); });
+    hit.on("pointerup",   () => { draw(false, true); window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
     c._draw = draw;
-    c.setEnabled = (en) => { c.disabled = !en; c.setAlpha(en ? 1 : 0.45); if (en) c.setInteractive(); else c.disableInteractive(); };
+    c.setEnabled = (en) => { c.disabled = !en; c.setAlpha(en ? 1 : 0.45); if (en) hit.setInteractive({ useHandCursor: true }); else hit.disableInteractive(); };
     return c;
   },
 
-  /* Botão-ícone circular (HUD) */
+  /* Botão-ícone circular (HUD) — hit area via Zone (touch-safe) */
   iconButton(scene, x, y, glyph, opts = {}) {
     const c = scene.add.container(x, y);
     const rad = opts.radius || 26;
@@ -929,10 +868,13 @@ window.Theme = {
     const t = scene.add.text(0, 0, glyph, { fontFamily: this.font, fontSize: (opts.fontSize || 24) + "px", color: this.colors.text }).setOrigin(0.5);
     c.add(t); c.glyph = t;
     c.setSize(rad * 2, rad * 2);
-    c.setInteractive(new Phaser.Geom.Circle(0, 0, rad), Phaser.Geom.Circle.Contains);
-    c.on("pointerover", () => { drawn(true); window.AudioManager.sfx("hover"); });
-    c.on("pointerout", () => drawn(false));
-    c.on("pointerup", () => { window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
+    // slightly larger square hit zone for comfortable touch targets
+    const hitR = Math.max(rad, 22);
+    const hit = scene.add.zone(0, 0, hitR * 2, hitR * 2).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    c.add(hit); c.hit = hit;
+    hit.on("pointerover", () => { drawn(true); window.AudioManager.sfx("hover"); });
+    hit.on("pointerout", () => drawn(false));
+    hit.on("pointerup", () => { window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
     c.setGlyph = (gg) => t.setText(gg);
     return c;
   },
@@ -1052,11 +994,11 @@ window.Brand = {
     drawDashed(-w / 2, h / 2, -w / 2, -h / 2);
     c.add(g);
 
-    const t1 = scene.add.text(0, -h * 0.14, "LOGO OFICIAL · FIRST PRIME", {
+    const t1 = scene.add.text(0, -h * 0.14, "OFFICIAL LOGO · FIRST PRIME", {
       fontFamily: T.font, fontSize: Math.max(13, Math.round(h * 0.16)) + "px",
       fontStyle: "bold", color: T.hex(T.colors.accent), align: "center"
     }).setOrigin(0.5);
-    const t2 = scene.add.text(0, h * 0.20, "aguardando arquivo oficial — não recriar", {
+    const t2 = scene.add.text(0, h * 0.20, "awaiting official file — do not recreate", {
       fontFamily: T.font, fontSize: Math.max(10, Math.round(h * 0.12)) + "px",
       color: T.colors.textDim, align: "center"
     }).setOrigin(0.5);
@@ -1102,7 +1044,7 @@ window.Quiz = {
           const correct = i === opts.correctIndex;
           // recolore
           buttons.forEach((bb, j) => {
-            bb.disableInteractive();
+            if (bb.hit) bb.hit.disableInteractive();
             if (j === opts.correctIndex) { bb._draw = null; this._recolor(scene, bb, T.colors.good); }
             else if (j === i) this._recolor(scene, bb, T.colors.bad);
             else bb.setAlpha(0.5);
@@ -1116,6 +1058,7 @@ window.Quiz = {
       c.add(b);
     });
     c.buttons = buttons;
+    c.correctIndex = opts.correctIndex;
     c.totalHeight = rows * bh + (rows - 1) * gapY;
     return c;
   },
@@ -1134,9 +1077,9 @@ window.Quiz = {
 
 /* ===== js/ui/hud.js ===== */
 /* =============================================================================
- *  Hud — barra de jogo (HUD) e cluster de controles, reutilizável por fase.
- *  Score, estrelas, vidas, modo, título da fase + botões:
- *  legenda, tradução, repetir áudio, volume, mute, pausar, tela cheia, menu.
+ *  Hud — compact single-row top bar (mobile-first) + controls.
+ *  English only. Score, stars, lives, mode + icons: subtitle, mute, repeat,
+ *  pause, fullscreen, menu. No translation toggle.
  * ===========================================================================*/
 window.Hud = class {
   constructor(scene, opts = {}) {
@@ -1144,6 +1087,7 @@ window.Hud = class {
     this.opts = opts;
     this.T = window.Theme;
     this.paused = false;
+    this.BAR = 52;
     this.build();
     scene.events.on("shutdown", () => this.destroy());
     scene.events.on("destroy", () => this.destroy());
@@ -1153,91 +1097,69 @@ window.Hud = class {
     const scene = this.scene, T = this.T;
     const w = scene.scale.width;
     const S = window.GameState;
-    const bar = scene.add.container(0, 0).setDepth(50);
+    const bar = scene.add.container(0, 0).setDepth(60);
     this.bar = bar;
 
-    // fundo da barra
     const g = scene.add.graphics();
-    g.fillStyle(0x0a0f24, 0.82); g.fillRect(0, 0, w, 64);
-    g.lineStyle(2, T.colors.accent, 0.4); g.lineBetween(0, 64, w, 64);
+    g.fillStyle(0x0a0f24, 0.9); g.fillRect(0, 0, w, this.BAR);
+    g.lineStyle(2, T.colors.accent, 0.4); g.lineBetween(0, this.BAR, w, this.BAR);
     bar.add(g);
 
-    // badge do modo
-    const modeTxt = S.settings.mode === "teacher" ? "👩‍🏫 MODO PROFESSOR" : "🎯 MODO DESAFIO";
+    // Left: mode badge + score (two compact lines)
+    const modeTxt = S.settings.mode === "teacher" ? "TEACHER MODE" : "CHALLENGE MODE";
     const modeColor = S.settings.mode === "teacher" ? T.colors.accent : T.colors.accent2;
-    const badge = scene.add.text(16, 32, modeTxt, {
-      fontFamily: T.font, fontSize: "15px", fontStyle: "bold", color: T.hex(modeColor)
+    bar.add(scene.add.text(14, 13, modeTxt, {
+      fontFamily: T.font, fontSize: "13px", fontStyle: "bold", color: T.hex(modeColor)
+    }).setOrigin(0, 0.5));
+    this.scoreTxt = scene.add.text(14, 35, "", {
+      fontFamily: T.font, fontSize: "14px", fontStyle: "bold", color: T.hex(T.colors.accent2)
     }).setOrigin(0, 0.5);
-    bar.add(badge);
+    bar.add(this.scoreTxt);
 
-    // título da fase (centro)
+    // Center: phase title (single line)
     if (this.opts.phaseTitle) {
-      const t = scene.add.text(w / 2, 20, this.opts.phaseTitle, {
-        fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.colors.text
-      }).setOrigin(0.5, 0.5);
-      bar.add(t);
-      if (this.opts.phaseSubtitle) {
-        const st = scene.add.text(w / 2, 42, this.opts.phaseSubtitle, {
-          fontFamily: T.font, fontSize: "13px", color: T.colors.textDim
-        }).setOrigin(0.5, 0.5);
-        bar.add(st);
-      }
+      bar.add(scene.add.text(w / 2, this.BAR / 2, this.opts.phaseTitle, {
+        fontFamily: T.font, fontSize: "16px", fontStyle: "bold", color: T.colors.text
+      }).setOrigin(0.5));
     }
 
-    // pontuação + estrelas + vidas (à direita, acima dos controles)
-    this.scoreTxt = scene.add.text(w - 16, 16, "", {
-      fontFamily: T.font, fontSize: "16px", fontStyle: "bold", color: T.hex(T.colors.accent2)
-    }).setOrigin(1, 0.5);
-    bar.add(this.scoreTxt);
+    // Right: icon cluster (larger touch targets)
+    this.buildControls();
     this.updateScore();
 
-    // cluster de controles (segunda linha à direita)
-    this.controls = scene.add.container(0, 0).setDepth(50);
-    this.buildControls();
-
-    // atalhos de teclado
+    // keyboard shortcuts
     scene.input.keyboard.on("keydown-P", () => this.togglePause());
     scene.input.keyboard.on("keydown-M", () => this.doMute());
     scene.input.keyboard.on("keydown-L", () => this.toggleSubs());
     scene.input.keyboard.on("keydown-R", () => window.AudioManager.repeatLast());
     scene.input.keyboard.on("keydown-F", () => this.toggleFullscreen());
+    scene.input.keyboard.on("keydown-ESC", () => this.goMenu());
   }
 
   buildControls() {
     const scene = this.scene, T = this.T, S = window.GameState;
-    const y = 100; let x = scene.scale.width - 34; const step = 60;
-    const add = (glyph, cb, tip) => {
-      const b = T.iconButton(scene, x, y, glyph, { radius: 24, onClick: cb });
-      b.tip = tip;
-      this.controls.add(b);
-      x -= step;
-      return b;
+    const y = this.BAR / 2;
+    const r = 19, step = 44;
+    let x = scene.scale.width - 26;
+    const add = (glyph, cb) => {
+      const b = T.iconButton(scene, x, y, glyph, { radius: r, fontSize: 20, onClick: cb });
+      this.bar.add(b); x -= step; return b;
     };
-    // menu
-    add("≡", () => this.confirmMenu(), "Menu (Esc)");
-    // tela cheia
-    this.fsBtn = add("⛶", () => this.toggleFullscreen(), "Tela cheia (F)");
-    // pausar
-    this.pauseBtn = add("⏸", () => this.togglePause(), "Pausar (P)");
-    // mute
-    this.muteBtn = add(S.settings.muted ? "🔇" : "🔊", () => this.doMute(), "Mudo (M)");
-    // repetir áudio
-    add("↻", () => window.AudioManager.repeatLast(), "Repetir áudio (R)");
-    // tradução (só faz sentido com legenda)
-    this.transBtn = add(S.settings.showTranslation ? "🇧🇷" : "🇺🇸", () => this.toggleTranslation(), "Tradução PT/EN");
-    // legenda
-    this.subBtn = add(S.settings.subtitles ? "CC" : "cc", () => this.toggleSubs(), "Legendas (L)");
+    add("≡", () => this.goMenu());
+    this.fsBtn = add("⛶", () => this.toggleFullscreen());
+    this.pauseBtn = add("⏸", () => this.togglePause());
+    this.muteBtn = add(S.settings.muted ? "🔇" : "🔊", () => this.doMute());
+    add("↻", () => window.AudioManager.repeatLast());
+    this.subBtn = add(S.settings.subtitles ? "CC" : "cc", () => this.toggleSubs());
   }
 
   updateScore() {
-    const S = window.GameState.session;
-    const set = window.GameState.settings;
-    let str = "⭐ " + S.score + " pts   ★ " + window.GameState.totalStars() + "/" + window.GameState.maxStars();
+    const S = window.GameState.session, set = window.GameState.settings;
+    let str = "★ " + S.score + "   ⭐ " + window.GameState.totalStars() + "/" + window.GameState.maxStars();
     if (set.mode === "challenge") str += "   ❤ " + (S.lives === Infinity ? "∞" : S.lives);
     this.scoreTxt.setText(str);
   }
 
-  /* ---- ações ------------------------------------------------------------- */
   toggleSubs() {
     const s = window.GameState.settings;
     s.subtitles = !s.subtitles; window.GameState.save();
@@ -1245,19 +1167,13 @@ window.Hud = class {
     if (!s.subtitles) window.SubtitleManager.hide();
     window.AudioManager.sfx("click");
   }
-  toggleTranslation() {
-    const s = window.GameState.settings;
-    s.showTranslation = !s.showTranslation; window.GameState.save();
-    this.transBtn.setGlyph(s.showTranslation ? "🇧🇷" : "🇺🇸");
-    window.SubtitleManager.refresh();
-  }
   doMute() {
     const muted = window.AudioManager.toggleMute();
     this.muteBtn.setGlyph(muted ? "🔇" : "🔊");
   }
   toggleFullscreen() {
     if (this.scene.scale.isFullscreen) this.scene.scale.stopFullscreen();
-    else this.scene.scale.startFullscreen();
+    else { try { this.scene.scale.startFullscreen(); } catch (e) {} }
   }
 
   togglePause() {
@@ -1265,17 +1181,14 @@ window.Hud = class {
     this.paused = true;
     window.AudioManager.stopVoice();
     const scene = this.scene, T = this.T, w = scene.scale.width, h = scene.scale.height;
-    const c = scene.add.container(0, 0).setDepth(90);
+    const c = scene.add.container(0, 0).setDepth(95);
     this.pauseOverlay = c;
-    const bg = scene.add.graphics(); bg.fillStyle(0x05070f, 0.82); bg.fillRect(0, 0, w, h); c.add(bg);
-    const card = T.card(scene, w / 2, h / 2, 420, 300, { border: T.colors.accent });
-    c.add(card);
-    c.add(T.title(scene, w / 2, h / 2 - 90, "PAUSADO", 42, T.colors.text));
-    const resume = T.button(scene, w / 2, h / 2 - 10, 300, 58, "▶  Continuar", { onClick: () => this.resume() });
-    const menu = T.button(scene, w / 2, h / 2 + 66, 300, 58, "≡  Voltar ao Menu",
-      { color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, onClick: () => this.goMenu() });
-    c.add(resume); c.add(menu);
-    // pausa a lógica da cena (tweens/timers), mantém render
+    const bg = scene.add.graphics(); bg.fillStyle(0x05070f, 0.85); bg.fillRect(0, 0, w, h); c.add(bg);
+    c.add(T.card(scene, w / 2, h / 2, 400, 250, { border: T.colors.accent }));
+    c.add(T.title(scene, w / 2, h / 2 - 70, "PAUSED", 38, T.colors.text));
+    c.add(T.button(scene, w / 2, h / 2 - 4, 280, 54, "▶  Resume", { onClick: () => this.resume() }));
+    c.add(T.button(scene, w / 2, h / 2 + 62, 280, 54, "≡  Back to Menu",
+      { color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, onClick: () => this.goMenu() }));
     scene.tweens.pauseAll(); if (scene.time) scene.time.paused = true;
     this.pauseBtn.setGlyph("▶");
   }
@@ -1287,7 +1200,6 @@ window.Hud = class {
     this.pauseBtn.setGlyph("⏸");
   }
 
-  confirmMenu() { this.goMenu(); }
   goMenu() {
     window.AudioManager.stopVoice();
     window.SubtitleManager.hide();
@@ -1314,45 +1226,41 @@ window.Flow = {
 
     const layer = scene.add.container(0, 0).setDepth(95);
     const bg = scene.add.graphics(); bg.fillStyle(0x05070f, 0.85); bg.fillRect(0, 0, w, h); layer.add(bg);
-    const card = T.card(scene, w / 2, h / 2, 480, 340, { border: T.colors.accent2 });
+    const card = T.card(scene, w / 2, h / 2, 460, 300, { border: T.colors.accent2 });
     layer.add(card);
-    layer.add(T.title(scene, w / 2, h / 2 - 110, "FASE CONCLUÍDA!", 34, T.colors.text));
-    const row = T.starRow(scene, w / 2, h / 2 - 30, 0, 3, 48);
+    layer.add(T.title(scene, w / 2, h / 2 - 100, "STAGE COMPLETE!", 32, T.colors.text));
+    const row = T.starRow(scene, w / 2, h / 2 - 28, 0, 3, 46);
     layer.add(row);
-    // revela estrelas uma a uma
+    // revela as estrelas ganhas imediatamente (com um "pop" via tween — sem
+    // depender de cadeia de timers, que pode falhar em algumas cenas)
     for (let i = 0; i < stars; i++) {
-      scene.time.delayedCall(300 + i * 300, () => {
-        const star = row.list[i];
-        star.setColor(T.hex(T.colors.accent2));
-        star.setShadow(0, 0, T.hex(T.colors.accent2), 14, true, true);
-        scene.tweens.add({ targets: star, scale: { from: 1.6, to: 1 }, duration: 300, ease: "Back.out" });
-        window.AudioManager.sfx("star");
-      });
+      const star = row.list[i];
+      star.setColor(T.hex(T.colors.accent2));
+      star.setShadow(0, 0, T.hex(T.colors.accent2), 14, true, true);
+      scene.tweens.add({ targets: star, scale: { from: 1.6, to: 1 }, duration: 300, delay: i * 140, ease: "Back.out" });
     }
+    window.AudioManager.sfx("star");
     const r = window.GameState.session.phaseResults[phaseKey] || { correct: 0, total: 0 };
-    layer.add(scene.add.text(w / 2, h / 2 + 40, `Acertos: ${r.correct}/${r.total}  ·  +${r.correct * 100} pts`, {
+    layer.add(scene.add.text(w / 2, h / 2 + 36, `Correct: ${r.correct}/${r.total}  ·  +${r.correct * 100} pts`, {
       fontFamily: T.font, fontSize: "20px", color: T.colors.textDim
     }).setOrigin(0.5));
 
-    scene.time.delayedCall(300 + stars * 300 + 500, () => {
-      const btn = T.button(scene, w / 2, h / 2 + 110, 280, 60, "Continuar  ▶", {
-        onClick: () => { window.AudioManager.sfx("transition"); this.next(scene, phaseKey); }
-      });
-      layer.add(btn);
+    // Botão Continue criado IMEDIATAMENTE (sempre presente e clicável)
+    const btn = T.button(scene, w / 2, h / 2 + 100, 260, 54, "Continue  ▶", {
+      onClick: () => { window.AudioManager.sfx("transition"); this.next(scene, phaseKey); }
     });
+    layer.add(btn);
   },
 
   next(scene, phaseKey) {
-    // fim de jogo no Modo Desafio
+    // Transição imediata e confiável (o alvo faz fadeIn). Evita depender do
+    // clock da cena que está concluindo.
     if (window.GameState.isGameOver()) { scene.scene.start("ResultScene", { gameOver: true }); return; }
     const order = window.GameState.phaseOrder;
     const idx = order.indexOf(phaseKey);
     const nextKey = order[idx + 1];
-    scene.cameras.main.fadeOut(350, 5, 7, 20);
-    scene.cameras.main.once("camerafadeoutcomplete", () => {
-      if (nextKey) scene.scene.start(nextKey + "Scene");
-      else scene.scene.start("ResultScene", { gameOver: false });
-    });
+    if (nextKey) scene.scene.start(nextKey + "Scene");
+    else scene.scene.start("ResultScene", { gameOver: false });
   }
 };
 
@@ -1430,7 +1338,8 @@ window.PreloadScene = PreloadScene;
 
 
 /* ===== js/scenes/MenuScene.js ===== */
-/* Menu inicial: seleção de modo, START e configurações/acessibilidade. */
+/* Main menu — English UI. Two DIRECT-START mode buttons (one tap starts the
+ * game in that mode: fixes the "challenge mode won't open" issue). */
 class MenuScene extends Phaser.Scene {
   constructor() { super("MenuScene"); }
 
@@ -1441,160 +1350,128 @@ class MenuScene extends Phaser.Scene {
     T.particles(this, T.colors.accent);
     window.GameState.resetSession();
 
-    // desbloqueia áudio no primeiro gesto e toca música do menu
     const unlock = () => { window.AudioManager.unlock(); window.AudioManager.playMusic("menu"); };
     this.input.once("pointerdown", unlock);
     this.input.keyboard.once("keydown", unlock);
 
-    // LOGO OFICIAL da First Prime (ou placeholder técnico até receber o arquivo)
-    window.Brand.render(this, w / 2, 52, 290, 56, { onDark: true });
-    // Nome do PRODUTO (game) — texto, não é o logo da marca
-    const pt = this.add.text(w / 2, 118, "PRIME TWO", {
-      fontFamily: T.font, fontSize: "60px", fontStyle: "bold", color: T.colors.text
+    // Official First Prime logo (or technical placeholder until the file arrives)
+    window.Brand.render(this, w / 2, 40, 250, 50, { onDark: true });
+
+    const pt = this.add.text(w / 2, 90, "PRIME TWO", {
+      fontFamily: T.font, fontSize: "48px", fontStyle: "bold", color: T.colors.text
     }).setOrigin(0.5);
-    pt.setShadow(0, 5, "rgba(0,0,0,0.55)", 14, true, true);
-    const adv = this.add.text(w / 2, 168, "THE ENGLISH ADVENTURE", {
-      fontFamily: T.font, fontSize: "26px", fontStyle: "bold", color: T.hex(T.colors.accent2)
+    pt.setShadow(0, 4, "rgba(0,0,0,0.55)", 12, true, true);
+    const adv = this.add.text(w / 2, 126, "THE ENGLISH ADVENTURE", {
+      fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: T.hex(T.colors.accent2)
     }).setOrigin(0.5);
-    adv.setShadow(0, 0, T.hex(T.colors.accent2), 16, true, true);
-
-    // Badge placeholder
-    this.add.text(w / 2, 192, "⚠ Conteúdo DEMONSTRATIVO (placeholder) — não é o conteúdo oficial do PRIME TWO", {
-      fontFamily: T.font, fontSize: "13px", color: T.colors.textDim
-    }).setOrigin(0.5);
-
-    // Cartões de modo
-    this.modeCards = {};
-    this.buildModeCard("teacher", w / 2 - 235, 330, "👩‍🏫  MODO PROFESSOR",
-      ["Legendas sempre visíveis", "Tradução PT-BR", "Repetir áudio · Pausar", "Sem cronômetro · Avanço manual", "Feedback pedagógico"]);
-    this.buildModeCard("challenge", w / 2 + 235, 330, "🎯  MODO DESAFIO",
-      ["Pontuação e estrelas", "3 vidas / tentativas", "Sequência de fases", "Menos dicas", "Resultado final"]);
-    this.refreshModeCards();
-
-    // START
-    const start = T.button(this, w / 2, 540, 300, 70, "▶  START", {
-      fontSize: 30, onClick: () => {
-        window.AudioManager.unlock();
-        window.AudioManager.sfx("transition");
-        window.GameState.resetSession();
-        this.scene.start("IntroScene");
-      }
-    });
-
-    // Barra de configurações/acessibilidade
-    this.buildSettings(w, h);
-
-    // rodapé
-    this.add.text(w / 2, h - 16, "Atalhos: L legenda · M mudo · P pausar · R repetir · F tela cheia", {
+    adv.setShadow(0, 0, T.hex(T.colors.accent2), 14, true, true);
+    this.add.text(w / 2, 152, "⚠ DEMO content (placeholder) — not the official PRIME TWO content", {
       fontFamily: T.font, fontSize: "12px", color: T.colors.textDim
     }).setOrigin(0.5);
-  }
 
-  buildModeCard(mode, x, y, titleTxt, lines) {
-    const T = window.Theme;
-    const card = T.card(this, x, y, 430, 250, { border: T.colors.accent });
-    card.mode = mode;
-    const title = this.add.text(0, -95, titleTxt, {
-      fontFamily: T.font, fontSize: "24px", fontStyle: "bold", color: T.colors.text
+    // Two big mode buttons (each starts the game directly on tap)
+    this.makeModeButton("teacher", w / 2 - 268, 300, "👩‍🏫  TEACHER MODE", T.colors.accent, 0x6b8bff,
+      ["Subtitles always on", "Manual pacing · no timer", "Repeat audio · pause", "Pedagogical feedback"]);
+    this.makeModeButton("challenge", w / 2 + 268, 300, "🎯  CHALLENGE MODE", T.colors.accent2, 0xff9f43,
+      ["Score & stars", "3 lives / attempts", "Sequence of stages", "Final result"]);
+
+    // Settings / accessibility row (English)
+    this.buildSettings(w);
+
+    this.add.text(w / 2, h - 14, "Shortcuts: L subtitles · M mute · P pause · R repeat · F fullscreen", {
+      fontFamily: T.font, fontSize: "11px", color: T.colors.textDim
     }).setOrigin(0.5);
-    card.add(title);
-    lines.forEach((l, i) => {
-      const t = this.add.text(-180, -50 + i * 34, "•  " + l, {
-        fontFamily: T.font, fontSize: "17px", color: T.colors.textDim
-      }).setOrigin(0, 0.5);
-      card.add(t);
-    });
-    card.bg.setInteractive(new Phaser.Geom.Rectangle(-215, -125, 430, 250), Phaser.Geom.Rectangle.Contains);
-    card.bg.on("pointerup", () => {
-      window.AudioManager.unlock();
-      window.AudioManager.sfx("click");
-      window.GameState.setMode(mode);
-      this.refreshModeCards();
-      if (this.hud) this.hud.updateScore?.();
-    });
-    this.modeCards[mode] = card;
   }
 
-  refreshModeCards() {
-    const T = window.Theme, sel = window.GameState.settings.mode;
-    Object.values(this.modeCards).forEach(card => {
-      const on = card.mode === sel;
-      card.bg.clear();
-      const w = card.w, h = card.h, r = 22;
-      card.bg.fillStyle(0x000000, 0.28); card.bg.fillRoundedRect(-w / 2 + 4, -h / 2 + 8, w, h, r);
-      card.bg.fillStyle(on ? T.colors.panelLight : T.colors.panel, 0.95); card.bg.fillRoundedRect(-w / 2, -h / 2, w, h, r);
-      card.bg.lineStyle(on ? 4 : 2, on ? T.colors.accent2 : T.colors.accent, on ? 1 : 0.4);
-      card.bg.strokeRoundedRect(-w / 2, -h / 2, w, h, r);
-      card.setScale(on ? 1.02 : 0.98);
-    });
-  }
-
-  buildSettings(w, h) {
+  makeModeButton(mode, x, y, title, c1, c2, bullets) {
     const T = window.Theme;
-    const y = 640;
-    const cont = this.add.container(0, 0);
-    const s = window.GameState.settings;
+    const cw = 520, ch = 232;
+    const c = this.add.container(x, y);
+    const g = this.add.graphics();
+    const draw = (hover) => {
+      g.clear();
+      g.fillStyle(0x000000, 0.3); g.fillRoundedRect(-cw / 2 + 4, -ch / 2 + 8, cw, ch, 22);
+      g.fillStyle(T.colors.panelLight, hover ? 1 : 0.94); g.fillRoundedRect(-cw / 2, -ch / 2, cw, ch, 22);
+      g.lineStyle(hover ? 4 : 3, c1, hover ? 1 : 0.6); g.strokeRoundedRect(-cw / 2, -ch / 2, cw, ch, 22);
+      g.fillStyle(0xffffff, 0.05); g.fillRoundedRect(-cw / 2, -ch / 2, cw, ch * 0.4, { tl: 22, tr: 22, bl: 0, br: 0 });
+    };
+    draw(false);
+    c.add(g);
+    c.add(this.add.text(0, -ch / 2 + 34, title, { fontFamily: T.font, fontSize: "24px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5));
+    bullets.forEach((b, i) => {
+      c.add(this.add.text(-cw / 2 + 40, -ch / 2 + 72 + i * 26, "•  " + b, {
+        fontFamily: T.font, fontSize: "16px", color: T.colors.textDim
+      }).setOrigin(0, 0.5));
+    });
+    // START pill
+    const pill = this.add.graphics();
+    pill.fillGradientStyle(c1, c1, c2, c2, 1); pill.fillRoundedRect(-110, ch / 2 - 52, 220, 40, 20);
+    c.add(pill);
+    c.add(this.add.text(0, ch / 2 - 32, "▶  START", { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: "#06121f" }).setOrigin(0.5));
 
-    const mk = (x, glyph, cb) => T.iconButton(this, x, y, glyph, { radius: 24, onClick: cb });
+    // whole card is the touch target — via an interactive ZONE (touch-safe)
+    c.setSize(cw, ch);
+    const hit = this.add.zone(0, 0, cw, ch).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    c.add(hit);
+    hit.on("pointerover", () => { draw(true); this.tweens.add({ targets: c, scale: 1.02, duration: 120 }); window.AudioManager.sfx("hover"); });
+    hit.on("pointerout", () => { draw(false); this.tweens.add({ targets: c, scale: 1, duration: 120 }); });
+    hit.on("pointerup", () => this.startGame(mode));
+    return c;
+  }
 
-    // legenda
-    this.subToggle = mk(w / 2 - 300, s.subtitles ? "CC" : "cc", () => {
+  startGame(mode) {
+    if (this._starting) return; this._starting = true;
+    window.AudioManager.unlock();
+    window.AudioManager.sfx("transition");
+    window.GameState.setMode(mode);      // sets mode + resets session (lives=3 for challenge)
+    window.GameState.resetSession();
+    this.cameras.main.fadeOut(280, 5, 7, 20);
+    // robust transition: timer-driven (not dependent on the fade-complete event)
+    this.time.delayedCall(300, () => this.scene.start("IntroScene"));
+  }
+
+  buildSettings(w) {
+    const T = window.Theme, s = window.GameState.settings;
+    const y = 486;
+    const mk = (x, glyph, cb) => T.iconButton(this, x, y, glyph, { radius: 22, fontSize: 20, onClick: cb });
+    const cx = w / 2;
+    this.subToggle = mk(cx - 230, s.subtitles ? "CC" : "cc", () => {
       s.subtitles = !s.subtitles; window.GameState.save(); this.subToggle.setGlyph(s.subtitles ? "CC" : "cc");
     });
-    // tradução
-    this.trToggle = mk(w / 2 - 240, s.showTranslation ? "🇧🇷" : "🇺🇸", () => {
-      s.showTranslation = !s.showTranslation; window.GameState.save(); this.trToggle.setGlyph(s.showTranslation ? "🇧🇷" : "🇺🇸");
-    });
-    // volume down / up
-    mk(w / 2 - 170, "🔉", () => { window.AudioManager.setVolume(s.volume - 0.15); this.drawVol(); });
-    mk(w / 2 - 110, "🔊", () => { window.AudioManager.setVolume(s.volume + 0.15); this.drawVol(); });
-    // mute
-    this.muteToggle = mk(w / 2 - 50, s.muted ? "🔇" : "🔈", () => {
+    mk(cx - 140, "🔉", () => { window.AudioManager.setVolume(s.volume - 0.15); this.drawVol(); });
+    mk(cx - 80, "🔊", () => { window.AudioManager.setVolume(s.volume + 0.15); this.drawVol(); });
+    this.muteToggle = mk(cx - 10, s.muted ? "🔇" : "🔈", () => {
       const m = window.AudioManager.toggleMute(); this.muteToggle.setGlyph(m ? "🔇" : "🔈");
     });
-    // fonte grande
-    this.fontToggle = mk(w / 2 + 60, "A+", () => {
-      s.largeFont = !s.largeFont; window.GameState.save(); window.applyBodyA11y(); window.SubtitleManager.refresh();
+    this.fontToggle = mk(cx + 90, "A+", () => {
+      s.largeFont = !s.largeFont; window.GameState.save(); window.applyBodyA11y();
       this.fontToggle.glyph.setColor(s.largeFont ? T.hex(T.colors.accent2) : T.colors.text);
     });
-    // alto contraste
-    this.contrastToggle = mk(w / 2 + 120, "◑", () => {
-      s.highContrast = !s.highContrast; window.GameState.save(); window.applyBodyA11y(); window.SubtitleManager.refresh();
+    this.contrastToggle = mk(cx + 150, "◑", () => {
+      s.highContrast = !s.highContrast; window.GameState.save(); window.applyBodyA11y();
       this.contrastToggle.glyph.setColor(s.highContrast ? T.hex(T.colors.accent2) : T.colors.text);
     });
-    // tela cheia
-    mk(w / 2 + 230, "⛶", () => {
-      if (this.scale.isFullscreen) this.scale.stopFullscreen(); else this.scale.startFullscreen();
-    });
+    mk(cx + 230, "⛶", () => { if (this.scale.isFullscreen) this.scale.stopFullscreen(); else { try { this.scale.startFullscreen(); } catch (e) {} } });
 
-    // barra de volume
-    this.volBar = this.add.graphics();
-    this.drawVol();
-
-    // legenda dos ícones
-    this.add.text(w / 2 - 300, y + 34, "Legenda", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 - 240, y + 34, "Tradução", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 - 140, y + 34, "Volume", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 - 50, y + 34, "Mudo", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 + 90, y + 34, "Acessibilidade", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 + 230, y + 34, "Tela cheia", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
+    this.volBar = this.add.graphics(); this.drawVol();
+    const lbl = (x, t) => this.add.text(x, y + 30, t, { fontFamily: T.font, fontSize: "10px", color: T.colors.textDim }).setOrigin(0.5);
+    lbl(cx - 230, "Subtitles"); lbl(cx - 110, "Volume"); lbl(cx - 10, "Mute"); lbl(cx + 120, "Accessibility"); lbl(cx + 230, "Fullscreen");
   }
 
   drawVol() {
-    const T = window.Theme, s = window.GameState.settings;
-    const w = this.scale.width, x = w / 2 - 145, y = 668, bw = 70;
+    const T = window.Theme, s = window.GameState.settings, w = this.scale.width;
+    const x = w / 2 - 118, y = 508, bw = 60;
     this.volBar.clear();
-    this.volBar.fillStyle(0x1e2750, 1); this.volBar.fillRoundedRect(x, y, bw, 6, 3);
-    this.volBar.fillStyle(T.colors.accent, 1); this.volBar.fillRoundedRect(x, y, bw * (s.muted ? 0 : s.volume), 6, 3);
+    this.volBar.fillStyle(0x1e2750, 1); this.volBar.fillRoundedRect(x, y, bw, 5, 3);
+    this.volBar.fillStyle(T.colors.accent, 1); this.volBar.fillRoundedRect(x, y, bw * (s.muted ? 0 : s.volume), 5, 3);
   }
 }
 window.MenuScene = MenuScene;
 
 
 /* ===== js/scenes/IntroScene.js ===== */
-/* FASE 1 — CINEMATIC INTRO
- * Abertura premium: céu em gradiente, skyline em parallax, partículas,
- * revelação do título e narração com legendas. */
+/* STAGE 1 — CINEMATIC INTRO (English). Parallax skyline, title reveal,
+ * English narration with in-canvas subtitles. */
 class IntroScene extends Phaser.Scene {
   constructor() { super("IntroScene"); }
 
@@ -1602,77 +1479,63 @@ class IntroScene extends Phaser.Scene {
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     window.AudioManager.unlock();
     window.AudioManager.playMusic("adventure");
+    window.SubtitleManager.mount(this);
 
-    // Céu noturno em gradiente
     const sky = this.add.graphics();
     sky.fillGradientStyle(0x1a0b3d, 0x2a1b5e, 0x0b2540, 0x123a63, 1);
     sky.fillRect(0, 0, w, h);
 
-    // Lua/sol com brilho
     const moon = this.add.graphics();
-    moon.fillStyle(0xffe9b0, 0.9); moon.fillCircle(w - 180, 130, 46);
-    moon.fillStyle(0xffe9b0, 0.15); moon.fillCircle(w - 180, 130, 90);
+    moon.fillStyle(0xffe9b0, 0.9); moon.fillCircle(w - 170, 100, 40);
+    moon.fillStyle(0xffe9b0, 0.15); moon.fillCircle(w - 170, 100, 80);
     moon.setBlendMode(Phaser.BlendModes.ADD);
 
-    // Estrelas
     T.ensureParticleTexture(this);
-    const stars = this.add.particles(0, 0, "t_dot", {
+    this.add.particles(0, 0, "t_dot", {
       x: { min: 0, max: w }, y: { min: 0, max: h * 0.5 },
       lifespan: 4000, scale: { start: 0.25, end: 0 }, alpha: { start: 0.8, end: 0 },
       quantity: 2, frequency: 250, tint: 0xffffff, blendMode: "ADD"
     });
 
-    // Parallax: 3 camadas de skyline
-    this.buildSkyline(w, h, 0x0d1030, 0.9, h - 120, 60, 140, 6000);
-    this.buildSkyline(w, h, 0x151a45, 1.0, h - 90, 40, 190, 4200);
-    this.buildSkyline(w, h, 0x232a63, 1.0, h - 60, 30, 230, 2800);
+    this.buildSkyline(w, h, 0x0d1030, 0.9, h - 100, 50, 120, 6000);
+    this.buildSkyline(w, h, 0x151a45, 1.0, h - 74, 34, 160, 4200);
+    this.buildSkyline(w, h, 0x232a63, 1.0, h - 50, 26, 190, 2800);
 
-    // Névoa/glow inferior
     const glow = this.add.graphics();
-    glow.fillStyle(T.colors.accent, 0.10); glow.fillRect(0, h - 160, w, 160);
+    glow.fillStyle(T.colors.accent, 0.10); glow.fillRect(0, h - 140, w, 140);
     glow.setBlendMode(Phaser.BlendModes.ADD);
-
-    // Partículas ascendentes (luzes da cidade)
     T.particles(this, T.colors.accent2);
 
-    // Título — revelação sequencial
-    // l1 = LOGO OFICIAL da First Prime (ou placeholder técnico até receber o arquivo)
+    // Title reveal — l1 is the OFFICIAL logo (or technical placeholder)
     const lines = window.PRIME_CONTENT.intro.titleLines;
-    const l1 = window.Brand.render(this, w / 2, 150, 320, 70, { onDark: true }).setAlpha(0);
-    const l2 = this.add.text(w / 2, 215, lines[1], { fontFamily: T.font, fontSize: "72px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5).setAlpha(0);
-    l2.setShadow(0, 6, "rgba(0,0,0,0.6)", 18, true, true);
-    const l3 = this.add.text(w / 2, 285, lines[2], { fontFamily: T.font, fontSize: "34px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5).setAlpha(0);
-    l3.setShadow(0, 0, T.hex(T.colors.accent2), 18, true, true);
+    const l1 = window.Brand.render(this, w / 2, 120, 300, 62, { onDark: true }).setAlpha(0);
+    const l2 = this.add.text(w / 2, 182, lines[1], { fontFamily: T.font, fontSize: "60px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5).setAlpha(0);
+    l2.setShadow(0, 6, "rgba(0,0,0,0.6)", 16, true, true);
+    const l3 = this.add.text(w / 2, 232, lines[2], { fontFamily: T.font, fontSize: "30px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5).setAlpha(0);
+    l3.setShadow(0, 0, T.hex(T.colors.accent2), 16, true, true);
 
-    this.tweens.add({ targets: l1, alpha: 1, y: 140, duration: 900, delay: 300, ease: "Cubic.out" });
+    this.tweens.add({ targets: l1, alpha: 1, y: 112, duration: 900, delay: 300, ease: "Cubic.out" });
     this.tweens.add({ targets: l2, alpha: 1, scale: { from: 0.8, to: 1 }, duration: 1000, delay: 900, ease: "Back.out" });
-    this.tweens.add({ targets: l3, alpha: 1, y: 275, duration: 900, delay: 1700, ease: "Cubic.out" });
+    this.tweens.add({ targets: l3, alpha: 1, y: 226, duration: 900, delay: 1700, ease: "Cubic.out" });
 
-    // Narração + legendas sincronizadas
+    // English narration + in-canvas subtitles
     const narration = window.PRIME_CONTENT.intro.narration;
     const times = [2500, 5200, 8200];
     narration.forEach((line, i) => {
-      this.time.delayedCall(times[i], () => {
-        window.SubtitleManager.show(line);
-        window.AudioManager.speak(line.en);
-      });
+      this.time.delayedCall(times[i], () => { window.SubtitleManager.show(line); window.AudioManager.speak(line); });
     });
     this.time.delayedCall(11500, () => window.SubtitleManager.hide());
 
-    // Botão START (aparece após a revelação; permite pular)
-    const startBtn = T.button(this, w / 2, h - 150, 320, 72, "▶  START ADVENTURE", {
-      fontSize: 28, onClick: () => this.begin()
+    const startBtn = T.button(this, w / 2, h - 92, 320, 66, "▶  START ADVENTURE", {
+      fontSize: 26, onClick: () => this.begin()
     }).setAlpha(0);
-    this.tweens.add({ targets: startBtn, alpha: 1, y: h - 160, duration: 700, delay: 2600, ease: "Cubic.out" });
-    startBtn.on("pointerover", () => this.tweens.add({ targets: startBtn, scale: 1.05, duration: 150 }));
+    this.tweens.add({ targets: startBtn, alpha: 1, y: h - 100, duration: 700, delay: 2600, ease: "Cubic.out" });
 
-    // Skip
-    const skip = this.add.text(w - 20, 24, "Pular ⏭", { fontFamily: T.font, fontSize: "16px", color: T.colors.textDim }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
+    const skip = this.add.text(w - 18, 22, "Skip ⏭", { fontFamily: T.font, fontSize: "16px", color: T.colors.textDim }).setOrigin(1, 0.5).setInteractive({ useHandCursor: true });
     skip.on("pointerup", () => this.begin());
 
-    // hint
-    this.add.text(w / 2, h - 90, "Modo: " + (window.GameState.settings.mode === "teacher" ? "Professor" : "Desafio"), {
-      fontFamily: T.font, fontSize: "14px", color: T.colors.textDim
+    this.add.text(w / 2, h - 44, "Mode: " + (window.GameState.settings.mode === "teacher" ? "Teacher" : "Challenge"), {
+      fontFamily: T.font, fontSize: "13px", color: T.colors.textDim
     }).setOrigin(0.5);
 
     this.input.keyboard.on("keydown-ENTER", () => this.begin());
@@ -1688,7 +1551,6 @@ class IntroScene extends Phaser.Scene {
       const bw = Phaser.Math.Between(45, 90);
       const bh = Phaser.Math.Between(minH, maxH);
       g.fillRect(x, baseY - bh, bw, bh + 60);
-      // janelas
       g.fillStyle(0xffe9b0, alpha * 0.5);
       for (let wy = baseY - bh + 12; wy < baseY - 8; wy += 20) {
         for (let wx = x + 8; wx < x + bw - 8; wx += 16) {
@@ -1699,7 +1561,6 @@ class IntroScene extends Phaser.Scene {
       x += bw + Phaser.Math.Between(6, 20);
     }
     cont.add(g);
-    // parallax loop
     this.tweens.add({ targets: cont, x: -w, duration: panMs * 3, repeat: -1, ease: "Linear" });
   }
 
@@ -1708,16 +1569,15 @@ class IntroScene extends Phaser.Scene {
     window.SubtitleManager.hide();
     window.AudioManager.stopVoice();
     window.AudioManager.sfx("transition");
-    this.cameras.main.fadeOut(400, 5, 7, 20);
-    this.cameras.main.once("camerafadeoutcomplete", () => this.scene.start("VocabularyScene"));
+    this.cameras.main.fadeOut(350, 5, 7, 20);
+    this.time.delayedCall(370, () => this.scene.start("VocabularyScene"));
   }
 }
 window.IntroScene = IntroScene;
 
 
 /* ===== js/scenes/VocabularyScene.js ===== */
-/* FASE 2 — VOCABULARY MISSION
- * O jogador vê um objeto no cenário e escolhe a palavra correta em inglês. */
+/* STAGE 2 — VOCABULARY MISSION (English). Object + gap sentence, pick the word. */
 class VocabularyScene extends Phaser.Scene {
   constructor() { super("VocabularyScene"); }
 
@@ -1726,107 +1586,76 @@ class VocabularyScene extends Phaser.Scene {
     this.phaseKey = "Vocabulary";
     this.items = window.PRIME_CONTENT.vocabulary.items;
     this.idx = 0;
-    const w = this.scale.width, h = this.scale.height;
-    this.cameras.main.fadeIn(350, 5, 7, 20);
-    window.SubtitleManager.hide();
-
+    this.cameras.main.fadeIn(300, 5, 7, 20);
+    window.SubtitleManager.mount(this);
     this.T.background(this, 0);
     this.T.particles(this, this.T.colors.accent);
     window.AudioManager.playMusic("adventure");
-
-    this.hud = new window.Hud(this, { phaseTitle: "FASE 2 · Vocabulary Mission", phaseSubtitle: "Identifique as palavras em inglês" });
-
+    this.hud = new window.Hud(this, { phaseTitle: "STAGE 2 · Vocabulary Mission" });
     this.iconEmoji = { suitcase: "🧳", ticket: "🎫", map: "🗺️", passport: "🛂", camera: "📷", key: "🔑", phone: "📱", wallet: "👛" };
-
     this.stage = this.add.container(0, 0);
     this.render();
   }
 
   render() {
     this.stage.removeAll(true);
-    this._answeredItem = false;
-    const T = this.T, w = this.scale.width, h = this.scale.height;
+    this._answered = false;
+    const T = this.T, w = this.scale.width;
     const item = this.items[this.idx];
+    this.progressDots(w / 2, 72, this.items.length, this.idx);
 
-    this.progressDots(w / 2, 96, this.items.length, this.idx);
-
-    // Card do objeto (cenário com objeto destacado)
-    const objCard = T.card(this, w / 2, 250, 260, 220, { border: T.colors.accent2, fill: T.colors.panelLight });
+    // object card
+    const objCard = T.card(this, w / 2, 168, 210, 156, { border: T.colors.accent2, fill: T.colors.panelLight });
     this.stage.add(objCard);
-    const glow = this.add.graphics(); glow.fillStyle(T.colors.accent2, 0.12); glow.fillCircle(w / 2, 240, 110); glow.setBlendMode(Phaser.BlendModes.ADD);
+    const glow = this.add.graphics(); glow.fillStyle(T.colors.accent2, 0.12); glow.fillCircle(w / 2, 162, 82); glow.setBlendMode(Phaser.BlendModes.ADD);
     this.stage.add(glow);
-    const emoji = this.add.text(w / 2, 235, this.iconEmoji[item.icon] || "❓", { fontSize: "120px" }).setOrigin(0.5);
+    const emoji = this.add.text(w / 2, 162, this.iconEmoji[item.icon] || "❓", { fontSize: "92px" }).setOrigin(0.5);
     this.stage.add(emoji);
-    this.tweens.add({ targets: emoji, y: 225, duration: 1600, yoyo: true, repeat: -1, ease: "Sine.inOut" });
+    this.tweens.add({ targets: emoji, y: 154, duration: 1600, yoyo: true, repeat: -1, ease: "Sine.inOut" });
 
-    // Botão ouvir a palavra
-    const listen = T.iconButton(this, w / 2 + 150, 250, "🔊", { radius: 26, onClick: () => this.saySoft(item) });
+    const listen = T.iconButton(this, w / 2 + 132, 168, "🔊", { radius: 24, onClick: () => this.sayWord(item) });
     this.stage.add(listen);
 
-    // Prompt (frase com lacuna)
-    const promptTxt = this.add.text(w / 2, 400, item.prompt.en, {
+    // prompt (English gap sentence)
+    const promptTxt = this.add.text(w / 2, 288, item.prompt, {
       fontFamily: T.font, fontSize: "30px", fontStyle: "bold", color: T.colors.text, align: "center"
     }).setOrigin(0.5);
     this.stage.add(promptTxt);
-    if (window.GameState.settings.showTranslation) {
-      this.stage.add(this.add.text(w / 2, 436, item.prompt.pt, { fontFamily: T.font, fontSize: "18px", color: T.colors.textDim }).setOrigin(0.5));
-    }
 
-    // legenda com a frase
-    window.SubtitleManager.show({ en: item.prompt.en, pt: item.prompt.pt });
-
-    // Opções
     const correctIndex = item.options.indexOf(item.word);
     this.quiz = window.Quiz.options(this, {
-      x: w / 2, y: 500, options: item.options, correctIndex,
-      buttonWidth: 300, buttonHeight: 60,
+      x: w / 2, y: 358, options: item.options, correctIndex,
+      buttonWidth: 320, buttonHeight: 60,
       onAnswer: (i, correct) => this.onAnswer(correct, item)
     });
     this.stage.add(this.quiz);
 
-    // narra a palavra alvo suavemente
-    this.time.delayedCall(300, () => this.saySoft(item));
+    this.time.delayedCall(300, () => this.sayWord(item));
   }
 
-  saySoft(item) {
-    if (this._answeredItem) return;   // não reexibir legenda após responder
-    window.AudioManager.speak(item.word, { key: "vocab_" + item.id });
-    window.SubtitleManager.show({ en: item.prompt.en, pt: item.prompt.pt });
-  }
+  sayWord(item) { window.AudioManager.speak(item.word, { key: "vocab_" + item.id }); }
 
   onAnswer(correct, item) {
-    this._answeredItem = true;
+    this._answered = true;
     window.GameState.registerAnswer(correct, this.phaseKey);
     this.hud.updateScore();
     window.AudioManager.speak(item.word);
-    this.showFeedback(correct, item);
-  }
+    const T = this.T, w = this.scale.width;
+    const msg = correct ? "Correct!  " + item.word : "The word is: " + item.word;
+    this.stage.add(this.add.text(w / 2, 498, msg, {
+      fontFamily: T.font, fontSize: "22px", fontStyle: "bold",
+      color: correct ? T.hex(T.colors.good) : T.hex(T.colors.bad), align: "center"
+    }).setOrigin(0.5));
 
-  showFeedback(correct, item) {
-    const T = this.T, w = this.scale.width, h = this.scale.height;
-    window.SubtitleManager.hide();
-    const teacher = window.GameState.settings.mode === "teacher";
-    const msgEn = correct ? "Correct! " + item.word + " = " + item.translation
-                          : "Not quite. The word is: " + item.word + " (" + item.translation + ")";
-    const fb = this.add.text(w / 2, 614, msgEn, {
-      fontFamily: T.font, fontSize: "20px", fontStyle: "bold",
-      color: correct ? T.hex(T.colors.good) : T.hex(T.colors.bad), align: "center", wordWrap: { width: w - 120 }
-    }).setOrigin(0.5);
-    this.stage.add(fb);
-
-    // Modo Desafio: fim de jogo?
     if (window.GameState.isGameOver()) {
-      this.time.delayedCall(1200, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
+      this.time.delayedCall(1100, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
       return;
     }
-
-    const nextBtn = T.button(this, w / 2, 662, 220, 50, this.idx < this.items.length - 1 ? "Próximo  ▶" : "Concluir fase  ✓", {
+    const last = this.idx >= this.items.length - 1;
+    this.stage.add(T.button(this, w / 2, 552, 240, 52, last ? "Finish stage  ✓" : "Next  ▶", {
       fontSize: 20, onClick: () => this.advance()
-    });
-    this.stage.add(nextBtn);
-
-    // Modo Desafio avança automaticamente (menos dicas)
-    if (!teacher) this.time.delayedCall(1600, () => { if (this.scene.isActive()) this.advance(); });
+    }));
+    if (window.GameState.settings.mode !== "teacher") this.time.delayedCall(1500, () => { if (this.scene.isActive()) this.advance(); });
   }
 
   advance() {
@@ -1850,8 +1679,7 @@ window.VocabularyScene = VocabularyScene;
 
 
 /* ===== js/scenes/ListeningScene.js ===== */
-/* FASE 3 — LISTENING MISSION
- * Áudio + legenda sincronizada + repetir + múltipla escolha + feedback imediato. */
+/* STAGE 3 — LISTENING MISSION (English). Audio + synced subtitle + repeat + MCQ. */
 class ListeningScene extends Phaser.Scene {
   constructor() { super("ListeningScene"); }
 
@@ -1860,76 +1688,60 @@ class ListeningScene extends Phaser.Scene {
     this.phaseKey = "Listening";
     this.items = window.PRIME_CONTENT.listening.items;
     this.idx = 0;
-    this.cameras.main.fadeIn(350, 5, 7, 20);
-    window.SubtitleManager.hide();
+    this.cameras.main.fadeIn(300, 5, 7, 20);
+    window.SubtitleManager.mount(this);
     this.T.background(this, 1);
     this.T.particles(this, this.T.colors.accentPink);
     window.AudioManager.playMusic("adventure");
-    this.hud = new window.Hud(this, { phaseTitle: "FASE 3 · Listening Mission", phaseSubtitle: "Ouça e escolha a resposta correta" });
+    this.hud = new window.Hud(this, { phaseTitle: "STAGE 3 · Listening Mission" });
     this.stage = this.add.container(0, 0);
     this.render();
   }
 
   render() {
     this.stage.removeAll(true);
-    const T = this.T, w = this.scale.width, h = this.scale.height;
+    const T = this.T, w = this.scale.width;
     const item = this.items[this.idx];
-    this.progressDots(w / 2, 96, this.items.length, this.idx);
+    this.progressDots(w / 2, 70, this.items.length, this.idx);
 
-    // Painel de áudio com "equalizador" animado
-    const panel = T.card(this, w / 2, 210, 620, 150, { border: T.colors.accent });
+    const panel = T.card(this, w / 2, 150, 600, 96, { border: T.colors.accent });
     this.stage.add(panel);
-
     this.bars = [];
-    const barCount = 24, bw = 8, gap = 10, totalW = barCount * (bw + gap);
+    const barCount = 22, bw = 8, gap = 10, totalW = barCount * (bw + gap);
     for (let i = 0; i < barCount; i++) {
       const bx = w / 2 - totalW / 2 + i * (bw + gap);
-      const bar = this.add.rectangle(bx, 200, bw, 20, T.colors.accent).setOrigin(0.5, 1);
+      const bar = this.add.rectangle(bx, 168, bw, 16, T.colors.accent).setOrigin(0.5, 1);
       this.bars.push(bar); this.stage.add(bar);
     }
     this.eqActive = false;
     this.eqEvent = this.time.addEvent({ delay: 90, loop: true, callback: () => this.animEq() });
 
-    // Botão grande PLAY
-    const play = T.button(this, w / 2, 260, 260, 56, "🔊  Ouvir áudio", {
-      color: T.colors.accent, color2: 0x6b8bff, textColor: "#06121f", fontSize: 22,
-      onClick: () => this.playAudio(item)
+    const play = T.button(this, w / 2 - 40, 232, 250, 52, "🔊  Play audio", {
+      color: T.colors.accent, color2: 0x6b8bff, textColor: "#06121f", fontSize: 22, onClick: () => this.playAudio(item)
     });
     this.stage.add(play);
-    // Repetir
-    const rep = T.iconButton(this, w / 2 + 200, 260, "↻", { radius: 24, onClick: () => this.playAudio(item) });
+    const rep = T.iconButton(this, w / 2 + 165, 232, "↻", { radius: 24, onClick: () => this.playAudio(item) });
     this.stage.add(rep);
-    this.stage.add(this.add.text(w / 2 + 200, 294, "Repetir", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5));
 
-    // Pergunta
-    const q = this.add.text(w / 2, 360, item.question.en, {
-      fontFamily: T.font, fontSize: "26px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 160 }
+    const q = this.add.text(w / 2, 300, item.question, {
+      fontFamily: T.font, fontSize: "25px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 160 }
     }).setOrigin(0.5);
     this.stage.add(q);
-    if (window.GameState.settings.showTranslation) {
-      this.stage.add(this.add.text(w / 2, 392, item.question.pt, { fontFamily: T.font, fontSize: "16px", color: T.colors.textDim }).setOrigin(0.5));
-    }
 
-    // Opções
     this.quiz = window.Quiz.options(this, {
-      x: w / 2, y: 460, options: item.options, correctIndex: item.answer,
-      buttonWidth: 300, buttonHeight: 58,
+      x: w / 2, y: 356, options: item.options, correctIndex: item.answer,
+      buttonWidth: 300, buttonHeight: 56,
       onAnswer: (i, correct) => this.onAnswer(correct, item)
     });
     this.stage.add(this.quiz);
 
-    // toca automaticamente ao entrar
     this.time.delayedCall(400, () => this.playAudio(item));
   }
 
   playAudio(item) {
     this.eqActive = true;
     window.SubtitleManager.show(item.subtitle);
-    window.AudioManager.speak(item.audioText, {
-      key: item.id,
-      onend: () => { this.eqActive = false; }
-    });
-    // fallback: desliga eq após duração estimada
+    window.AudioManager.speak(item.audioText, { key: item.id, onend: () => { this.eqActive = false; } });
     const est = Math.min(9000, 900 + item.audioText.length * 55);
     this.time.delayedCall(est, () => { this.eqActive = false; });
   }
@@ -1937,7 +1749,7 @@ class ListeningScene extends Phaser.Scene {
   animEq() {
     if (!this.bars) return;
     this.bars.forEach(b => {
-      const target = this.eqActive ? Phaser.Math.Between(12, 90) : 14;
+      const target = this.eqActive ? Phaser.Math.Between(10, 62) : 12;
       this.tweens.add({ targets: b, height: target, duration: 90 });
       b.fillColor = this.eqActive ? this.T.colors.accent : 0x3a4470;
     });
@@ -1950,20 +1762,16 @@ class ListeningScene extends Phaser.Scene {
     window.SubtitleManager.hide();
     const T = this.T, w = this.scale.width;
     const msg = correct ? "Correct!" : ("Correct answer: " + item.options[item.answer]);
-    const fb = this.add.text(w / 2, 610, msg, {
-      fontFamily: T.font, fontSize: "20px", fontStyle: "bold",
-      color: correct ? T.hex(T.colors.good) : T.hex(T.colors.bad)
-    }).setOrigin(0.5);
-    this.stage.add(fb);
+    this.stage.add(this.add.text(w / 2, 470, msg, {
+      fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: correct ? T.hex(T.colors.good) : T.hex(T.colors.bad)
+    }).setOrigin(0.5));
 
     if (window.GameState.isGameOver()) {
-      this.time.delayedCall(1200, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
+      this.time.delayedCall(1100, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
       return;
     }
-    const nextBtn = T.button(this, w / 2, 658, 220, 50, this.idx < this.items.length - 1 ? "Próximo  ▶" : "Concluir fase  ✓", {
-      fontSize: 20, onClick: () => this.advance()
-    });
-    this.stage.add(nextBtn);
+    const last = this.idx >= this.items.length - 1;
+    this.stage.add(T.button(this, w / 2, 522, 240, 50, last ? "Finish stage  ✓" : "Next  ▶", { fontSize: 20, onClick: () => this.advance() }));
     if (window.GameState.settings.mode !== "teacher") this.time.delayedCall(1700, () => { if (this.scene.isActive()) this.advance(); });
   }
 
@@ -1988,8 +1796,7 @@ window.ListeningScene = ListeningScene;
 
 
 /* ===== js/scenes/ConversationScene.js ===== */
-/* FASE 4 — CONVERSATION CHALLENGE
- * Dois personagens conversam; o aluno escolhe a resposta correta para continuar. */
+/* STAGE 4 — CONVERSATION CHALLENGE (English). Two characters; pick the reply. */
 class ConversationScene extends Phaser.Scene {
   constructor() { super("ConversationScene"); }
 
@@ -1998,22 +1805,18 @@ class ConversationScene extends Phaser.Scene {
     this.phaseKey = "Conversation";
     this.data = window.PRIME_CONTENT.conversation;
     this.step = 0;
-    this.cameras.main.fadeIn(350, 5, 7, 20);
-    window.SubtitleManager.hide();
+    this.cameras.main.fadeIn(300, 5, 7, 20);
+    window.SubtitleManager.mount(this);
     this.T.background(this, 0);
     this.T.particles(this, this.T.colors.accent);
     window.AudioManager.playMusic("adventure");
-    this.hud = new window.Hud(this, { phaseTitle: "FASE 4 · Conversation Challenge", phaseSubtitle: "Escolha a resposta correta" });
+    this.hud = new window.Hud(this, { phaseTitle: "STAGE 4 · Conversation Challenge" });
 
-    const w = this.scale.width, h = this.scale.height;
-
-    // Personagens
-    this.emma = this.buildCharacter(w * 0.24, 300, "av_emma", this.data.speakerA.name, this.data.speakerA.role, false, "👩");
-    this.you = this.buildCharacter(w * 0.76, 300, "av_you", "You", "Traveler", true, "🧑");
-
-    // Balão de fala (personagem A)
-    this.bubbleA = this.buildBubble(w * 0.24, 190, false);
-    this.bubbleB = this.buildBubble(w * 0.76, 190, true);
+    const w = this.scale.width;
+    this.emma = this.buildCharacter(w * 0.26, 200, "av_emma", this.data.speakerA.name, this.data.speakerA.role, false, "👩");
+    this.you = this.buildCharacter(w * 0.74, 200, "av_you", "You", "Traveler", true, "🧑");
+    this.bubbleA = this.buildBubble(w * 0.26, 106, false);
+    this.bubbleB = this.buildBubble(w * 0.74, 106, true);
     this.bubbleB.container.setVisible(false);
 
     this.optionsC = this.add.container(0, 0);
@@ -2023,49 +1826,38 @@ class ConversationScene extends Phaser.Scene {
   buildCharacter(x, y, tex, name, role, flip, face) {
     const T = this.T;
     const c = this.add.container(x, y);
-    const av = this.add.image(0, 0, tex).setScale(0.9);
+    const av = this.add.image(0, 0, tex).setScale(0.6);
     if (flip) av.setFlipX(true);
-    // sombra elíptica
-    const sh = this.add.ellipse(0, 110, 150, 30, 0x000000, 0.35);
+    const sh = this.add.ellipse(0, 72, 110, 22, 0x000000, 0.35);
     c.add(sh); c.add(av);
-    // rosto estilizado (emoji sobre o avatar)
-    if (face) {
-      const f = this.add.text(0, 2, face, { fontSize: "92px" }).setOrigin(0.5);
-      c.add(f);
-    }
-    const nm = this.add.text(0, 130, name, { fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
-    const rl = this.add.text(0, 156, role, { fontFamily: T.font, fontSize: "14px", color: T.colors.textDim }).setOrigin(0.5);
-    c.add(nm); c.add(rl);
+    if (face) c.add(this.add.text(0, 2, face, { fontSize: "60px" }).setOrigin(0.5));
+    c.add(this.add.text(0, 86, name, { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5));
+    c.add(this.add.text(0, 106, role, { fontFamily: T.font, fontSize: "13px", color: T.colors.textDim }).setOrigin(0.5));
     c.avatar = av;
-    // respiração idle
-    this.tweens.add({ targets: av, y: -8, duration: 1800, yoyo: true, repeat: -1, ease: "Sine.inOut" });
+    this.tweens.add({ targets: av, y: -6, duration: 1800, yoyo: true, repeat: -1, ease: "Sine.inOut" });
     return c;
   }
 
   talk(charContainer) {
-    this.tweens.add({ targets: charContainer.avatar, scale: { from: 0.9, to: 0.97 }, duration: 160, yoyo: true, repeat: 3 });
+    this.tweens.add({ targets: charContainer.avatar, scale: { from: 0.6, to: 0.66 }, duration: 160, yoyo: true, repeat: 3 });
   }
 
   buildBubble(x, y, flip) {
     const T = this.T;
     const c = this.add.container(x, y);
     const g = this.add.graphics();
-    const bw = 380, bh = 120;
-    g.fillStyle(0x000000, 0.25); g.fillRoundedRect(-bw / 2 + 4, -bh / 2 + 6, bw, bh, 18);
-    g.fillStyle(flip ? T.colors.accent2 : 0xffffff, 0.96); g.fillRoundedRect(-bw / 2, -bh / 2, bw, bh, 18);
-    // ponta
-    g.fillTriangle(flip ? bw / 2 - 60 : -bw / 2 + 60, bh / 2 - 2, flip ? bw / 2 - 20 : -bw / 2 + 20, bh / 2 - 2, flip ? bw / 2 - 40 : -bw / 2 + 40, bh / 2 + 30);
+    const bw = 380, bh = 96;
+    g.fillStyle(0x000000, 0.25); g.fillRoundedRect(-bw / 2 + 4, -bh / 2 + 6, bw, bh, 16);
+    g.fillStyle(flip ? T.colors.accent2 : 0xffffff, 0.96); g.fillRoundedRect(-bw / 2, -bh / 2, bw, bh, 16);
+    g.fillTriangle(flip ? bw / 2 - 60 : -bw / 2 + 60, bh / 2 - 2, flip ? bw / 2 - 20 : -bw / 2 + 20, bh / 2 - 2, flip ? bw / 2 - 40 : -bw / 2 + 40, bh / 2 + 26);
     c.add(g);
-    const txt = this.add.text(0, -12, "", { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: "#10203a", align: "center", wordWrap: { width: bw - 40 } }).setOrigin(0.5);
+    const txt = this.add.text(0, 0, "", { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: "#10203a", align: "center", wordWrap: { width: bw - 40 } }).setOrigin(0.5);
     c.add(txt);
-    const tr = this.add.text(0, 34, "", { fontFamily: T.font, fontSize: "14px", color: "#4a5a78", align: "center", wordWrap: { width: bw - 40 } }).setOrigin(0.5);
-    c.add(tr);
-    return { container: c, txt, tr };
+    return { container: c, txt };
   }
 
-  setBubble(bubble, line) {
-    bubble.txt.setText(line.en);
-    bubble.tr.setText(window.GameState.settings.showTranslation && line.pt ? line.pt : "");
+  setBubble(bubble, text) {
+    bubble.txt.setText(text);
     bubble.container.setVisible(true);
     bubble.container.setScale(0.7); bubble.container.setAlpha(0);
     this.tweens.add({ targets: bubble.container, scale: 1, alpha: 1, duration: 250, ease: "Back.out" });
@@ -2073,67 +1865,59 @@ class ConversationScene extends Phaser.Scene {
 
   renderStep() {
     this.optionsC.removeAll(true);
-    const T = this.T, w = this.scale.width, h = this.scale.height;
+    this._answered = false;
+    const T = this.T, w = this.scale.width;
     const s = this.data.steps[this.step];
-    this.progressDots(w / 2, 100, this.data.steps.length, this.step);
+    this.progressDots(w / 2, 70, this.data.steps.length, this.step);
 
     this.bubbleB.container.setVisible(false);
     this.setBubble(this.bubbleA, s.line);
     this.talk(this.emma);
     window.SubtitleManager.show(s.line);
-    window.AudioManager.speak(s.line.en, { key: "convA_" + this.step, rate: 0.95 });
+    window.AudioManager.speak(s.line, { key: "convA_" + this.step, rate: 0.95 });
 
-    // Opções de resposta (3)
     s.options.forEach((opt, i) => {
-      const by = 492 + i * 62;
-      const b = T.button(this, w / 2, by, 620, 54, opt.text, {
+      const by = 344 + i * 56;
+      this.optionsC.add(T.button(this, w / 2, by, 600, 50, opt.text, {
         color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, fontSize: 20,
-        onClick: () => this.choose(opt, s)
-      });
-      this.optionsC.add(b);
+        onClick: () => this.choose(opt)
+      }));
     });
   }
 
-  choose(opt, step) {
+  choose(opt) {
     if (this._answered) return; this._answered = true;
     const T = this.T, w = this.scale.width;
     window.GameState.registerAnswer(opt.correct, this.phaseKey);
     this.hud.updateScore();
     window.AudioManager.sfx(opt.correct ? "correct" : "wrong");
     T.flashFeedback(this, opt.correct);
+    window.SubtitleManager.hide();
 
-    // fala do jogador
-    this.setBubble(this.bubbleB, { en: opt.text, pt: "" });
+    this.setBubble(this.bubbleB, opt.text);
     this.talk(this.you);
     window.AudioManager.speak(opt.text, { pitch: 1.15 });
 
-    // feedback pedagógico
-    const fb = this.add.text(w / 2, 500, (opt.correct ? "✓ " : "✕ ") + opt.feedback.en +
-      (window.GameState.settings.showTranslation ? "\n" + opt.feedback.pt : ""), {
-      fontFamily: T.font, fontSize: "18px", fontStyle: "bold", align: "center",
-      color: opt.correct ? T.hex(T.colors.good) : T.hex(T.colors.bad), wordWrap: { width: w - 140 }
-    }).setOrigin(0.5);
     this.optionsC.removeAll(true);
-    this.optionsC.add(fb);
+    this.optionsC.add(this.add.text(w / 2, 356, (opt.correct ? "✓ " : "✕ ") + opt.feedback, {
+      fontFamily: T.font, fontSize: "19px", fontStyle: "bold", align: "center",
+      color: opt.correct ? T.hex(T.colors.good) : T.hex(T.colors.bad), wordWrap: { width: w - 140 }
+    }).setOrigin(0.5));
 
     if (window.GameState.isGameOver()) {
-      this.time.delayedCall(1400, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
+      this.time.delayedCall(1300, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
       return;
     }
-
     const last = this.step >= this.data.steps.length - 1;
-    // avança sempre (mesmo se errou, mostra a fala e segue) — mantém o diálogo fluindo
-    const nextBtn = T.button(this, w / 2, 575, 240, 54, last ? "Concluir fase  ✓" : "Continuar  ▶", {
+    this.optionsC.add(T.button(this, w / 2, 430, 240, 50, last ? "Finish stage  ✓" : "Continue  ▶", {
       fontSize: 20, onClick: () => this.advance()
-    });
-    this.optionsC.add(nextBtn);
+    }));
     if (window.GameState.settings.mode !== "teacher") this.time.delayedCall(2000, () => { if (this.scene.isActive()) this.advance(); });
   }
 
   advance() {
     if (this._advancing) return; this._advancing = true;
-    this.step++;
-    this._answered = false;
+    this.step++; this._answered = false;
     if (this.step >= this.data.steps.length) { window.Flow.completePhase(this, this.phaseKey); return; }
     this._advancing = false;
     this.renderStep();
@@ -2154,9 +1938,7 @@ window.ConversationScene = ConversationScene;
 
 
 /* ===== js/scenes/LanguageScene.js ===== */
-/* FASE 5 — LANGUAGE CHALLENGE
- * Gramática contextualizada: arraste (ou toque) as palavras para formar a frase.
- * Drag-and-drop com fallback por toque/clique (acessível). */
+/* STAGE 5 — LANGUAGE CHALLENGE (English). Drag/tap words to build the sentence. */
 class LanguageScene extends Phaser.Scene {
   constructor() { super("LanguageScene"); }
 
@@ -2165,12 +1947,12 @@ class LanguageScene extends Phaser.Scene {
     this.phaseKey = "Language";
     this.items = window.PRIME_CONTENT.language.items;
     this.idx = 0;
-    this.cameras.main.fadeIn(350, 5, 7, 20);
-    window.SubtitleManager.hide();
+    this.cameras.main.fadeIn(300, 5, 7, 20);
+    window.SubtitleManager.mount(this);
     this.T.background(this, 1);
     this.T.particles(this, this.T.colors.accent2);
     window.AudioManager.playMusic("adventure");
-    this.hud = new window.Hud(this, { phaseTitle: "FASE 5 · Language Challenge", phaseSubtitle: "Arraste as palavras para formar a frase" });
+    this.hud = new window.Hud(this, { phaseTitle: "STAGE 5 · Language Challenge" });
     this.stage = this.add.container(0, 0);
     this.render();
   }
@@ -2179,84 +1961,69 @@ class LanguageScene extends Phaser.Scene {
     this.stage.removeAll(true);
     const T = this.T, w = this.scale.width;
     const item = this.items[this.idx];
-    this.item = item;
-    this.built = [];   // palavras colocadas (na ordem)
-    this.answered = false;
+    this.item = item; this.built = []; this.answered = false;
+    this.progressDots(w / 2, 66, this.items.length, this.idx);
 
-    this.progressDots(w / 2, 96, this.items.length, this.idx);
-
-    // Instrução + tradução alvo
-    this.stage.add(this.add.text(w / 2, 150, window.PRIME_CONTENT.language.intro.en, {
-      fontFamily: T.font, fontSize: "24px", fontStyle: "bold", color: T.colors.text
-    }).setOrigin(0.5));
-    this.stage.add(this.add.text(w / 2, 184, "🇧🇷 " + item.translation, {
-      fontFamily: T.font, fontSize: "18px", color: T.hex(T.colors.accent2)
+    this.stage.add(this.add.text(w / 2, 100, window.PRIME_CONTENT.language.intro, {
+      fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 120 }
     }).setOrigin(0.5));
 
-    // Zona de resposta (slots)
-    this.answerZone = { x: w / 2, y: 300, w: w - 220, h: 90 };
-    const zg = this.add.graphics();
-    zg.fillStyle(T.colors.panel, 0.6); zg.fillRoundedRect(this.answerZone.x - this.answerZone.w / 2, this.answerZone.y - this.answerZone.h / 2, this.answerZone.w, this.answerZone.h, 14);
-    zg.lineStyle(2, T.colors.accent, 0.5); zg.strokeRoundedRect(this.answerZone.x - this.answerZone.w / 2, this.answerZone.y - this.answerZone.h / 2, this.answerZone.w, this.answerZone.h, 14);
-    this.stage.add(zg);
-    this.stage.add(this.add.text(this.answerZone.x, this.answerZone.y - this.answerZone.h / 2 - 18, "Sua frase (toque/arraste as palavras aqui):", {
+    this.answerZone = { x: w / 2, y: 172, w: w - 150, h: 76 };
+    const z = this.answerZone;
+    this.stage.add(this.add.text(z.x, z.y - z.h / 2 - 16, "Your sentence (tap/drag the words here):", {
       fontFamily: T.font, fontSize: "13px", color: T.colors.textDim
     }).setOrigin(0.5));
+    const zg = this.add.graphics();
+    zg.fillStyle(T.colors.panel, 0.6); zg.fillRoundedRect(z.x - z.w / 2, z.y - z.h / 2, z.w, z.h, 14);
+    zg.lineStyle(2, T.colors.accent, 0.5); zg.strokeRoundedRect(z.x - z.w / 2, z.y - z.h / 2, z.w, z.h, 14);
+    this.stage.add(zg);
 
-    // Pool de palavras (embaralhado)
     this.pool = Phaser.Utils.Array.Shuffle(item.words.slice());
     this.poolContainer = this.add.container(0, 0); this.stage.add(this.poolContainer);
     this.builtContainer = this.add.container(0, 0); this.stage.add(this.builtContainer);
-    this.layoutPool();
-    this.layoutBuilt();
+    this.layoutPool(); this.layoutBuilt();
 
-    // Botões
     this.actionBtns = [];
-    const check = T.button(this, w / 2 - 200, 578, 200, 54, "✓  Verificar", { onClick: () => this.check() });
-    const clear = T.button(this, w / 2, 578, 160, 54, "↺  Limpar", { color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, onClick: () => this.clearBuilt() });
-    const hint = T.button(this, w / 2 + 190, 578, 200, 54, "💡  Dica", { color: T.colors.accent2, color2: 0xff9f43, textColor: "#06121f", onClick: () => this.showHint() });
+    const check = T.button(this, w / 2 - 200, 356, 190, 52, "✓  Check", { onClick: () => this.check() });
+    const clear = T.button(this, w / 2, 356, 150, 52, "↺  Clear", { color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, onClick: () => this.clearBuilt() });
+    const hint = T.button(this, w / 2 + 190, 356, 190, 52, "💡  Hint", { color: T.colors.accent2, color2: 0xff9f43, textColor: "#06121f", onClick: () => this.showHint() });
     this.stage.add(check); this.stage.add(clear); this.stage.add(hint);
     this.actionBtns = [check, clear, hint];
 
-    this.feedback = this.add.text(w / 2, 648, "", { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", align: "center", wordWrap: { width: w - 100 } }).setOrigin(0.5);
+    this.feedback = this.add.text(w / 2, 420, "", { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", align: "center", wordWrap: { width: w - 100 } }).setOrigin(0.5);
     this.stage.add(this.feedback);
   }
 
   makeTile(word, onClick) {
     const T = this.T;
     const c = this.add.container(0, 0);
-    const tw = Math.max(70, 28 + word.length * 15), th = 52;
+    const tw = Math.max(66, 26 + word.length * 14), th = 48;
     const g = this.add.graphics();
-    g.fillStyle(0x000000, 0.3); g.fillRoundedRect(-tw / 2 + 2, -th / 2 + 4, tw, th, 12);
-    g.fillGradientStyle(T.colors.accent, T.colors.accent, 0x6b8bff, 0x6b8bff, 1); g.fillRoundedRect(-tw / 2, -th / 2, tw, th, 12);
-    g.fillStyle(0xffffff, 0.18); g.fillRoundedRect(-tw / 2, -th / 2, tw, th * 0.42, { tl: 12, tr: 12, bl: 0, br: 0 });
+    g.fillStyle(0x000000, 0.3); g.fillRoundedRect(-tw / 2 + 2, -th / 2 + 4, tw, th, 11);
+    g.fillGradientStyle(T.colors.accent, T.colors.accent, 0x6b8bff, 0x6b8bff, 1); g.fillRoundedRect(-tw / 2, -th / 2, tw, th, 11);
+    g.fillStyle(0xffffff, 0.18); g.fillRoundedRect(-tw / 2, -th / 2, tw, th * 0.42, { tl: 11, tr: 11, bl: 0, br: 0 });
     c.add(g);
-    const t = this.add.text(0, 0, word, { fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: "#06121f" }).setOrigin(0.5);
-    c.add(t);
+    c.add(this.add.text(0, 0, word, { fontFamily: T.font, fontSize: "21px", fontStyle: "bold", color: "#06121f" }).setOrigin(0.5));
     c.word = word; c.tw = tw; c.th = th;
     c.setSize(tw, th);
-    c.setInteractive(new Phaser.Geom.Rectangle(-tw / 2, -th / 2, tw, th), Phaser.Geom.Rectangle.Contains);
-    this.input.setDraggable(c);
-    c.on("pointerup", () => { if (!c._dragging) onClick(); });
+    // interactive ZONE (touch-safe) as hit + drag target
+    const hit = this.add.zone(0, 0, tw, th).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    c.add(hit); c.hit = hit;
+    this.input.setDraggable(hit);
+    hit.on("pointerup", () => { if (!c._dragging) onClick(); });
     return c;
   }
 
   layoutPool() {
     this.poolContainer.removeAll(true);
-    const w = this.scale.width, y = 470;
-    let totalW = 0; const gap = 16;
-    const tiles = this.pool.map(word => {
-      const idxInPool = this.pool.indexOf(word);
-      return { word };
-    });
-    // largura estimada
-    const widths = this.pool.map(wd => Math.max(70, 28 + wd.length * 15));
-    totalW = widths.reduce((a, b) => a + b + gap, -gap);
+    const w = this.scale.width, y = 272, gap = 14;
+    const widths = this.pool.map(wd => Math.max(66, 26 + wd.length * 14));
+    let totalW = widths.reduce((a, b) => a + b + gap, -gap);
     let x = w / 2 - totalW / 2;
     this.pool.forEach((word, i) => {
       const tile = this.makeTile(word, () => this.addWord(i));
       tile.x = x + widths[i] / 2; tile.y = y;
-      this.setupDrag(tile, "pool", i);
+      this.setupDrag(tile, i);
       this.poolContainer.add(tile);
       x += widths[i] + gap;
     });
@@ -2264,8 +2031,8 @@ class LanguageScene extends Phaser.Scene {
 
   layoutBuilt() {
     this.builtContainer.removeAll(true);
-    const z = this.answerZone; const gap = 12;
-    const widths = this.built.map(wd => Math.max(70, 28 + wd.length * 15));
+    const z = this.answerZone, gap = 12;
+    const widths = this.built.map(wd => Math.max(66, 26 + wd.length * 14));
     let totalW = widths.reduce((a, b) => a + b + gap, -gap);
     let x = z.x - Math.max(0, totalW) / 2;
     this.built.forEach((word, i) => {
@@ -2276,38 +2043,33 @@ class LanguageScene extends Phaser.Scene {
     });
   }
 
-  setupDrag(tile, from, index) {
-    tile.on("dragstart", () => { tile._dragging = true; this.children.bringToTop(this.poolContainer); tile.setScale(1.08); });
-    tile.on("drag", (p, dx, dy) => { tile.x = dx; tile.y = dy; });
-    tile.on("dragend", (p) => {
-      tile.setScale(1);
+  setupDrag(tile, index) {
+    const zone = tile.hit;
+    zone.on("dragstart", () => { tile._dragging = true; tile.setDepth(999); tile.setScale(1.08); });
+    zone.on("drag", (pointer) => { tile.x = pointer.worldX; tile.y = pointer.worldY; });
+    zone.on("dragend", () => {
+      tile.setScale(1); tile.setDepth(0);
       const z = this.answerZone;
-      const inZone = Math.abs(tile.x - z.x) < z.w / 2 + 40 && Math.abs(tile.y - z.y) < z.h / 2 + 60;
-      if (inZone) this.addWord(index);
-      else this.layoutPool();
+      const inZone = Math.abs(tile.x - z.x) < z.w / 2 + 40 && Math.abs(tile.y - z.y) < z.h / 2 + 70;
+      if (inZone) this.addWord(index); else this.layoutPool();
       this.time.delayedCall(30, () => { tile._dragging = false; });
     });
   }
 
   addWord(poolIndex) {
     if (this.answered) return;
-    const word = this.pool[poolIndex];
-    if (word == null) return;
-    this.pool.splice(poolIndex, 1);
-    this.built.push(word);
+    const word = this.pool[poolIndex]; if (word == null) return;
+    this.pool.splice(poolIndex, 1); this.built.push(word);
     window.AudioManager.sfx("click");
     this.layoutPool(); this.layoutBuilt();
   }
-
   removeWord(builtIndex) {
     if (this.answered) return;
     const word = this.built[builtIndex];
-    this.built.splice(builtIndex, 1);
-    this.pool.push(word);
+    this.built.splice(builtIndex, 1); this.pool.push(word);
     window.AudioManager.sfx("click");
     this.layoutPool(); this.layoutBuilt();
   }
-
   clearBuilt() {
     if (this.answered) return;
     while (this.built.length) this.pool.push(this.built.pop());
@@ -2315,9 +2077,8 @@ class LanguageScene extends Phaser.Scene {
   }
 
   showHint() {
-    const item = this.item;
     this.feedback.setColor(this.T.hex(this.T.colors.accent2));
-    this.feedback.setText("💡 " + item.hint.en + (window.GameState.settings.showTranslation ? "\n" + item.hint.pt : ""));
+    this.feedback.setText("💡 " + this.item.hint);
   }
 
   check() {
@@ -2330,33 +2091,24 @@ class LanguageScene extends Phaser.Scene {
     this.hud.updateScore();
     window.AudioManager.sfx(correct ? "correct" : "wrong");
     T.flashFeedback(this, correct);
-
-    // desabilita botões de ação após responder
     if (this.actionBtns) this.actionBtns.forEach(b => b.setEnabled && b.setEnabled(false));
 
-    if (correct) {
-      this.feedback.setColor(T.hex(T.colors.good));
-      this.feedback.setText("✓ Correct!  \"" + this.item.answer + "\"");
-      window.AudioManager.speak(this.item.answer);
-    } else {
-      this.feedback.setColor(T.hex(T.colors.bad));
-      this.feedback.setText("✕ Not yet. Correct: \"" + this.item.answer + "\"");
-      window.AudioManager.speak(this.item.answer);
-    }
+    this.feedback.setColor(correct ? T.hex(T.colors.good) : T.hex(T.colors.bad));
+    this.feedback.setText((correct ? "✓ Correct!  " : "✕ Correct: ") + "\"" + this.item.answer + "\"");
+    window.SubtitleManager.show(this.item.answer);
+    window.AudioManager.speak(this.item.answer);
 
     if (window.GameState.isGameOver()) {
-      this.time.delayedCall(1600, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
+      this.time.delayedCall(1500, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
       return;
     }
     const last = this.idx >= this.items.length - 1;
-    const nextBtn = T.button(this, this.scale.width / 2, 690, 260, 50, last ? "Concluir fase  ✓" : "Próxima frase  ▶", {
-      onClick: () => this.advance()
-    });
-    this.stage.add(nextBtn);
+    this.stage.add(T.button(this, this.scale.width / 2, 470, 250, 50, last ? "Finish stage  ✓" : "Next sentence  ▶", { onClick: () => this.advance() }));
   }
 
   advance() {
     if (this._advancing) return; this._advancing = true;
+    window.SubtitleManager.hide();
     this.idx++;
     if (this.idx >= this.items.length) { window.Flow.completePhase(this, this.phaseKey); return; }
     this._advancing = false;
@@ -2376,8 +2128,7 @@ window.LanguageScene = LanguageScene;
 
 
 /* ===== js/scenes/FinalScene.js ===== */
-/* FASE 6 — FINAL MISSION
- * Combina vocabulário, listening, compreensão e gramática. */
+/* STAGE 6 — FINAL MISSION (English). Vocab + listening + comprehension + grammar. */
 class FinalScene extends Phaser.Scene {
   constructor() { super("FinalScene"); }
 
@@ -2386,19 +2137,18 @@ class FinalScene extends Phaser.Scene {
     this.phaseKey = "Final";
     this.items = window.PRIME_CONTENT.final.items;
     this.idx = 0;
-    this.cameras.main.fadeIn(350, 5, 7, 20);
-    window.SubtitleManager.hide();
+    this.cameras.main.fadeIn(300, 5, 7, 20);
+    window.SubtitleManager.mount(this);
     this.T.background(this, 0);
     this.T.particles(this, this.T.colors.accentPink);
     window.AudioManager.playMusic("adventure");
-    this.hud = new window.Hud(this, { phaseTitle: "FASE 6 · Final Mission", phaseSubtitle: "Use tudo o que você aprendeu!" });
+    this.hud = new window.Hud(this, { phaseTitle: "STAGE 6 · Final Mission" });
 
-    // banner de missão final
     const w = this.scale.width;
-    const banner = this.add.text(w / 2, 130, "★  FINAL MISSION  ★", {
-      fontFamily: this.T.font, fontSize: "30px", fontStyle: "bold", color: this.T.hex(this.T.colors.accent2)
+    const banner = this.add.text(w / 2, 84, "★  FINAL MISSION  ★", {
+      fontFamily: this.T.font, fontSize: "26px", fontStyle: "bold", color: this.T.hex(this.T.colors.accent2)
     }).setOrigin(0.5);
-    banner.setShadow(0, 0, this.T.hex(this.T.colors.accent2), 18, true, true);
+    banner.setShadow(0, 0, this.T.hex(this.T.colors.accent2), 16, true, true);
     this.tweens.add({ targets: banner, scale: { from: 0.96, to: 1.04 }, duration: 1200, yoyo: true, repeat: -1 });
 
     this.stage = this.add.container(0, 0);
@@ -2409,34 +2159,28 @@ class FinalScene extends Phaser.Scene {
     this.stage.removeAll(true);
     const T = this.T, w = this.scale.width;
     const item = this.items[this.idx];
-    this.progressDots(w / 2, 170, this.items.length, this.idx);
+    this.progressDots(w / 2, 116, this.items.length, this.idx);
 
-    const kindLabel = { vocab: "Vocabulário", listening: "Listening", comprehension: "Compreensão", grammar: "Gramática" }[item.kind] || "Missão";
-    this.stage.add(this.add.text(w / 2, 210, kindLabel.toUpperCase(), { fontFamily: T.font, fontSize: "14px", color: T.colors.accent && T.hex(T.colors.accent) }).setOrigin(0.5));
+    const kindLabel = { vocab: "Vocabulary", listening: "Listening", comprehension: "Comprehension", grammar: "Grammar" }[item.kind] || "Mission";
+    this.stage.add(this.add.text(w / 2, 142, kindLabel.toUpperCase(), { fontFamily: T.font, fontSize: "13px", color: T.hex(T.colors.accent) }).setOrigin(0.5));
 
-    // Se for listening, botão de áudio
+    let qy = 188;
     if (item.kind === "listening") {
-      const play = T.button(this, w / 2, 270, 240, 52, "🔊  Ouvir áudio", {
-        color: T.colors.accent, color2: 0x6b8bff, textColor: "#06121f", onClick: () => {
-          window.SubtitleManager.show(item.subtitle);
-          window.AudioManager.speak(item.audioText, { key: "final_" + this.idx });
-        }
+      const play = T.button(this, w / 2, 182, 240, 50, "🔊  Play audio", {
+        color: T.colors.accent, color2: 0x6b8bff, textColor: "#06121f", onClick: () => { window.SubtitleManager.show(item.subtitle); window.AudioManager.speak(item.audioText, { key: "final_" + this.idx }); }
       });
       this.stage.add(play);
+      qy = 240;
       this.time.delayedCall(400, () => { window.SubtitleManager.show(item.subtitle); window.AudioManager.speak(item.audioText, { key: "final_" + this.idx }); });
     }
 
-    const qy = item.kind === "listening" ? 340 : 290;
-    this.stage.add(this.add.text(w / 2, qy, item.question.en, {
-      fontFamily: T.font, fontSize: "28px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 160 }
+    this.stage.add(this.add.text(w / 2, qy, item.question, {
+      fontFamily: T.font, fontSize: "26px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 160 }
     }).setOrigin(0.5));
-    if (window.GameState.settings.showTranslation) {
-      this.stage.add(this.add.text(w / 2, qy + 34, item.question.pt, { fontFamily: T.font, fontSize: "16px", color: T.colors.textDim }).setOrigin(0.5));
-    }
 
     this.quiz = window.Quiz.options(this, {
-      x: w / 2, y: qy + 100, options: item.options, correctIndex: item.answer,
-      buttonWidth: 300, buttonHeight: 58,
+      x: w / 2, y: qy + 66, options: item.options, correctIndex: item.answer,
+      buttonWidth: 300, buttonHeight: 56,
       onAnswer: (i, correct) => this.onAnswer(correct, item)
     });
     this.stage.add(this.quiz);
@@ -2447,18 +2191,16 @@ class FinalScene extends Phaser.Scene {
     this.hud.updateScore();
     window.SubtitleManager.hide();
     const T = this.T, w = this.scale.width;
-    const fb = this.add.text(w / 2, 606, correct ? "✓ Correct!" : "✕ Correct: " + item.options[item.answer], {
+    this.stage.add(this.add.text(w / 2, 470, correct ? "✓ Correct!" : "✕ Correct: " + item.options[item.answer], {
       fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: correct ? T.hex(T.colors.good) : T.hex(T.colors.bad)
-    }).setOrigin(0.5);
-    this.stage.add(fb);
+    }).setOrigin(0.5));
 
     if (window.GameState.isGameOver()) {
-      this.time.delayedCall(1300, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
+      this.time.delayedCall(1200, () => { window.AudioManager.sfx("lose"); this.scene.start("ResultScene", { gameOver: true }); });
       return;
     }
     const last = this.idx >= this.items.length - 1;
-    const nextBtn = T.button(this, w / 2, 656, 240, 50, last ? "Ver resultado  🏆" : "Próximo  ▶", { fontSize: 20, onClick: () => this.advance() });
-    this.stage.add(nextBtn);
+    this.stage.add(T.button(this, w / 2, 522, 240, 50, last ? "See result  🏆" : "Next  ▶", { fontSize: 20, onClick: () => this.advance() }));
     if (window.GameState.settings.mode !== "teacher") this.time.delayedCall(1700, () => { if (this.scene.isActive()) this.advance(); });
   }
 
@@ -2483,8 +2225,7 @@ window.FinalScene = FinalScene;
 
 
 /* ===== js/scenes/ResultScene.js ===== */
-/* FASE 7 — RESULTADO
- * Pontuação total, estrelas, acertos, mensagem, jogar novamente, voltar ao menu. */
+/* STAGE 7 — RESULT (English). Total score, stars, accuracy, replay / menu. */
 class ResultScene extends Phaser.Scene {
   constructor() { super("ResultScene"); }
   init(data) { this.gameOver = data && data.gameOver; }
@@ -2504,81 +2245,68 @@ class ResultScene extends Phaser.Scene {
     if (this.gameOver) { window.AudioManager.stopMusic(); window.AudioManager.sfx("lose"); }
     else { window.AudioManager.playMusic("victory"); window.AudioManager.sfx("win"); }
 
-    // Título
-    const titleTxt = this.gameOver ? "GAME OVER" : "ADVENTURE COMPLETE!";
-    const title = this.add.text(w / 2, 90, titleTxt, {
-      fontFamily: T.font, fontSize: "52px", fontStyle: "bold",
-      color: this.gameOver ? T.hex(T.colors.bad) : T.colors.text
+    const title = this.add.text(w / 2, 60, this.gameOver ? "GAME OVER" : "ADVENTURE COMPLETE!", {
+      fontFamily: T.font, fontSize: "46px", fontStyle: "bold", color: this.gameOver ? T.hex(T.colors.bad) : T.colors.text
     }).setOrigin(0.5);
-    title.setShadow(0, 4, "rgba(0,0,0,0.6)", 16, true, true);
+    title.setShadow(0, 4, "rgba(0,0,0,0.6)", 14, true, true);
     this.tweens.add({ targets: title, scale: { from: 0.7, to: 1 }, duration: 600, ease: "Back.out" });
 
-    this.add.text(w / 2, 138, this.gameOver ? "Modo Desafio — suas vidas acabaram" : "PRIME TWO · The English Adventure", {
-      fontFamily: T.font, fontSize: "18px", color: T.colors.textDim
+    this.add.text(w / 2, 100, this.gameOver ? "Challenge Mode — you ran out of lives" : "PRIME TWO · The English Adventure", {
+      fontFamily: T.font, fontSize: "16px", color: T.colors.textDim
     }).setOrigin(0.5);
 
-    // Card de resultados
-    const card = T.card(this, w / 2, 380, 560, 360, { border: this.gameOver ? T.colors.bad : T.colors.accent2 });
+    T.card(this, w / 2, 300, 540, 300, { border: this.gameOver ? T.colors.bad : T.colors.accent2 });
 
-    // Estrelas grandes
-    const row = T.starRow(this, w / 2, 260, 0, maxStars, 30);
+    const row = T.starRow(this, w / 2, 178, 0, maxStars, 24);
     for (let i = 0; i < totalStars; i++) {
-      this.time.delayedCall(200 + i * 120, () => {
+      this.time.delayedCall(150 + i * 90, () => {
         const st = row.list[i]; st.setColor(T.hex(T.colors.accent2));
-        st.setShadow(0, 0, T.hex(T.colors.accent2), 12, true, true);
+        st.setShadow(0, 0, T.hex(T.colors.accent2), 10, true, true);
         this.tweens.add({ targets: st, scale: { from: 1.6, to: 1 }, duration: 250, ease: "Back.out" });
         window.AudioManager.sfx("star");
       });
     }
 
-    // Números
     const stat = (x, label, value, color) => {
-      this.add.text(x, 340, value, { fontFamily: T.font, fontSize: "44px", fontStyle: "bold", color: color || T.colors.text }).setOrigin(0.5);
-      this.add.text(x, 390, label, { fontFamily: T.font, fontSize: "16px", color: T.colors.textDim }).setOrigin(0.5);
+      this.add.text(x, 252, value, { fontFamily: T.font, fontSize: "40px", fontStyle: "bold", color: color || T.colors.text }).setOrigin(0.5);
+      this.add.text(x, 296, label, { fontFamily: T.font, fontSize: "15px", color: T.colors.textDim }).setOrigin(0.5);
     };
-    stat(w / 2 - 180, "Pontuação", String(S.score), T.hex(T.colors.accent2));
-    stat(w / 2, "Estrelas", totalStars + "/" + maxStars, T.hex(T.colors.accent));
-    stat(w / 2 + 180, "Precisão", acc + "%", T.hex(T.colors.good));
+    stat(w / 2 - 175, "Score", String(S.score), T.hex(T.colors.accent2));
+    stat(w / 2, "Stars", totalStars + "/" + maxStars, T.hex(T.colors.accent));
+    stat(w / 2 + 175, "Accuracy", acc + "%", T.hex(T.colors.good));
 
-    // Acertos e detalhamento por fase
-    this.add.text(w / 2, 440, `Acertos: ${S.correct}/${S.total}`, { fontFamily: T.font, fontSize: "20px", color: T.colors.text }).setOrigin(0.5);
+    this.add.text(w / 2, 344, `Correct: ${S.correct}/${S.total}`, { fontFamily: T.font, fontSize: "20px", color: T.colors.text }).setOrigin(0.5);
 
-    // Mensagem de conclusão
     let msg;
-    if (this.gameOver) msg = "Continue praticando — você consegue!";
-    else if (acc >= 90) msg = "🏆 Excelente! Domínio impressionante!";
-    else if (acc >= 60) msg = "👏 Muito bom! Continue evoluindo!";
-    else msg = "💪 Bom começo! Pratique para melhorar!";
-    this.add.text(w / 2, 486, msg, { fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: T.hex(T.colors.accent) }).setOrigin(0.5);
+    if (this.gameOver) msg = "Keep practicing — you can do it!";
+    else if (acc >= 90) msg = "🏆 Excellent! Impressive mastery!";
+    else if (acc >= 60) msg = "👏 Great job! Keep improving!";
+    else msg = "💪 Good start! Practice to improve!";
+    this.add.text(w / 2, 388, msg, { fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: T.hex(T.colors.accent) }).setOrigin(0.5);
 
-    // Botões
-    const replay = T.button(this, w / 2 - 150, 600, 280, 62, "↻  Jogar novamente", {
+    const replay = T.button(this, w / 2 - 150, 470, 280, 58, "↻  Play again", {
       onClick: () => { window.GameState.resetSession(); window.AudioManager.stopMusic(); this.scene.start("IntroScene"); }
     });
-    const menu = T.button(this, w / 2 + 150, 600, 280, 62, "≡  Voltar ao menu", {
+    const menu = T.button(this, w / 2 + 150, 470, 280, 58, "≡  Back to menu", {
       color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text,
       onClick: () => { window.AudioManager.stopMusic(); this.scene.start("MenuScene"); }
     });
 
-    // LOGO OFICIAL da First Prime (ou placeholder técnico até receber o arquivo)
-    window.Brand.render(this, w / 2, h - 58, 190, 44, { onDark: true });
-
-    // rodapé placeholder
-    this.add.text(w / 2, h - 20, "Conteúdo demonstrativo (placeholder). Substituível pelo conteúdo real do PRIME TWO.", {
+    window.Brand.render(this, w / 2, h - 46, 180, 42, { onDark: true });
+    this.add.text(w / 2, h - 16, "DEMO content (placeholder). Replaceable with real PRIME TWO content.", {
       fontFamily: T.font, fontSize: "12px", color: T.colors.textDim
     }).setOrigin(0.5);
 
-    // confete de vitória
     if (!this.gameOver) {
       T.ensureParticleTexture(this);
       [T.colors.accent, T.colors.accent2, T.colors.accentPink, T.colors.good].forEach((c, i) => {
         this.time.delayedCall(i * 150, () => {
           const p = this.add.particles(Phaser.Math.Between(200, w - 200), -20, "t_dot", {
             speedY: { min: 120, max: 260 }, speedX: { min: -60, max: 60 },
-            scale: { start: 0.6, end: 0 }, lifespan: 2200, quantity: 3, frequency: 60, tint: c, gravityY: 120
+            scale: { start: 0.6, end: 0 }, lifespan: 2000, quantity: 3, frequency: 60, tint: c, gravityY: 120
           }).setDepth(80);
-          this.time.delayedCall(1500, () => p.stop());
-          this.time.delayedCall(4000, () => p.destroy());
+          this.time.delayedCall(1400, () => p.stop());
+          this.time.delayedCall(3600, () => p.destroy());
         });
       });
     }
@@ -2599,10 +2327,14 @@ window.GAME_CONFIG = {
   parent: "game-container",
   backgroundColor: "#0b1026",
   scale: {
+    // Mobile-first: base 1280x600 (~2.13:1) fills iPhone landscape with minimal
+    // letterbox; FIT keeps a single consistent layout across desktop/tablet/phone.
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: 1280,
-    height: 720
+    height: 600,
+    min: { width: 320, height: 180 },
+    max: { width: 2560, height: 1200 }
   },
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },

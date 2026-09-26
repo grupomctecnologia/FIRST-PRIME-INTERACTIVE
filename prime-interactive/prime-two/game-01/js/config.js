@@ -6,10 +6,14 @@ window.GAME_CONFIG = {
   parent: "game-container",
   backgroundColor: "#0b1026",
   scale: {
+    // Mobile-first: base 1280x600 (~2.13:1) fills iPhone landscape with minimal
+    // letterbox; FIT keeps a single consistent layout across desktop/tablet/phone.
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
     width: 1280,
-    height: 720
+    height: 600,
+    min: { width: 320, height: 180 },
+    max: { width: 2560, height: 1200 }
   },
   dom: { createContainer: true },
   render: { antialias: true, roundPixels: false },

@@ -10,14 +10,13 @@ window.GameState = {
   /* Estado de sessão (zerado a cada partida) */
   session: null,
 
-  /* Configurações persistentes */
+  /* Configurações persistentes (interface 100% em inglês — sem tradução) */
   settings: {
-    mode: "teacher",         // "teacher" (Modo Professor) | "challenge" (Modo Desafio)
-    subtitles: true,         // legendas visíveis
-    showTranslation: false,  // tradução PT-BR (padrão ligado no Modo Professor)
+    mode: "teacher",         // "teacher" (Teacher Mode) | "challenge" (Challenge Mode)
+    subtitles: true,         // English subtitles visible
     volume: 0.7,             // 0..1
     muted: false,
-    largeFont: false,        // acessibilidade
+    largeFont: false,        // accessibility
     highContrast: false
   },
 
@@ -42,10 +41,7 @@ window.GameState = {
   setMode(mode) {
     this.settings.mode = mode;
     if (mode === "teacher") {
-      this.settings.subtitles = true;
-      this.settings.showTranslation = true;   // tradução ligada por padrão no Modo Professor
-    } else {
-      this.settings.showTranslation = false;
+      this.settings.subtitles = true;   // subtitles always on in Teacher Mode
     }
     this.save();
     this.resetSession();

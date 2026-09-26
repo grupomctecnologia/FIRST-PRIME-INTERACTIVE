@@ -42,7 +42,7 @@ Requisitos: navegador moderno com WebGL e Web Audio (Chrome, Edge, Firefox, Safa
 | Base          | HTML5, CSS moderno (gradientes, `dvh`, media queries), JavaScript |
 | Áudio         | **Web Audio API** (música + efeitos sintetizados, royalty-free)   |
 | Voz/Narração  | **SpeechSynthesis** (TTS do navegador — placeholder substituível) |
-| Legendas      | Overlay DOM sincronizado (EN principal + PT-BR opcional)          |
+| Legendas      | Renderizadas DENTRO do canvas (in-canvas), sincronizadas — inglês apenas |
 | Persistência  | `localStorage` (apenas preferências: modo, volume, legenda, etc.) |
 
 Sem Java, sem WordPress, sem dependências de build. Nenhum material com copyright.
@@ -109,14 +109,15 @@ prime-interactive/prime-two/game-01/
 
 ## Modos
 
-- **Modo Professor** — legendas sempre visíveis, tradução PT-BR ligada, repetir
+- **Interface 100% em inglês** (produto de escola de inglês) — sem português na experiência do aluno.
+- **Modo Professor** — legendas sempre visíveis, avanço manual (sem cronômetro), repetir
   áudio, pausar, sem cronômetro, avanço manual, feedback pedagógico, tela cheia.
 - **Modo Desafio** — pontuação, estrelas, **3 vidas**, sequência de fases, menos
   dicas (avanço automático), resultado final (Game Over ao perder as vidas).
 
 ## Controles e acessibilidade
 
-- HUD: legenda (CC), tradução (🇧🇷/🇺🇸), repetir áudio, volume, mudo, pausar,
+- HUD (barra única mobile-first): legenda (CC), repetir áudio, volume, mudo, pausar,
   tela cheia, menu.
 - Atalhos de teclado: **L** legenda · **M** mudo · **P** pausar · **R** repetir ·
   **F** tela cheia · **Enter**/**Esc** navegar.

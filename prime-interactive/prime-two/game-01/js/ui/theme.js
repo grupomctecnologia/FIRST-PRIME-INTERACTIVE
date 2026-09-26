@@ -143,17 +143,21 @@ window.Theme = {
     c.label = txt;
 
     c.setSize(w, h);
-    c.setInteractive(new Phaser.Geom.Rectangle(-w / 2, -h / 2, w, h), Phaser.Geom.Rectangle.Contains);
-    c.on("pointerover", () => { draw(false, true); scene.tweens.add({ targets: c, scale: 1.03, duration: 120 }); window.AudioManager.sfx("hover"); });
-    c.on("pointerout",  () => { draw(false, false); scene.tweens.add({ targets: c, scale: 1.0, duration: 120 }); });
-    c.on("pointerdown", () => { draw(true, true); });
-    c.on("pointerup",   () => { draw(false, true); window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
+    // Hit target = an interactive ZONE (GameObject). Interactive Zones receive
+    // BOTH mouse and touch at any container nesting depth — unlike interactive
+    // Containers, whose touch hit-testing is unreliable on mobile.
+    const hit = scene.add.zone(0, 0, w, h).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    c.add(hit); c.hit = hit;
+    hit.on("pointerover", () => { draw(false, true); scene.tweens.add({ targets: c, scale: 1.03, duration: 120 }); window.AudioManager.sfx("hover"); });
+    hit.on("pointerout",  () => { draw(false, false); scene.tweens.add({ targets: c, scale: 1.0, duration: 120 }); });
+    hit.on("pointerdown", () => { draw(true, true); });
+    hit.on("pointerup",   () => { draw(false, true); window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
     c._draw = draw;
-    c.setEnabled = (en) => { c.disabled = !en; c.setAlpha(en ? 1 : 0.45); if (en) c.setInteractive(); else c.disableInteractive(); };
+    c.setEnabled = (en) => { c.disabled = !en; c.setAlpha(en ? 1 : 0.45); if (en) hit.setInteractive({ useHandCursor: true }); else hit.disableInteractive(); };
     return c;
   },
 
-  /* Botão-ícone circular (HUD) */
+  /* Botão-ícone circular (HUD) — hit area via Zone (touch-safe) */
   iconButton(scene, x, y, glyph, opts = {}) {
     const c = scene.add.container(x, y);
     const rad = opts.radius || 26;
@@ -169,10 +173,13 @@ window.Theme = {
     const t = scene.add.text(0, 0, glyph, { fontFamily: this.font, fontSize: (opts.fontSize || 24) + "px", color: this.colors.text }).setOrigin(0.5);
     c.add(t); c.glyph = t;
     c.setSize(rad * 2, rad * 2);
-    c.setInteractive(new Phaser.Geom.Circle(0, 0, rad), Phaser.Geom.Circle.Contains);
-    c.on("pointerover", () => { drawn(true); window.AudioManager.sfx("hover"); });
-    c.on("pointerout", () => drawn(false));
-    c.on("pointerup", () => { window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
+    // slightly larger square hit zone for comfortable touch targets
+    const hitR = Math.max(rad, 22);
+    const hit = scene.add.zone(0, 0, hitR * 2, hitR * 2).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    c.add(hit); c.hit = hit;
+    hit.on("pointerover", () => { drawn(true); window.AudioManager.sfx("hover"); });
+    hit.on("pointerout", () => drawn(false));
+    hit.on("pointerup", () => { window.AudioManager.sfx("click"); if (opts.onClick) opts.onClick(); });
     c.setGlyph = (gg) => t.setText(gg);
     return c;
   },

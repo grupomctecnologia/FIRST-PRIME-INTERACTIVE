@@ -86,7 +86,7 @@ placeholder (TTS/síntese). Veja `assets/audio/README.md`.
 ## Checklist ao entregar conteúdo oficial
 - [ ] `meta.placeholder = false` e `PRIME_AUDIO_MANIFEST.placeholder = false`
 - [ ] Vocabulário, listening, conversa, gramática e final revisados pedagogicamente
-- [ ] Legendas EN + tradução PT-BR conferidas
+- [ ] Legendas em inglês conferidas (a interface é 100% inglês — sem tradução)
 - [ ] Áudios reais plugados (se houver)
 - [ ] Remover os avisos de "conteúdo demonstrativo" do menu/resultado
       (`MenuScene.js` e `ResultScene.js`)

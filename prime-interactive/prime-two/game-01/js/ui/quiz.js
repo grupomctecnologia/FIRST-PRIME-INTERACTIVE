@@ -32,7 +32,7 @@ window.Quiz = {
           const correct = i === opts.correctIndex;
           // recolore
           buttons.forEach((bb, j) => {
-            bb.disableInteractive();
+            if (bb.hit) bb.hit.disableInteractive();
             if (j === opts.correctIndex) { bb._draw = null; this._recolor(scene, bb, T.colors.good); }
             else if (j === i) this._recolor(scene, bb, T.colors.bad);
             else bb.setAlpha(0.5);
@@ -46,6 +46,7 @@ window.Quiz = {
       c.add(b);
     });
     c.buttons = buttons;
+    c.correctIndex = opts.correctIndex;
     c.totalHeight = rows * bh + (rows - 1) * gapY;
     return c;
   },

@@ -69,11 +69,11 @@ window.Brand = {
     drawDashed(-w / 2, h / 2, -w / 2, -h / 2);
     c.add(g);
 
-    const t1 = scene.add.text(0, -h * 0.14, "LOGO OFICIAL · FIRST PRIME", {
+    const t1 = scene.add.text(0, -h * 0.14, "OFFICIAL LOGO · FIRST PRIME", {
       fontFamily: T.font, fontSize: Math.max(13, Math.round(h * 0.16)) + "px",
       fontStyle: "bold", color: T.hex(T.colors.accent), align: "center"
     }).setOrigin(0.5);
-    const t2 = scene.add.text(0, h * 0.20, "aguardando arquivo oficial — não recriar", {
+    const t2 = scene.add.text(0, h * 0.20, "awaiting official file — do not recreate", {
       fontFamily: T.font, fontSize: Math.max(10, Math.round(h * 0.12)) + "px",
       color: T.colors.textDim, align: "center"
     }).setOrigin(0.5);

@@ -1,4 +1,5 @@
-/* Menu inicial: seleção de modo, START e configurações/acessibilidade. */
+/* Main menu — English UI. Two DIRECT-START mode buttons (one tap starts the
+ * game in that mode: fixes the "challenge mode won't open" issue). */
 class MenuScene extends Phaser.Scene {
   constructor() { super("MenuScene"); }
 
@@ -9,151 +10,120 @@ class MenuScene extends Phaser.Scene {
     T.particles(this, T.colors.accent);
     window.GameState.resetSession();
 
-    // desbloqueia áudio no primeiro gesto e toca música do menu
     const unlock = () => { window.AudioManager.unlock(); window.AudioManager.playMusic("menu"); };
     this.input.once("pointerdown", unlock);
     this.input.keyboard.once("keydown", unlock);
 
-    // LOGO OFICIAL da First Prime (ou placeholder técnico até receber o arquivo)
-    window.Brand.render(this, w / 2, 52, 290, 56, { onDark: true });
-    // Nome do PRODUTO (game) — texto, não é o logo da marca
-    const pt = this.add.text(w / 2, 118, "PRIME TWO", {
-      fontFamily: T.font, fontSize: "60px", fontStyle: "bold", color: T.colors.text
+    // Official First Prime logo (or technical placeholder until the file arrives)
+    window.Brand.render(this, w / 2, 40, 250, 50, { onDark: true });
+
+    const pt = this.add.text(w / 2, 90, "PRIME TWO", {
+      fontFamily: T.font, fontSize: "48px", fontStyle: "bold", color: T.colors.text
     }).setOrigin(0.5);
-    pt.setShadow(0, 5, "rgba(0,0,0,0.55)", 14, true, true);
-    const adv = this.add.text(w / 2, 168, "THE ENGLISH ADVENTURE", {
-      fontFamily: T.font, fontSize: "26px", fontStyle: "bold", color: T.hex(T.colors.accent2)
+    pt.setShadow(0, 4, "rgba(0,0,0,0.55)", 12, true, true);
+    const adv = this.add.text(w / 2, 126, "THE ENGLISH ADVENTURE", {
+      fontFamily: T.font, fontSize: "22px", fontStyle: "bold", color: T.hex(T.colors.accent2)
     }).setOrigin(0.5);
-    adv.setShadow(0, 0, T.hex(T.colors.accent2), 16, true, true);
-
-    // Badge placeholder
-    this.add.text(w / 2, 192, "⚠ Conteúdo DEMONSTRATIVO (placeholder) — não é o conteúdo oficial do PRIME TWO", {
-      fontFamily: T.font, fontSize: "13px", color: T.colors.textDim
-    }).setOrigin(0.5);
-
-    // Cartões de modo
-    this.modeCards = {};
-    this.buildModeCard("teacher", w / 2 - 235, 330, "👩‍🏫  MODO PROFESSOR",
-      ["Legendas sempre visíveis", "Tradução PT-BR", "Repetir áudio · Pausar", "Sem cronômetro · Avanço manual", "Feedback pedagógico"]);
-    this.buildModeCard("challenge", w / 2 + 235, 330, "🎯  MODO DESAFIO",
-      ["Pontuação e estrelas", "3 vidas / tentativas", "Sequência de fases", "Menos dicas", "Resultado final"]);
-    this.refreshModeCards();
-
-    // START
-    const start = T.button(this, w / 2, 540, 300, 70, "▶  START", {
-      fontSize: 30, onClick: () => {
-        window.AudioManager.unlock();
-        window.AudioManager.sfx("transition");
-        window.GameState.resetSession();
-        this.scene.start("IntroScene");
-      }
-    });
-
-    // Barra de configurações/acessibilidade
-    this.buildSettings(w, h);
-
-    // rodapé
-    this.add.text(w / 2, h - 16, "Atalhos: L legenda · M mudo · P pausar · R repetir · F tela cheia", {
+    adv.setShadow(0, 0, T.hex(T.colors.accent2), 14, true, true);
+    this.add.text(w / 2, 152, "⚠ DEMO content (placeholder) — not the official PRIME TWO content", {
       fontFamily: T.font, fontSize: "12px", color: T.colors.textDim
     }).setOrigin(0.5);
-  }
 
-  buildModeCard(mode, x, y, titleTxt, lines) {
-    const T = window.Theme;
-    const card = T.card(this, x, y, 430, 250, { border: T.colors.accent });
-    card.mode = mode;
-    const title = this.add.text(0, -95, titleTxt, {
-      fontFamily: T.font, fontSize: "24px", fontStyle: "bold", color: T.colors.text
+    // Two big mode buttons (each starts the game directly on tap)
+    this.makeModeButton("teacher", w / 2 - 268, 300, "👩‍🏫  TEACHER MODE", T.colors.accent, 0x6b8bff,
+      ["Subtitles always on", "Manual pacing · no timer", "Repeat audio · pause", "Pedagogical feedback"]);
+    this.makeModeButton("challenge", w / 2 + 268, 300, "🎯  CHALLENGE MODE", T.colors.accent2, 0xff9f43,
+      ["Score & stars", "3 lives / attempts", "Sequence of stages", "Final result"]);
+
+    // Settings / accessibility row (English)
+    this.buildSettings(w);
+
+    this.add.text(w / 2, h - 14, "Shortcuts: L subtitles · M mute · P pause · R repeat · F fullscreen", {
+      fontFamily: T.font, fontSize: "11px", color: T.colors.textDim
     }).setOrigin(0.5);
-    card.add(title);
-    lines.forEach((l, i) => {
-      const t = this.add.text(-180, -50 + i * 34, "•  " + l, {
-        fontFamily: T.font, fontSize: "17px", color: T.colors.textDim
-      }).setOrigin(0, 0.5);
-      card.add(t);
-    });
-    card.bg.setInteractive(new Phaser.Geom.Rectangle(-215, -125, 430, 250), Phaser.Geom.Rectangle.Contains);
-    card.bg.on("pointerup", () => {
-      window.AudioManager.unlock();
-      window.AudioManager.sfx("click");
-      window.GameState.setMode(mode);
-      this.refreshModeCards();
-      if (this.hud) this.hud.updateScore?.();
-    });
-    this.modeCards[mode] = card;
   }
 
-  refreshModeCards() {
-    const T = window.Theme, sel = window.GameState.settings.mode;
-    Object.values(this.modeCards).forEach(card => {
-      const on = card.mode === sel;
-      card.bg.clear();
-      const w = card.w, h = card.h, r = 22;
-      card.bg.fillStyle(0x000000, 0.28); card.bg.fillRoundedRect(-w / 2 + 4, -h / 2 + 8, w, h, r);
-      card.bg.fillStyle(on ? T.colors.panelLight : T.colors.panel, 0.95); card.bg.fillRoundedRect(-w / 2, -h / 2, w, h, r);
-      card.bg.lineStyle(on ? 4 : 2, on ? T.colors.accent2 : T.colors.accent, on ? 1 : 0.4);
-      card.bg.strokeRoundedRect(-w / 2, -h / 2, w, h, r);
-      card.setScale(on ? 1.02 : 0.98);
-    });
-  }
-
-  buildSettings(w, h) {
+  makeModeButton(mode, x, y, title, c1, c2, bullets) {
     const T = window.Theme;
-    const y = 640;
-    const cont = this.add.container(0, 0);
-    const s = window.GameState.settings;
+    const cw = 520, ch = 232;
+    const c = this.add.container(x, y);
+    const g = this.add.graphics();
+    const draw = (hover) => {
+      g.clear();
+      g.fillStyle(0x000000, 0.3); g.fillRoundedRect(-cw / 2 + 4, -ch / 2 + 8, cw, ch, 22);
+      g.fillStyle(T.colors.panelLight, hover ? 1 : 0.94); g.fillRoundedRect(-cw / 2, -ch / 2, cw, ch, 22);
+      g.lineStyle(hover ? 4 : 3, c1, hover ? 1 : 0.6); g.strokeRoundedRect(-cw / 2, -ch / 2, cw, ch, 22);
+      g.fillStyle(0xffffff, 0.05); g.fillRoundedRect(-cw / 2, -ch / 2, cw, ch * 0.4, { tl: 22, tr: 22, bl: 0, br: 0 });
+    };
+    draw(false);
+    c.add(g);
+    c.add(this.add.text(0, -ch / 2 + 34, title, { fontFamily: T.font, fontSize: "24px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5));
+    bullets.forEach((b, i) => {
+      c.add(this.add.text(-cw / 2 + 40, -ch / 2 + 72 + i * 26, "•  " + b, {
+        fontFamily: T.font, fontSize: "16px", color: T.colors.textDim
+      }).setOrigin(0, 0.5));
+    });
+    // START pill
+    const pill = this.add.graphics();
+    pill.fillGradientStyle(c1, c1, c2, c2, 1); pill.fillRoundedRect(-110, ch / 2 - 52, 220, 40, 20);
+    c.add(pill);
+    c.add(this.add.text(0, ch / 2 - 32, "▶  START", { fontFamily: T.font, fontSize: "20px", fontStyle: "bold", color: "#06121f" }).setOrigin(0.5));
 
-    const mk = (x, glyph, cb) => T.iconButton(this, x, y, glyph, { radius: 24, onClick: cb });
+    // whole card is the touch target — via an interactive ZONE (touch-safe)
+    c.setSize(cw, ch);
+    const hit = this.add.zone(0, 0, cw, ch).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    c.add(hit);
+    hit.on("pointerover", () => { draw(true); this.tweens.add({ targets: c, scale: 1.02, duration: 120 }); window.AudioManager.sfx("hover"); });
+    hit.on("pointerout", () => { draw(false); this.tweens.add({ targets: c, scale: 1, duration: 120 }); });
+    hit.on("pointerup", () => this.startGame(mode));
+    return c;
+  }
 
-    // legenda
-    this.subToggle = mk(w / 2 - 300, s.subtitles ? "CC" : "cc", () => {
+  startGame(mode) {
+    if (this._starting) return; this._starting = true;
+    window.AudioManager.unlock();
+    window.AudioManager.sfx("transition");
+    window.GameState.setMode(mode);      // sets mode + resets session (lives=3 for challenge)
+    window.GameState.resetSession();
+    this.cameras.main.fadeOut(280, 5, 7, 20);
+    // robust transition: timer-driven (not dependent on the fade-complete event)
+    this.time.delayedCall(300, () => this.scene.start("IntroScene"));
+  }
+
+  buildSettings(w) {
+    const T = window.Theme, s = window.GameState.settings;
+    const y = 486;
+    const mk = (x, glyph, cb) => T.iconButton(this, x, y, glyph, { radius: 22, fontSize: 20, onClick: cb });
+    const cx = w / 2;
+    this.subToggle = mk(cx - 230, s.subtitles ? "CC" : "cc", () => {
       s.subtitles = !s.subtitles; window.GameState.save(); this.subToggle.setGlyph(s.subtitles ? "CC" : "cc");
     });
-    // tradução
-    this.trToggle = mk(w / 2 - 240, s.showTranslation ? "🇧🇷" : "🇺🇸", () => {
-      s.showTranslation = !s.showTranslation; window.GameState.save(); this.trToggle.setGlyph(s.showTranslation ? "🇧🇷" : "🇺🇸");
-    });
-    // volume down / up
-    mk(w / 2 - 170, "🔉", () => { window.AudioManager.setVolume(s.volume - 0.15); this.drawVol(); });
-    mk(w / 2 - 110, "🔊", () => { window.AudioManager.setVolume(s.volume + 0.15); this.drawVol(); });
-    // mute
-    this.muteToggle = mk(w / 2 - 50, s.muted ? "🔇" : "🔈", () => {
+    mk(cx - 140, "🔉", () => { window.AudioManager.setVolume(s.volume - 0.15); this.drawVol(); });
+    mk(cx - 80, "🔊", () => { window.AudioManager.setVolume(s.volume + 0.15); this.drawVol(); });
+    this.muteToggle = mk(cx - 10, s.muted ? "🔇" : "🔈", () => {
       const m = window.AudioManager.toggleMute(); this.muteToggle.setGlyph(m ? "🔇" : "🔈");
     });
-    // fonte grande
-    this.fontToggle = mk(w / 2 + 60, "A+", () => {
-      s.largeFont = !s.largeFont; window.GameState.save(); window.applyBodyA11y(); window.SubtitleManager.refresh();
+    this.fontToggle = mk(cx + 90, "A+", () => {
+      s.largeFont = !s.largeFont; window.GameState.save(); window.applyBodyA11y();
       this.fontToggle.glyph.setColor(s.largeFont ? T.hex(T.colors.accent2) : T.colors.text);
     });
-    // alto contraste
-    this.contrastToggle = mk(w / 2 + 120, "◑", () => {
-      s.highContrast = !s.highContrast; window.GameState.save(); window.applyBodyA11y(); window.SubtitleManager.refresh();
+    this.contrastToggle = mk(cx + 150, "◑", () => {
+      s.highContrast = !s.highContrast; window.GameState.save(); window.applyBodyA11y();
       this.contrastToggle.glyph.setColor(s.highContrast ? T.hex(T.colors.accent2) : T.colors.text);
     });
-    // tela cheia
-    mk(w / 2 + 230, "⛶", () => {
-      if (this.scale.isFullscreen) this.scale.stopFullscreen(); else this.scale.startFullscreen();
-    });
+    mk(cx + 230, "⛶", () => { if (this.scale.isFullscreen) this.scale.stopFullscreen(); else { try { this.scale.startFullscreen(); } catch (e) {} } });
 
-    // barra de volume
-    this.volBar = this.add.graphics();
-    this.drawVol();
-
-    // legenda dos ícones
-    this.add.text(w / 2 - 300, y + 34, "Legenda", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 - 240, y + 34, "Tradução", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 - 140, y + 34, "Volume", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 - 50, y + 34, "Mudo", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 + 90, y + 34, "Acessibilidade", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
-    this.add.text(w / 2 + 230, y + 34, "Tela cheia", { fontFamily: T.font, fontSize: "11px", color: T.colors.textDim }).setOrigin(0.5);
+    this.volBar = this.add.graphics(); this.drawVol();
+    const lbl = (x, t) => this.add.text(x, y + 30, t, { fontFamily: T.font, fontSize: "10px", color: T.colors.textDim }).setOrigin(0.5);
+    lbl(cx - 230, "Subtitles"); lbl(cx - 110, "Volume"); lbl(cx - 10, "Mute"); lbl(cx + 120, "Accessibility"); lbl(cx + 230, "Fullscreen");
   }
 
   drawVol() {
-    const T = window.Theme, s = window.GameState.settings;
-    const w = this.scale.width, x = w / 2 - 145, y = 668, bw = 70;
+    const T = window.Theme, s = window.GameState.settings, w = this.scale.width;
+    const x = w / 2 - 118, y = 508, bw = 60;
     this.volBar.clear();
-    this.volBar.fillStyle(0x1e2750, 1); this.volBar.fillRoundedRect(x, y, bw, 6, 3);
-    this.volBar.fillStyle(T.colors.accent, 1); this.volBar.fillRoundedRect(x, y, bw * (s.muted ? 0 : s.volume), 6, 3);
+    this.volBar.fillStyle(0x1e2750, 1); this.volBar.fillRoundedRect(x, y, bw, 5, 3);
+    this.volBar.fillStyle(T.colors.accent, 1); this.volBar.fillRoundedRect(x, y, bw * (s.muted ? 0 : s.volume), 5, 3);
   }
 }
 window.MenuScene = MenuScene;
