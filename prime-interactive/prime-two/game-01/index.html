@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1026" />
+  <meta name="description" content="PRIME TWO — The English Adventure · Jogo educacional premium da First Prime Interactive (versão de homologação, conteúdo demonstrativo)." />
+  <title>PRIME TWO — The English Adventure | First Prime Interactive</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="game-container">
+    <div id="rotate-hint" aria-hidden="true">
+      <div class="rh-icon">📱↻</div>
+      <div class="rh-title">Gire o dispositivo</div>
+      <div class="rh-text">Para a melhor experiência, use o modo paisagem (horizontal).</div>
+    </div>
+    <div id="boot-loader">
+      <div class="bl-brand">FIRST PRIME INTERACTIVE</div>
+      <div class="bl-title">PRIME TWO</div>
+      <div class="bl-sub">THE ENGLISH ADVENTURE</div>
+      <div class="bl-spinner"></div>
+      <div class="bl-hint">Carregando… toque na tela para ativar o áudio</div>
+    </div>
+  </div>
+
+  <!-- Biblioteca -->
+  <script src="lib/phaser.min.js"></script>
+
+  <!-- Dados / Conteúdo (PLACEHOLDER — substituível) -->
+  <script src="js/data/content.js"></script>
+
+  <!-- Managers -->
+  <script src="js/managers/GameState.js"></script>
+  <script src="js/managers/AudioManager.js"></script>
+  <script src="js/managers/SubtitleManager.js"></script>
+
+  <!-- UI Kit -->
+  <script src="js/ui/theme.js"></script>
+  <script src="js/ui/quiz.js"></script>
+  <script src="js/ui/hud.js"></script>
+  <script src="js/ui/flow.js"></script>
+
+  <!-- Cenas -->
+  <script src="js/scenes/BootScene.js"></script>
+  <script src="js/scenes/PreloadScene.js"></script>
+  <script src="js/scenes/MenuScene.js"></script>
+  <script src="js/scenes/IntroScene.js"></script>
+  <script src="js/scenes/VocabularyScene.js"></script>
+  <script src="js/scenes/ListeningScene.js"></script>
+  <script src="js/scenes/ConversationScene.js"></script>
+  <script src="js/scenes/LanguageScene.js"></script>
+  <script src="js/scenes/FinalScene.js"></script>
+  <script src="js/scenes/ResultScene.js"></script>
+
+  <!-- Config + Boot -->
+  <script src="js/config.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
