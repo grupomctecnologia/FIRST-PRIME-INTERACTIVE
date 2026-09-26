@@ -1,0 +1,50 @@
+/* =============================================================================
+ *  Flow — progressão entre fases + transição de conclusão de fase.
+ * ===========================================================================*/
+window.Flow = {
+  /* Tela intermediária "Fase concluída" com estrelas, depois avança. */
+  completePhase(scene, phaseKey) {
+    const T = window.Theme, w = scene.scale.width, h = scene.scale.height;
+    const stars = window.GameState.computePhaseStars(phaseKey);
+    window.AudioManager.stopVoice();
+    window.SubtitleManager.hide();
+
+    const layer = scene.add.container(0, 0).setDepth(95);
+    const bg = scene.add.graphics(); bg.fillStyle(0x05070f, 0.85); bg.fillRect(0, 0, w, h); layer.add(bg);
+    const card = T.card(scene, w / 2, h / 2, 460, 300, { border: T.colors.accent2 });
+    layer.add(card);
+    layer.add(T.title(scene, w / 2, h / 2 - 100, window.S("stageComplete"), 32, T.colors.text));
+    const row = T.starRow(scene, w / 2, h / 2 - 28, 0, 3, 46);
+    layer.add(row);
+    // revela as estrelas ganhas imediatamente (com um "pop" via tween — sem
+    // depender de cadeia de timers, que pode falhar em algumas cenas)
+    for (let i = 0; i < stars; i++) {
+      const star = row.list[i];
+      star.setColor(T.hex(T.colors.accent2));
+      star.setShadow(0, 0, T.hex(T.colors.accent2), 14, true, true);
+      scene.tweens.add({ targets: star, scale: { from: 1.6, to: 1 }, duration: 300, delay: i * 140, ease: "Back.out" });
+    }
+    window.AudioManager.sfx("star");
+    const r = window.GameState.session.phaseResults[phaseKey] || { total: 0 };
+    layer.add(scene.add.text(w / 2, h / 2 + 36, `${window.S("correctLabel")}: ${r.total}/${r.total}  ·  +${r.total * 100} pts`, {
+      fontFamily: T.font, fontSize: "20px", color: T.colors.textDim
+    }).setOrigin(0.5));
+
+    // Botão Continue criado IMEDIATAMENTE (sempre presente e clicável)
+    const btn = T.button(scene, w / 2, h / 2 + 100, 260, 54, window.S("continueBtn"), {
+      onClick: () => { window.AudioManager.sfx("transition"); this.next(scene, phaseKey); }
+    });
+    layer.add(btn);
+  },
+
+  next(scene, phaseKey) {
+    // Transição imediata e confiável (o alvo faz fadeIn). Evita depender do
+    // clock da cena que está concluindo.
+    if (window.GameState.isGameOver()) { scene.scene.start("ResultScene", { gameOver: true }); return; }
+    const order = window.GameState.phaseOrder;
+    const idx = order.indexOf(phaseKey);
+    const nextKey = order[idx + 1];
+    if (nextKey) scene.scene.start(nextKey + "Scene");
+    else scene.scene.start("ResultScene", { gameOver: false });
+  }
+};

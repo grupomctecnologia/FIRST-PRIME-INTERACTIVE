@@ -16,16 +16,16 @@ Alex e Emma, versões da missão da loja. 1024×1536, RGBA (transparente).
 | g02-emma-pointing.png | 1024×1536 | sim | Emma — apontando (instrução) |
 | g02-emma-celebrating.png | 1024×1536 | sim | Emma — comemorando (acerto) |
 
-## PACK 02 — CENÁRIOS DA LOJA → `assets/backgrounds/` (4 de 6 válidos)
+## PACK 02 — CENÁRIOS DA LOJA → `assets/backgrounds/` (6/6)
 1664×936, RGB (sem alpha), paisagem.
-| Arquivo | Dimensões | Estado | Finalidade |
-|---|---|---|---|
-| g02-bg-london-street.png | 1664×936 | OK | Rua de Londres (exterior/entrada) |
-| g02-bg-clothing-section.png | 1664×936 | OK | Seção de roupas |
-| g02-bg-fitting-room.png | 1664×936 | OK | Provador |
-| g02-bg-checkout-counter.png | 1664×936 | OK | Caixa/checkout |
-| g02-bg-accessories-section.png | 1664×936 | **CORROMPIDO (origem)** | Seção de acessórios — pendente reenvio |
-| g02-bg-shoes-section.png | 1664×936 | **CORROMPIDO (upload)** | Seção de calçados — pendente reenvio |
+| Arquivo | Dimensões | Finalidade |
+|---|---|---|
+| g02-bg-london-street.png | 1664×936 | Rua de Londres (exterior/entrada) |
+| g02-bg-clothing-section.png | 1664×936 | Seção de roupas |
+| g02-bg-fitting-room.png | 1664×936 | Provador |
+| g02-bg-checkout-counter.png | 1664×936 | Caixa/checkout |
+| g02-bg-accessories-section.png | 1664×936 | Seção de acessórios (reenviado — o 1º upload chegou truncado) |
+| g02-bg-shoes-section.png | 1664×936 | Seção de calçados (reenviado — o 1º upload chegou truncado) |
 
 ## PACK 03 — OBJETOS E ITENS → `assets/items/` (14)
 1254×1254, RGBA (transparente). Itens de compras.
@@ -49,4 +49,4 @@ RGBA (transparente). UI premium azul+dourado.
 | 11-icone-certo.png | 1374×1145 | Ícone "correto" |
 | 12-icone-voltar.png | 1536×1024 | Ícone voltar |
 
-**Total válido:** 38 assets (8 + 4 + 14 + 12). **Pendente:** 2 cenários (Pack 02).
+**Total oficial:** 40 assets (8 personagens + 6 cenários + 14 itens + 12 UI). Nenhum pendente.
