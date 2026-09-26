@@ -1,0 +1,37 @@
+# Segredos e credenciais — NUNCA versionar
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+*credential*
+*secret*
+service-account*.json
+
+# Backups
+*.bak
+*.backup
+backup/
+backups/
+*~
+
+# Dependências / build
+node_modules/
+dist/
+build/
+.cache/
+
+# Sistema operacional / editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+
+# Temporários
+tmp/
+temp/
+.playwright/
