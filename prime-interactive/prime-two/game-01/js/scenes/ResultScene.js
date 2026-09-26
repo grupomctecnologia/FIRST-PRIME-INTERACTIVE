@@ -75,8 +75,11 @@ class ResultScene extends Phaser.Scene {
       onClick: () => { window.AudioManager.stopMusic(); this.scene.start("MenuScene"); }
     });
 
+    // LOGO OFICIAL da First Prime (ou placeholder técnico até receber o arquivo)
+    window.Brand.render(this, w / 2, h - 58, 190, 44, { onDark: true });
+
     // rodapé placeholder
-    this.add.text(w / 2, h - 24, "Conteúdo demonstrativo (placeholder). Substituível pelo conteúdo real do PRIME TWO.", {
+    this.add.text(w / 2, h - 20, "Conteúdo demonstrativo (placeholder). Substituível pelo conteúdo real do PRIME TWO.", {
       fontFamily: T.font, fontSize: "12px", color: T.colors.textDim
     }).setOrigin(0.5);
 

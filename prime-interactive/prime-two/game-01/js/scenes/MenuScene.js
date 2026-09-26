@@ -14,8 +14,9 @@ class MenuScene extends Phaser.Scene {
     this.input.once("pointerdown", unlock);
     this.input.keyboard.once("keydown", unlock);
 
-    // Logo
-    T.title(this, w / 2, 70, "FIRST PRIME INTERACTIVE", 22, T.colors.accent).setLetterSpacing?.(4);
+    // LOGO OFICIAL da First Prime (ou placeholder técnico até receber o arquivo)
+    window.Brand.render(this, w / 2, 52, 290, 56, { onDark: true });
+    // Nome do PRODUTO (game) — texto, não é o logo da marca
     const pt = this.add.text(w / 2, 118, "PRIME TWO", {
       fontFamily: T.font, fontSize: "60px", fontStyle: "bold", color: T.colors.text
     }).setOrigin(0.5);

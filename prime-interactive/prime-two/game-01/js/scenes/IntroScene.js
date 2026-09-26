@@ -42,8 +42,9 @@ class IntroScene extends Phaser.Scene {
     T.particles(this, T.colors.accent2);
 
     // Título — revelação sequencial
+    // l1 = LOGO OFICIAL da First Prime (ou placeholder técnico até receber o arquivo)
     const lines = window.PRIME_CONTENT.intro.titleLines;
-    const l1 = T.title(this, w / 2, 150, lines[0], 26, T.colors.accent).setAlpha(0);
+    const l1 = window.Brand.render(this, w / 2, 150, 320, 70, { onDark: true }).setAlpha(0);
     const l2 = this.add.text(w / 2, 215, lines[1], { fontFamily: T.font, fontSize: "72px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5).setAlpha(0);
     l2.setShadow(0, 6, "rgba(0,0,0,0.6)", 18, true, true);
     const l3 = this.add.text(w / 2, 285, lines[2], { fontFamily: T.font, fontSize: "34px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5).setAlpha(0);
