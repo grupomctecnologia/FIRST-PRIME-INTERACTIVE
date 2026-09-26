@@ -1,107 +1,129 @@
 /* =============================================================================
- *  PRIME TWO — Game 02 · London Shopping Mission · ENGLISH pedagogical content
- *  ⚠️ DEMO / PLACEHOLDER. Replace with the real PRIME TWO Unit content.
- *  All player-facing text here is ENGLISH only. Item keys match asset-manifest.
+ *  PRIME TWO — Game 02 · London Shopping Mission · ENGLISH (British) content.
+ *  Seven official steps. Item keys match asset-manifest. No learner-facing
+ *  "demo/placeholder" wording.
  * ===========================================================================*/
 window.PRIME_CONTENT_ALL = window.PRIME_CONTENT_ALL || {};
 window.PRIME_CONTENT_ALL.en = {
-  meta: { book: "PRIME TWO", unit: "Unit 2 · Shopping (DEMO)", language: "en", voice: "en-US", placeholder: true,
-    note: "Demonstration content. Replace with real PRIME TWO shopping unit (English)." },
+  meta: { book: "PRIME TWO", unit: "London Shopping Mission", language: "en", voice: "en-GB" },
 
+  /* STEP 1 — MISSION BRIEFING */
   intro: {
-    placeholder: true,
     titleLines: ["FIRST PRIME INTERACTIVE", "PRIME TWO", "LONDON SHOPPING MISSION"],
     narration: [
-      "Welcome to London!",
-      "Today we are going shopping in the city.",
-      "Learn the words, listen carefully, and fill your cart to complete the mission."
+      "Welcome to London! I'm Alex.",
+      "And I'm Emma. Let's go shopping!",
+      "Find the right items, mind the colours, sizes and prices,",
+      "then fill your shopping bag and pay at the checkout. Let's start!"
     ]
   },
 
-  /* STAGE 1 — SHOP WINDOW: item image + gap sentence, pick the word. */
-  vocabulary: {
-    placeholder: true,
-    intro: "Tap the correct word for each item in the shop window.",
+  /* STEP 2 — FIND THE ITEM: choose the correct product among visual options. */
+  findItem: {
+    intro: "Listen and tap the correct item.",
     items: [
-      { id: "v1", item: "tshirt_blue", word: "T-shirt", prompt: "This is a blue ___.", options: ["T-shirt", "Jacket", "Scarf", "Cap"] },
-      { id: "v2", item: "backpack", word: "Backpack", prompt: "I carry my books in a ___.", options: ["Wallet", "Backpack", "Watch", "Cap"] },
-      { id: "v3", item: "sneakers_white", word: "Sneakers", prompt: "These white ___ are comfortable.", options: ["Trousers", "Sneakers", "Sunglasses", "Scarf"] },
-      { id: "v4", item: "watch", word: "Watch", prompt: "I check the time on my ___.", options: ["Watch", "Wallet", "Headphones", "Cap"] },
-      { id: "v5", item: "sunglasses", word: "Sunglasses", prompt: "On a sunny day I wear ___.", options: ["Sunglasses", "Scarf", "Jacket", "Gloves"] }
+      { id: "f1", target: "backpack", label: "backpack",
+        audioText: "Find the backpack.", subtitle: "Find the backpack.",
+        grid: ["backpack", "watch", "wallet", "cap"] },
+      { id: "f2", target: "headphones", label: "headphones",
+        audioText: "Find the headphones.", subtitle: "Find the headphones.",
+        grid: ["headphones", "sunglasses", "scarf", "watch"] },
+      { id: "f3", target: "trousers", label: "trousers",
+        audioText: "Find the trousers.", subtitle: "Find the trousers.",
+        grid: ["trousers", "jacket", "tshirt_white", "cap"] }
     ]
   },
 
-  /* STAGE 2 — SHOPPING LIST: hear the item, tap it among a grid of images. */
-  listening: {
-    placeholder: true,
-    intro: "Listen to the shopping list and tap the correct item.",
+  /* STEP 3 — COLOUR AND SIZE: product + colour + size (S/M/L). */
+  colourSize: {
+    intro: "Read the sentence and choose the right colour and size.",
     items: [
-      { id: "l1", target: "tshirt_blue", label: "blue t-shirt",
-        audioText: "We need a blue t-shirt. Can you find it?",
-        subtitle: "We need a blue t-shirt. Can you find it?",
-        grid: ["tshirt_blue", "tshirt_white", "jacket", "scarf"] },
-      { id: "l2", target: "headphones", label: "headphones",
-        audioText: "I want to buy the headphones.",
-        subtitle: "I want to buy the headphones.",
-        grid: ["headphones", "watch", "wallet", "sunglasses"] },
-      { id: "l3", target: "sneakers_white", label: "white sneakers",
-        audioText: "Please find the white sneakers.",
-        subtitle: "Please find the white sneakers.",
-        grid: ["sneakers_white", "sneakers_blue", "trousers", "cap"] }
+      { id: "cs1", prompt: "I need a blue T-shirt in medium.", answer: 0, options: [
+        { item: "tshirt_blue", colour: "Blue", size: "M" },
+        { item: "tshirt_white", colour: "White", size: "M" },
+        { item: "tshirt_blue", colour: "Blue", size: "L" },
+        { item: "jacket", colour: "Blue", size: "M" } ] },
+      { id: "cs2", prompt: "Choose the small black jacket.", answer: 0, options: [
+        { item: "jacket", colour: "Black", size: "S" },
+        { item: "jacket", colour: "Blue", size: "S" },
+        { item: "jacket", colour: "Black", size: "L" },
+        { item: "trousers", colour: "Black", size: "S" } ] },
+      { id: "cs3", prompt: "Find the large red scarf.", answer: 0, options: [
+        { item: "scarf", colour: "Red", size: "L" },
+        { item: "scarf", colour: "Red", size: "S" },
+        { item: "cap", colour: "Red", size: "L" },
+        { item: "scarf", colour: "Blue", size: "L" } ] }
     ]
   },
 
-  /* STAGE 3 — AT THE CHECKOUT: prices / money math (numbers). */
-  checkout: {
-    placeholder: true,
+  /* STEP 4 — PRICES AND POUNDS: prices in £ + simple maths. */
+  prices: {
     intro: "Read the price tags and choose the correct answer.",
     items: [
-      { id: "c1", products: [{ item: "tshirt_blue", price: 15 }, { item: "cap", price: 8 }],
-        question: "How much are the t-shirt and the cap together?",
+      { id: "p1", products: [{ item: "tshirt_blue", price: 15 }, { item: "cap", price: 8 }],
+        question: "How much are the T-shirt and the cap together?",
         options: ["£23", "£20", "£30", "£15"], answer: 0 },
-      { id: "c2", products: [{ item: "backpack", price: 25 }, { item: "wallet", price: 12 }],
+      { id: "p2", products: [{ item: "backpack", price: 25 }, { item: "wallet", price: 12 }],
         question: "Which item is cheaper?",
         options: ["The backpack", "The wallet"], answer: 1 },
-      { id: "c3", products: [{ item: "watch", price: 40 }],
+      { id: "p3", products: [{ item: "watch", price: 40 }],
         question: "You pay with £50. What is your change?",
         options: ["£10", "£5", "£15", "£20"], answer: 0 }
     ]
   },
 
-  /* STAGE 4 — IN THE SHOP: conversation, pick the best reply. */
-  conversation: {
-    placeholder: true,
-    intro: "Continue the conversation with the shop assistant. Choose the best reply.",
+  /* STEP 5 — SHOPPING DIALOGUE: conversation in the shop. */
+  dialogue: {
+    intro: "Talk with the shop assistant. Choose the best reply.",
     speakerA: { name: "Emma", role: "Shop assistant" }, speakerB: { name: "You", role: "Customer" },
     steps: [
-      { speaker: "A", line: "Hello! Welcome to our shop. Can I help you?", options: [
-        { text: "Yes, I'm looking for a jacket.", correct: true, feedback: "Great — that's how you ask for help!" },
+      { speaker: "A", line: "Hello! Can I help you?", options: [
+        { text: "I'm looking for a jacket.", correct: true, feedback: "Great — that's how you ask for help." },
         { text: "I am a jacket.", correct: false, feedback: "That doesn't make sense here." },
-        { text: "Goodbye!", correct: false, feedback: "It's too early to say goodbye." }] },
-      { speaker: "A", line: "Sure! What size are you?", options: [
+        { text: "Goodbye!", correct: false, feedback: "It's too early to say goodbye." } ] },
+      { speaker: "A", line: "What size do you need?", options: [
         { text: "Medium, please.", correct: true, feedback: "Perfect answer!" },
-        { text: "It's blue.", correct: false, feedback: "That's a colour, not a size." },
-        { text: "I'm fine, thanks.", correct: false, feedback: "That answers 'how are you'." }] },
-      { speaker: "A", line: "Great. How would you like to pay?", options: [
-        { text: "By card, please.", correct: true, feedback: "Excellent — enjoy your shopping!" },
-        { text: "At nine o'clock.", correct: false, feedback: "That's a time, not a payment." },
-        { text: "I'm from Brazil.", correct: false, feedback: "Not related to the question." }] }
+        { text: "It's red.", correct: false, feedback: "That's a colour, not a size." },
+        { text: "Thank you, I'm fine.", correct: false, feedback: "That doesn't answer the question." } ] },
+      { speaker: "A", line: "We have it in black and blue.", options: [
+        { text: "Do you have this in blue?", correct: true, feedback: "Excellent question!" },
+        { text: "What time is it?", correct: false, feedback: "Not related to shopping." },
+        { text: "I'm from Brazil.", correct: false, feedback: "Not related to the question." } ] },
+      { speaker: "A", line: "Yes, here it is. Would you like to try it on?", options: [
+        { text: "Yes, where is the fitting room?", correct: true, feedback: "Great — off to the fitting room!" },
+        { text: "No, I am blue.", correct: false, feedback: "That doesn't make sense." },
+        { text: "It's nine pounds.", correct: false, feedback: "That's a price, not a reply." } ] },
+      { speaker: "A", line: "It looks great on you!", options: [
+        { text: "I'll take it.", correct: true, feedback: "Wonderful — let's pay at the checkout." },
+        { text: "I'll take a nap.", correct: false, feedback: "Keep it about shopping." },
+        { text: "It's a car.", correct: false, feedback: "That doesn't fit here." } ] }
     ]
   },
 
-  /* STAGE 5 — FILL THE CART: tap every item on the list, avoid wrong items. */
-  final: {
-    placeholder: true,
-    intro: "Final mission! Tap every item on your shopping list.",
+  /* STEP 6 — SHOPPING BAG: add, view, check and remove items using the slots. */
+  shoppingBag: {
+    intro: "Add every item on your list to your bag. Tap an item in the bag to remove it.",
     store: "clothing",
     list: [
-      { item: "tshirt_blue", label: "blue t-shirt" },
+      { item: "tshirt_blue", label: "blue T-shirt" },
       { item: "backpack", label: "backpack" },
-      { item: "sneakers_white", label: "white sneakers" }
+      { item: "sneakers_white", label: "white trainers" }
     ],
     grid: ["tshirt_blue", "backpack", "sneakers_white", "jacket", "scarf", "cap", "watch", "sunglasses"]
+  },
+
+  /* STEP 7 — CHECKOUT CHALLENGE: review the order, confirm the total, pay. */
+  checkoutChallenge: {
+    intro: "Check your order, then confirm the total to pay.",
+    receipt: [
+      { item: "tshirt_blue", label: "Blue T-shirt", colour: "Blue", size: "M", qty: 1, price: 15 },
+      { item: "backpack", label: "Backpack", colour: "Navy", size: "—", qty: 1, price: 25 },
+      { item: "sneakers_white", label: "White trainers", colour: "White", size: "M", qty: 1, price: 30 }
+    ],
+    totalQuestion: "What is the total to pay?",
+    options: ["£70", "£65", "£55", "£40"], answer: 0
   }
 };
 
-/* Shared audio manifest (placeholder — Web Audio + TTS until real files exist) */
-window.PRIME_AUDIO_MANIFEST = { placeholder: true, music: { menu: null, adventure: null, victory: null }, voice: {} };
+/* Shared audio manifest (Web Audio + TTS until real voice files are added) */
+window.PRIME_AUDIO_MANIFEST = { music: { menu: null, adventure: null, victory: null }, voice: {} };

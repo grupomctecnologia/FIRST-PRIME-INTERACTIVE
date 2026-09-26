@@ -24,7 +24,7 @@ class LanguageSelectScene extends Phaser.Scene {
     this.makeLangButton(w / 2 - 250, 372, "us", "ENGLISH", "PLAY", T.colors.accent, 0x6b8bff, "en");
     this.makeLangButton(w / 2 + 250, 372, "es", "ESPAÑOL", "JUGAR", T.colors.accent2, 0xff9f43, "es");
 
-    this.add.text(w / 2, h - 22, "First Prime Interactive — DEMO (placeholder content)", {
+    this.add.text(w / 2, h - 22, "First Prime Interactive — London Shopping Mission", {
       fontFamily: T.font, fontSize: "12px", color: T.colors.textDim
     }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 4);
   }

@@ -1,19 +1,19 @@
-/* STAGE 3 — AT THE CHECKOUT. Read the price tags on the items, then answer a
- * money question (total / cheapest / change). Wrong = lose a life + retry
- * (answer not revealed). (Distinct mechanic: numbers & money.) */
-class CheckoutScene extends Phaser.Scene {
-  constructor() { super("CheckoutScene"); }
+/* STEP 4 — PRICES AND POUNDS. Read the price tags on the items, then answer a
+ * money question (total / cheaper / change). Wrong = lose a life + retry
+ * (answer not revealed). */
+class PricesScene extends Phaser.Scene {
+  constructor() { super("PricesScene"); }
 
   create() {
     this.T = window.Theme;
-    this.phaseKey = "Checkout";
-    this.items = window.PRIME_CONTENT.checkout.items;
+    this.phaseKey = "Prices";
+    this.items = window.PRIME_CONTENT.prices.items;
     this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "checkout");
     window.AudioManager.playMusic("adventure");
-    this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 3 · " + window.S("checkoutTitle") });
+    this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 4 · " + window.S("pricesTitle") });
     this.stage = this.add.container(0, 0);
     this.render();
   }
@@ -25,7 +25,6 @@ class CheckoutScene extends Phaser.Scene {
     const item = this.items[this.idx];
     this.progressDots(w / 2, 70, this.items.length, this.idx);
 
-    // produtos com etiqueta de preço
     const prods = item.products;
     const slotW = 190, gap = 60, totalW = prods.length * slotW + (prods.length - 1) * gap;
     const startX = w / 2 - totalW / 2 + slotW / 2;
@@ -85,4 +84,4 @@ class CheckoutScene extends Phaser.Scene {
     }
   }
 }
-window.CheckoutScene = CheckoutScene;
+window.PricesScene = PricesScene;

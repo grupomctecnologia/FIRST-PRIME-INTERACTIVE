@@ -23,13 +23,13 @@ class ResultScene extends Phaser.Scene {
     if (this.gameOver) { window.AudioManager.stopMusic(); window.AudioManager.sfx("lose"); }
     else { window.AudioManager.playMusic("victory"); window.AudioManager.sfx("win"); }
 
-    const title = this.add.text(w / 2, 58, this.gameOver ? window.S("gameOver") : window.S("shoppingComplete"), {
+    const title = this.add.text(w / 2, 58, this.gameOver ? window.S("gameOver") : window.S("missionComplete"), {
       fontFamily: T.font, fontSize: "44px", fontStyle: "bold", color: this.gameOver ? T.hex(T.colors.bad) : T.colors.text
     }).setOrigin(0.5);
     title.setShadow(0, 4, "rgba(0,0,0,0.6)", 14, true, true);
     this.tweens.add({ targets: title, scale: { from: 0.7, to: 1 }, duration: 600, ease: "Back.out" });
 
-    this.add.text(w / 2, 98, this.gameOver ? window.S("gameOverSub") : window.S("subTagline"), { fontFamily: T.font, fontSize: "16px", color: T.colors.text }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 5);
+    this.add.text(w / 2, 98, this.gameOver ? window.S("gameOverSub") : window.S("missionCompleteSub"), { fontFamily: T.font, fontSize: "16px", color: T.colors.text, align: "center", wordWrap: { width: w - 160 } }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 5);
 
     T.card(this, w / 2, 300, 560, 300, { border: this.gameOver ? T.colors.bad : T.colors.accent2 });
 
@@ -67,7 +67,7 @@ class ResultScene extends Phaser.Scene {
     });
 
     window.Brand.render(this, w / 2, h - 58, 128, 70, { onDark: true });
-    this.add.text(w / 2, h - 16, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 4);
+    this.add.text(w / 2, h - 16, window.S("subTagline"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 4);
 
     if (!this.gameOver) {
       T.ensureParticleTexture(this);
@@ -85,7 +85,8 @@ class ResultScene extends Phaser.Scene {
 
   totalQuestions() {
     const c = window.PRIME_CONTENT;
-    return c.vocabulary.items.length + c.listening.items.length + c.checkout.items.length + c.conversation.steps.length + c.final.list.length;
+    return c.findItem.items.length + c.colourSize.items.length + c.prices.items.length +
+      c.dialogue.steps.length + c.shoppingBag.list.length + 1; // +1 = checkout challenge
   }
 }
 window.ResultScene = ResultScene;

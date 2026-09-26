@@ -1,99 +1,108 @@
 /* =============================================================================
- *  PRIME TWO — Game 02 · Misión de Compras en Londres · contenido en ESPAÑOL
- *  ⚠️ DEMO / MARCADOR. Reemplazar con el contenido real de la unidad PRIME TWO.
- *  Todo el texto para el jugador aquí es SOLO en español. Las claves de artículo
- *  coinciden con asset-manifest.
+ *  PRIME TWO — Game 02 · Misión de Compras en Londres · contenido en ESPAÑOL.
+ *  Siete pasos oficiales. Las claves de artículo coinciden con asset-manifest.
+ *  Sin texto de "demo/marcador" visible para el alumno.
  * ===========================================================================*/
 window.PRIME_CONTENT_ALL = window.PRIME_CONTENT_ALL || {};
 window.PRIME_CONTENT_ALL.es = {
-  meta: { book: "PRIME TWO", unit: "Unidad 2 · Compras (DEMO)", language: "es", voice: "es-ES", placeholder: true,
-    note: "Contenido de demostración. Reemplazar con la unidad de compras real (español)." },
+  meta: { book: "PRIME TWO", unit: "Misión de Compras en Londres", language: "es", voice: "es-ES" },
 
+  /* PASO 1 — INSTRUCCIONES DE LA MISIÓN */
   intro: {
-    placeholder: true,
     titleLines: ["FIRST PRIME INTERACTIVE", "PRIME TWO", "MISIÓN DE COMPRAS EN LONDRES"],
     narration: [
-      "¡Bienvenido a Londres!",
-      "Hoy vamos de compras por la ciudad.",
-      "Aprende las palabras, escucha con atención y llena tu carrito para completar la misión."
+      "¡Bienvenido a Londres! Soy Alex.",
+      "Y yo soy Emma. ¡Vamos de compras!",
+      "Encuentra los artículos correctos, fíjate en el color, la talla y el precio,",
+      "luego llena tu bolsa y paga en la caja. ¡Empecemos!"
     ]
   },
 
-  /* ETAPA 1 — ESCAPARATE: imagen del artículo + frase con hueco, elige la palabra. */
-  vocabulary: {
-    placeholder: true,
-    intro: "Toca la palabra correcta para cada artículo del escaparate.",
+  /* PASO 2 — ENCUENTRA EL ARTÍCULO */
+  findItem: {
+    intro: "Escucha y toca el artículo correcto.",
     items: [
-      { id: "v1", item: "tshirt_blue", word: "Camiseta", prompt: "Esta es una ___ azul.", options: ["Camiseta", "Chaqueta", "Bufanda", "Gorra"] },
-      { id: "v2", item: "backpack", word: "Mochila", prompt: "Llevo mis libros en una ___.", options: ["Cartera", "Mochila", "Reloj", "Gorra"] },
-      { id: "v3", item: "sneakers_white", word: "Zapatillas", prompt: "Estas ___ blancas son cómodas.", options: ["Pantalones", "Zapatillas", "Gafas de sol", "Bufanda"] },
-      { id: "v4", item: "watch", word: "Reloj", prompt: "Miro la hora en mi ___.", options: ["Reloj", "Cartera", "Auriculares", "Gorra"] },
-      { id: "v5", item: "sunglasses", word: "Gafas de sol", prompt: "En un día soleado uso ___.", options: ["Gafas de sol", "Bufanda", "Chaqueta", "Guantes"] }
+      { id: "f1", target: "backpack", label: "mochila",
+        audioText: "Encuentra la mochila.", subtitle: "Encuentra la mochila.",
+        grid: ["backpack", "watch", "wallet", "cap"] },
+      { id: "f2", target: "headphones", label: "auriculares",
+        audioText: "Encuentra los auriculares.", subtitle: "Encuentra los auriculares.",
+        grid: ["headphones", "sunglasses", "scarf", "watch"] },
+      { id: "f3", target: "trousers", label: "pantalones",
+        audioText: "Encuentra los pantalones.", subtitle: "Encuentra los pantalones.",
+        grid: ["trousers", "jacket", "tshirt_white", "cap"] }
     ]
   },
 
-  /* ETAPA 2 — LISTA DE COMPRAS: escucha el artículo y tócalo en la cuadrícula. */
-  listening: {
-    placeholder: true,
-    intro: "Escucha la lista de compras y toca el artículo correcto.",
+  /* PASO 3 — COLOR Y TALLA */
+  colourSize: {
+    intro: "Lee la frase y elige el color y la talla correctos.",
     items: [
-      { id: "l1", target: "tshirt_blue", label: "camiseta azul",
-        audioText: "Necesitamos una camiseta azul. ¿Puedes encontrarla?",
-        subtitle: "Necesitamos una camiseta azul. ¿Puedes encontrarla?",
-        grid: ["tshirt_blue", "tshirt_white", "jacket", "scarf"] },
-      { id: "l2", target: "headphones", label: "auriculares",
-        audioText: "Quiero comprar los auriculares.",
-        subtitle: "Quiero comprar los auriculares.",
-        grid: ["headphones", "watch", "wallet", "sunglasses"] },
-      { id: "l3", target: "sneakers_white", label: "zapatillas blancas",
-        audioText: "Por favor, encuentra las zapatillas blancas.",
-        subtitle: "Por favor, encuentra las zapatillas blancas.",
-        grid: ["sneakers_white", "sneakers_blue", "trousers", "cap"] }
+      { id: "cs1", prompt: "Necesito una camiseta azul en talla mediana.", answer: 0, options: [
+        { item: "tshirt_blue", colour: "Azul", size: "M" },
+        { item: "tshirt_white", colour: "Blanca", size: "M" },
+        { item: "tshirt_blue", colour: "Azul", size: "L" },
+        { item: "jacket", colour: "Azul", size: "M" } ] },
+      { id: "cs2", prompt: "Elige la chaqueta negra pequeña.", answer: 0, options: [
+        { item: "jacket", colour: "Negra", size: "S" },
+        { item: "jacket", colour: "Azul", size: "S" },
+        { item: "jacket", colour: "Negra", size: "L" },
+        { item: "trousers", colour: "Negros", size: "S" } ] },
+      { id: "cs3", prompt: "Encuentra la bufanda roja grande.", answer: 0, options: [
+        { item: "scarf", colour: "Roja", size: "L" },
+        { item: "scarf", colour: "Roja", size: "S" },
+        { item: "cap", colour: "Roja", size: "L" },
+        { item: "scarf", colour: "Azul", size: "L" } ] }
     ]
   },
 
-  /* ETAPA 3 — EN LA CAJA: precios / matemática de dinero (números). */
-  checkout: {
-    placeholder: true,
+  /* PASO 4 — PRECIOS Y LIBRAS */
+  prices: {
     intro: "Lee las etiquetas de precio y elige la respuesta correcta.",
     items: [
-      { id: "c1", products: [{ item: "tshirt_blue", price: 15 }, { item: "cap", price: 8 }],
+      { id: "p1", products: [{ item: "tshirt_blue", price: 15 }, { item: "cap", price: 8 }],
         question: "¿Cuánto cuestan la camiseta y la gorra juntas?",
         options: ["£23", "£20", "£30", "£15"], answer: 0 },
-      { id: "c2", products: [{ item: "backpack", price: 25 }, { item: "wallet", price: 12 }],
+      { id: "p2", products: [{ item: "backpack", price: 25 }, { item: "wallet", price: 12 }],
         question: "¿Qué artículo es más barato?",
         options: ["La mochila", "La cartera"], answer: 1 },
-      { id: "c3", products: [{ item: "watch", price: 40 }],
+      { id: "p3", products: [{ item: "watch", price: 40 }],
         question: "Pagas con £50. ¿Cuánto es tu cambio?",
         options: ["£10", "£5", "£15", "£20"], answer: 0 }
     ]
   },
 
-  /* ETAPA 4 — EN LA TIENDA: conversación, elige la mejor respuesta. */
-  conversation: {
-    placeholder: true,
-    intro: "Continúa la conversación con el dependiente. Elige la mejor respuesta.",
+  /* PASO 5 — DIÁLOGO DE COMPRAS */
+  dialogue: {
+    intro: "Habla con la dependienta. Elige la mejor respuesta.",
     speakerA: { name: "Emma", role: "Dependienta" }, speakerB: { name: "Tú", role: "Cliente" },
     steps: [
-      { speaker: "A", line: "¡Hola! Bienvenido a nuestra tienda. ¿Puedo ayudarte?", options: [
-        { text: "Sí, busco una chaqueta.", correct: true, feedback: "¡Muy bien! Así se pide ayuda." },
+      { speaker: "A", line: "¡Hola! ¿Puedo ayudarte?", options: [
+        { text: "Estoy buscando una chaqueta.", correct: true, feedback: "¡Muy bien! Así se pide ayuda." },
         { text: "Soy una chaqueta.", correct: false, feedback: "Eso no tiene sentido aquí." },
-        { text: "¡Adiós!", correct: false, feedback: "Es muy pronto para despedirse." }] },
-      { speaker: "A", line: "¡Claro! ¿Qué talla usas?", options: [
+        { text: "¡Adiós!", correct: false, feedback: "Es muy pronto para despedirse." } ] },
+      { speaker: "A", line: "¿Qué talla necesitas?", options: [
         { text: "Mediana, por favor.", correct: true, feedback: "¡Respuesta perfecta!" },
-        { text: "Es azul.", correct: false, feedback: "Eso es un color, no una talla." },
-        { text: "Estoy bien, gracias.", correct: false, feedback: "Eso responde a '¿cómo estás?'." }] },
-      { speaker: "A", line: "Genial. ¿Cómo te gustaría pagar?", options: [
-        { text: "Con tarjeta, por favor.", correct: true, feedback: "¡Excelente, disfruta tus compras!" },
-        { text: "A las nueve.", correct: false, feedback: "Eso es una hora, no un pago." },
-        { text: "Soy de Brasil.", correct: false, feedback: "No se relaciona con la pregunta." }] }
+        { text: "Es roja.", correct: false, feedback: "Eso es un color, no una talla." },
+        { text: "Gracias, estoy bien.", correct: false, feedback: "Eso no responde la pregunta." } ] },
+      { speaker: "A", line: "La tenemos en negro y azul.", options: [
+        { text: "¿La tienes en azul?", correct: true, feedback: "¡Excelente pregunta!" },
+        { text: "¿Qué hora es?", correct: false, feedback: "No se relaciona con las compras." },
+        { text: "Soy de Brasil.", correct: false, feedback: "No se relaciona con la pregunta." } ] },
+      { speaker: "A", line: "Sí, aquí está. ¿Quieres probártela?", options: [
+        { text: "Sí, ¿dónde está el probador?", correct: true, feedback: "¡Genial, al probador!" },
+        { text: "No, soy azul.", correct: false, feedback: "Eso no tiene sentido." },
+        { text: "Cuesta nueve libras.", correct: false, feedback: "Eso es un precio, no una respuesta." } ] },
+      { speaker: "A", line: "¡Te queda genial!", options: [
+        { text: "Me la llevo.", correct: true, feedback: "¡Perfecto, vamos a pagar!" },
+        { text: "Me echo una siesta.", correct: false, feedback: "Habla sobre las compras." },
+        { text: "Es un coche.", correct: false, feedback: "Eso no encaja aquí." } ] }
     ]
   },
 
-  /* ETAPA 5 — LLENA EL CARRITO: toca cada artículo de la lista, evita los demás. */
-  final: {
-    placeholder: true,
-    intro: "¡Misión final! Toca cada artículo de tu lista de compras.",
+  /* PASO 6 — BOLSA DE COMPRAS */
+  shoppingBag: {
+    intro: "Añade cada artículo de tu lista a la bolsa. Toca un artículo de la bolsa para quitarlo.",
     store: "clothing",
     list: [
       { item: "tshirt_blue", label: "camiseta azul" },
@@ -101,5 +110,17 @@ window.PRIME_CONTENT_ALL.es = {
       { item: "sneakers_white", label: "zapatillas blancas" }
     ],
     grid: ["tshirt_blue", "backpack", "sneakers_white", "jacket", "scarf", "cap", "watch", "sunglasses"]
+  },
+
+  /* PASO 7 — RETO EN LA CAJA */
+  checkoutChallenge: {
+    intro: "Revisa tu pedido y confirma el total para pagar.",
+    receipt: [
+      { item: "tshirt_blue", label: "Camiseta azul", colour: "Azul", size: "M", qty: 1, price: 15 },
+      { item: "backpack", label: "Mochila", colour: "Azul marino", size: "—", qty: 1, price: 25 },
+      { item: "sneakers_white", label: "Zapatillas blancas", colour: "Blanco", size: "M", qty: 1, price: 30 }
+    ],
+    totalQuestion: "¿Cuál es el total a pagar?",
+    options: ["£70", "£65", "£55", "£40"], answer: 0
   }
 };

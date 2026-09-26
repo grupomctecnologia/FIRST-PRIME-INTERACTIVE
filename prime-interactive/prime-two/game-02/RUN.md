@@ -29,17 +29,20 @@ game-02/
 └── docs/                 # notas do Game 02
 ```
 
-## Fluxo do jogo (7 etapas)
-Idioma (🇺🇸 EN / 🇪🇸 ES) → menu → intro → **5 fases** → resultado.
+## Fluxo do jogo (7 etapas oficiais)
+Idioma (🇺🇸 EN / 🇪🇸 ES) → menu → **7 etapas** → Mission Complete.
 
-1. **Shop Window** (vocabulário) — item na vitrine + frase com hueco, escolher a palavra.
-2. **Shopping List** (compreensão auditiva) — ouvir o item e **tocar a imagem correta** na grade.
-3. **At the Checkout** (números/dinheiro) — ler etiquetas de preço e responder (total/mais barato/troco).
-4. **In the Shop** (conversação) — diálogo com a atendente (Emma), escolher a melhor resposta.
-5. **Fill the Cart** (missão final) — tocar cada item da lista na prateleira até completar o carrinho.
+1. **Mission Briefing** — Alex e Emma apresentam a London Shopping Mission.
+2. **Find the Item** — ouvir e **tocar o produto correto** entre opções visuais.
+3. **Colour and Size** — identificar produto, **cor** e **tamanho** (small/medium/large).
+4. **Prices and Pounds** — preços em libras (£) e cálculos simples.
+5. **Shopping Dialogue** — conversa na loja (Can I help you? / I'm looking for a jacket? / Do you have this in blue? / What size? / Can I try it on? / Where is the fitting room? / I'll take it).
+6. **Shopping Bag** — **adicionar, ver, conferir e remover** produtos nos slots de inventário.
+7. **Checkout Challenge** — conferência (produtos, cores, tamanhos, quantidades, preços, total) + **CONFIRM PURCHASE** → **MISSION COMPLETE!**
 
-Pontuação, **moedas**, estrelas (até 3★/fase), 3 vidas, retry sem revelar a resposta.
-EN e ES completos e independentes (sem português no jogo).
+Pontuação, **moedas**, estrelas (até 3★/etapa = 18★), 3 vidas, retry sem revelar a resposta.
+EN e ES completos e independentes (sem português no jogo). Inglês britânico.
+Progresso salvo separadamente do Game 01 (`localStorage: prime2_game02_v1`).
 
 ## Idiomas
 EN e ES completos e independentes. **Sem português no jogo.** O idioma é escolhido

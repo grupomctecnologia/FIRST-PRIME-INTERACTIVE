@@ -7,7 +7,8 @@
 window.GameState = {
   STORAGE_KEY: "prime2_game02_v1",
 
-  phaseOrder: ["Vocabulary", "Listening", "Checkout", "Conversation", "Final"],
+  // Seven official steps: 1 Briefing (Intro) + these 6 activities + Mission Complete (Result)
+  phaseOrder: ["FindItem", "ColourSize", "Prices", "Dialogue", "ShoppingBag", "CheckoutChallenge"],
   START_LIVES: 3,
   COINS_PER_CORRECT: 10,
 

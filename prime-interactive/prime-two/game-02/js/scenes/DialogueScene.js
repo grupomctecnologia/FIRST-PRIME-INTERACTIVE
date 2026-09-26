@@ -1,13 +1,13 @@
-/* STAGE 4 — IN THE SHOP. Conversation with the shop assistant (Emma). Choose
- * the best reply. Wrong = lose a life + feedback; that option is disabled (the
- * correct one is never revealed) and the player keeps trying. */
-class ConversationScene extends Phaser.Scene {
-  constructor() { super("ConversationScene"); }
+/* STEP 5 — SHOPPING DIALOGUE. Conversation with the shop assistant (Emma).
+ * Choose the best reply. Wrong = lose a life + feedback; that option is disabled
+ * (the correct one is never revealed) and the player keeps trying. */
+class DialogueScene extends Phaser.Scene {
+  constructor() { super("DialogueScene"); }
 
   create() {
     this.T = window.Theme;
-    this.phaseKey = "Conversation";
-    this.conv = window.PRIME_CONTENT.conversation;
+    this.phaseKey = "Dialogue";
+    this.conv = window.PRIME_CONTENT.dialogue;
     this.steps = this.conv.steps;
     this.idx = 0; this._advancing = false;   // reset por partida (instância reutilizada)
     this.cameras.main.fadeIn(280, 5, 7, 20);
@@ -17,7 +17,7 @@ class ConversationScene extends Phaser.Scene {
       window.Art.character(this, "emma", "speaking", this.scale.width * 0.12, this.scale.height + 6, this.scale.height * 0.74, { flip: false, depth: -3 });
     }
     window.AudioManager.playMusic("adventure");
-    this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 4 · " + window.S("conversationTitle") });
+    this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 5 · " + window.S("dialogueTitle") });
     this.stage = this.add.container(0, 0);
     this.render();
   }
@@ -29,13 +29,11 @@ class ConversationScene extends Phaser.Scene {
     const step = this.steps[this.idx];
     this.progressDots(w / 2, 70, this.steps.length, this.idx);
 
-    // nome do falante
     const who = this.conv.speakerA;
     this.stage.add(this.add.text(w / 2, 104, who.name + " · " + who.role, {
       fontFamily: T.font, fontSize: "15px", fontStyle: "bold", color: T.hex(T.colors.accent2)
     }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.85)", 4));
 
-    // balão de diálogo (único, centralizado)
     const bubble = T.card(this, w / 2, 156, 720, 70, { border: T.colors.accent, fill: T.colors.panelLight });
     this.stage.add(bubble);
     this.stage.add(this.add.text(w / 2, 156, step.line, {
@@ -46,7 +44,6 @@ class ConversationScene extends Phaser.Scene {
     this.feedback = this.add.text(w / 2, this.scale.height - 30, "", { fontFamily: T.font, fontSize: "19px", fontStyle: "bold", align: "center", wordWrap: { width: w - 120 } }).setOrigin(0.5);
     this.stage.add(this.feedback);
 
-    // opções de resposta
     const opts = step.options;
     const bw = 640, bh = 52, gap = 12, startY = 236;
     this.optButtons = [];
@@ -102,4 +99,4 @@ class ConversationScene extends Phaser.Scene {
     }
   }
 }
-window.ConversationScene = ConversationScene;
+window.DialogueScene = DialogueScene;

@@ -33,7 +33,7 @@ class IntroScene extends Phaser.Scene {
     }).setOrigin(0.5).setShadow(0, 2, "rgba(0,0,0,0.9)", 8);
 
     // controles
-    window.Shop.button(this, w / 2, h - 66, 300, 58, window.S("startAdventure"), { fontSize: 24, onClick: () => this.start() });
+    window.Shop.button(this, w / 2, h - 66, 300, 58, window.S("startMission"), { fontSize: 24, onClick: () => this.start() });
     T.button(this, w - 96, h - 66, 150, 46, window.S("skip"), {
       color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, secondary: true, fontSize: 18, onClick: () => this.start()
     });
@@ -60,7 +60,7 @@ class IntroScene extends Phaser.Scene {
     if (this._starting) return; this._starting = true;
     window.AudioManager.stopVoice(); window.SubtitleManager.hide();
     window.AudioManager.sfx("transition");
-    this.scene.start("VocabularyScene");
+    this.scene.start("FindItemScene");
   }
 }
 window.IntroScene = IntroScene;

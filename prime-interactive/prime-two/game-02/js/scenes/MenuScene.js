@@ -30,7 +30,7 @@ class MenuScene extends Phaser.Scene {
     div.fillRoundedRect(w / 2 - 130, 182, 260, 3, 2);
     div.setBlendMode(Phaser.BlendModes.ADD);
     this.add.text(w / 2, 200, window.S("subTagline"), { fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5).setShadow(0, 2, "rgba(0,0,0,0.85)", 6);
-    this.add.text(w / 2, 224, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.text }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 5);
+    this.add.text(w / 2, 224, window.S("tagline"), { fontFamily: T.font, fontSize: "13px", color: T.colors.text }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 5);
 
     // Single PLAY / JUGAR button (usa o botão oficial do Pack 04 quando disponível)
     window.Shop.button(this, w / 2, 300, 320, 82, window.S("play"), { fontSize: 32, onClick: () => this.startGame() });
