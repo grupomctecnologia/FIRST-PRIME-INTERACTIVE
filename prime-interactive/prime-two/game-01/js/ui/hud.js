@@ -1,6 +1,8 @@
 /* =============================================================================
- *  Hud — compact single-row top bar (mobile-first). Single game (no modes).
- *  Score · stars · lives + icons: subtitle, repeat, mute, pause, fullscreen, menu.
+ *  Hud — barra superior compacta (mobile-first). Jogo único (sem modos).
+ *  Usa o painel e os ícones do Pack 04 (Interface Premium); textos/números por
+ *  código. Ícones conectados às funções: legendas, repetir, mudo, pausa,
+ *  tela cheia, menu.
  * ===========================================================================*/
 window.Hud = class {
   constructor(scene, opts = {}) {
@@ -14,22 +16,22 @@ window.Hud = class {
   build() {
     const scene = this.scene, T = this.T, w = scene.scale.width;
     const bar = scene.add.container(0, 0).setDepth(60); this.bar = bar;
-    const g = scene.add.graphics();
-    g.fillStyle(0x0a0f24, 0.9); g.fillRect(0, 0, w, this.BAR);
-    g.lineStyle(2, T.colors.accent, 0.4); g.lineBetween(0, this.BAR, w, this.BAR);
-    bar.add(g);
-
-    this.scoreTxt = scene.add.text(14, this.BAR / 2, "", {
-      fontFamily: T.font, fontSize: "15px", fontStyle: "bold", color: T.hex(T.colors.accent2)
-    }).setOrigin(0, 0.5);
-    bar.add(this.scoreTxt);
+    if (window.UI && window.UI.ready(scene)) {
+      bar.add(window.UI.panel(scene, w / 2, this.BAR / 2, w, this.BAR, "hud"));
+    } else {
+      const g = scene.add.graphics();
+      g.fillStyle(0x0a0f24, 0.9); g.fillRect(0, 0, w, this.BAR);
+      g.lineStyle(2, T.colors.accent, 0.4); g.lineBetween(0, this.BAR, w, this.BAR);
+      bar.add(g);
+    }
 
     if (this.opts.phaseTitle) {
       bar.add(scene.add.text(w / 2, this.BAR / 2, this.opts.phaseTitle, {
         fontFamily: T.font, fontSize: "16px", fontStyle: "bold", color: T.colors.text
-      }).setOrigin(0.5));
+      }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.6)", 3));
     }
 
+    this.buildStats();
     this.buildControls();
     this.updateScore();
 
@@ -41,33 +43,59 @@ window.Hud = class {
     scene.input.keyboard.on("keydown-ESC", () => this.goMenu());
   }
 
+  /* Placar: [★] score · [★] stars/max · [❤] lives (ícones do Pack 04) */
+  buildStats() {
+    const scene = this.scene, T = this.T, y = this.BAR / 2;
+    const useImg = window.UI && window.UI.ready(scene);
+    let x = 12;
+    const mk = (iconName, glyph) => {
+      if (useImg) { const ic = window.UI.icon(scene, x + 11, y, 24, iconName, {}); if (ic.hit) ic.hit.disableInteractive(); this.bar.add(ic); }
+      else this.bar.add(scene.add.text(x, y, glyph, { fontFamily: T.font, fontSize: "16px" }).setOrigin(0, 0.5));
+      x += useImg ? 26 : 18;
+      const t = scene.add.text(x, y, "", { fontFamily: T.font, fontSize: "15px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0, 0.5);
+      t.setShadow(0, 1, "rgba(0,0,0,0.6)", 3); this.bar.add(t); x += 78; return t;
+    };
+    this.scoreT = mk("star", "★");
+    this.starsT = mk("star", "⭐");
+    this.livesT = mk("heart", "❤");
+    this.livesT.setColor(T.hex(T.colors.bad));
+  }
+
   buildControls() {
     const scene = this.scene, T = this.T, S = window.GameState;
     const y = this.BAR / 2, r = 19, step = 44;
     let x = scene.scale.width - 26;
-    const add = (glyph, cb) => { const b = T.iconButton(scene, x, y, glyph, { radius: r, fontSize: 20, onClick: cb }); this.bar.add(b); x -= step; return b; };
-    add("≡", () => this.goMenu());
-    this.fsBtn = add("⛶", () => this.toggleFullscreen());
-    this.pauseBtn = add("⏸", () => this.togglePause());
-    this.muteBtn = add(S.settings.muted ? "🔇" : "🔊", () => this.doMute());
-    add("↻", () => window.AudioManager.repeatLast());
-    this.subBtn = add(S.settings.subtitles ? "CC" : "cc", () => this.toggleSubs());
+    const add = (glyph, cb, iconName) => { const b = T.iconButton(scene, x, y, glyph, { radius: r, fontSize: 20, onClick: cb, iconName }); this.bar.add(b); x -= step; return b; };
+    add("≡", () => this.goMenu());                                   // menu (sem PNG → glifo)
+    this.fsBtn = add("⛶", () => this.toggleFullscreen(), "fullscreen");
+    this.pauseBtn = add("⏸", () => this.togglePause(), "pause");
+    this.muteBtn = add(S.settings.muted ? "🔇" : "🔊", () => this.doMute(), S.settings.muted ? "mute" : "volume");
+    add("↻", () => window.AudioManager.repeatLast(), "repeat");
+    this.subBtn = add(S.settings.subtitles ? "CC" : "cc", () => this.toggleSubs());  // legendas (sem PNG → glifo)
   }
 
   updateScore() {
     const S = window.GameState.session;
     const lives = S.lives === Infinity ? "∞" : S.lives;
-    this.scoreTxt.setText("★ " + S.score + "   ⭐ " + window.GameState.totalStars() + "/" + window.GameState.maxStars() + "   ❤ " + lives);
+    if (this.scoreT) {
+      this.scoreT.setText(String(S.score));
+      this.starsT.setText(window.GameState.totalStars() + "/" + window.GameState.maxStars());
+      this.livesT.setText(String(lives));
+    }
   }
 
   toggleSubs() {
     const s = window.GameState.settings;
     s.subtitles = !s.subtitles; window.GameState.save();
-    this.subBtn.setGlyph(s.subtitles ? "CC" : "cc");
+    if (this.subBtn.setGlyph) this.subBtn.setGlyph(s.subtitles ? "CC" : "cc");
     if (!s.subtitles) window.SubtitleManager.hide();
     window.AudioManager.sfx("click");
   }
-  doMute() { const m = window.AudioManager.toggleMute(); this.muteBtn.setGlyph(m ? "🔇" : "🔊"); }
+  doMute() {
+    const m = window.AudioManager.toggleMute();
+    if (this.muteBtn.setIcon) this.muteBtn.setIcon(m ? "mute" : "volume");
+    if (this.muteBtn.setGlyph) this.muteBtn.setGlyph(m ? "🔇" : "🔊");
+  }
   toggleFullscreen() { if (this.scene.scale.isFullscreen) this.scene.scale.stopFullscreen(); else { try { this.scene.scale.startFullscreen(); } catch (e) {} } }
 
   togglePause() {
@@ -81,15 +109,15 @@ window.Hud = class {
     c.add(T.title(scene, w / 2, h / 2 - 70, window.S("paused"), 38, T.colors.text));
     c.add(T.button(scene, w / 2, h / 2 - 4, 280, 54, window.S("resume"), { onClick: () => this.resume() }));
     c.add(T.button(scene, w / 2, h / 2 + 62, 280, 54, window.S("backToMenuShort"),
-      { color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, onClick: () => this.goMenu() }));
+      { color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, secondary: true, onClick: () => this.goMenu() }));
     scene.tweens.pauseAll(); if (scene.time) scene.time.paused = true;
-    this.pauseBtn.setGlyph("▶");
+    if (this.pauseBtn.setIcon) this.pauseBtn.setIcon("play"); if (this.pauseBtn.setGlyph) this.pauseBtn.setGlyph("▶");
   }
   resume() {
     if (!this.paused) return; this.paused = false;
     if (this.pauseOverlay) { this.pauseOverlay.destroy(); this.pauseOverlay = null; }
     this.scene.tweens.resumeAll(); if (this.scene.time) this.scene.time.paused = false;
-    this.pauseBtn.setGlyph("⏸");
+    if (this.pauseBtn.setIcon) this.pauseBtn.setIcon("pause"); if (this.pauseBtn.setGlyph) this.pauseBtn.setGlyph("⏸");
   }
 
   goMenu() { window.AudioManager.stopVoice(); window.SubtitleManager.hide(); this.scene.scene.start("MenuScene"); }

@@ -11,8 +11,7 @@ class ListeningScene extends Phaser.Scene {
     window.SubtitleManager.mount(this);
     this.T.scene(this, "audio");
     if (window.Art && window.Art.ready(this)) {
-      window.Art.prop(this, "bigben", this.scale.width * 0.90, this.scale.height + 4, this.scale.height * 0.78, { alpha: 0.8 });
-      window.Art.character(this, "girl_head", this.scale.width * 0.10, this.scale.height + 6, this.scale.height * 0.62, { flip: false, depth: -3 });
+      window.Art.character(this, "girl_head", this.scale.width * 0.11, this.scale.height + 6, this.scale.height * 0.72, { flip: false, depth: -3 });
     }
     window.AudioManager.playMusic("adventure");
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 3 · " + window.S("listeningTitle") });

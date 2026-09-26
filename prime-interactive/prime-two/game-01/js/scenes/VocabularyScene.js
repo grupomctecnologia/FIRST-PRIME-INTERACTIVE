@@ -11,9 +11,10 @@ class VocabularyScene extends Phaser.Scene {
     this.cameras.main.fadeIn(280, 5, 7, 20);
     window.SubtitleManager.mount(this);
     this.T.scene(this, "travel");
-    if (window.Art && window.Art.ready(this)) window.Art.prop(this, "phonebox", this.scale.width * 0.085, this.scale.height + 4, this.scale.height * 0.64);
     window.AudioManager.playMusic("adventure");
     this.hud = new window.Hud(this, { phaseTitle: window.S("stage") + " 2 · " + window.S("vocabTitle") });
+    // ícone do conteúdo -> objeto real do Pack 03
+    this.itemTex = { suitcase: "suitcase", ticket: "ticket", map: "map", passport: "passport", camera: "camera" };
     this.iconEmoji = { suitcase: "🧳", ticket: "🎫", map: "🗺️", passport: "🛂", camera: "📷", key: "🔑", phone: "📱", wallet: "👛" };
     this.stage = this.add.container(0, 0);
     this.render();
@@ -30,11 +31,15 @@ class VocabularyScene extends Phaser.Scene {
     this.stage.add(objCard);
     const glow = this.add.graphics(); glow.fillStyle(T.colors.accent2, 0.12); glow.fillCircle(w / 2, 162, 82); glow.setBlendMode(Phaser.BlendModes.ADD);
     this.stage.add(glow);
-    const emoji = this.add.text(w / 2, 162, this.iconEmoji[item.icon] || "❓", { fontSize: "92px" }).setOrigin(0.5);
-    this.stage.add(emoji);
-    this.tweens.add({ targets: emoji, y: 154, duration: 1600, yoyo: true, repeat: -1, ease: "Sine.inOut" });
+    let obj;
+    if (window.Art && window.Art.ready(this) && this.itemTex[item.icon]) {
+      obj = window.Art.item(this, this.itemTex[item.icon], w / 2, 164, 130, { originX: 0.5, originY: 0.5, depth: 5 });
+    } else {
+      obj = this.add.text(w / 2, 162, this.iconEmoji[item.icon] || "❓", { fontSize: "92px" }).setOrigin(0.5);
+    }
+    if (obj) { this.stage.add(obj); this.tweens.add({ targets: obj, y: obj.y - 8, duration: 1600, yoyo: true, repeat: -1, ease: "Sine.inOut" }); }
 
-    this.stage.add(T.iconButton(this, w / 2 + 132, 168, "🔊", { radius: 24, onClick: () => window.AudioManager.speak(item.word) }));
+    this.stage.add(T.iconButton(this, w / 2 + 132, 168, "🔊", { radius: 24, iconName: "volume", onClick: () => window.AudioManager.speak(item.word) }));
 
     this.stage.add(this.add.text(w / 2, 288, item.prompt, {
       fontFamily: T.font, fontSize: "30px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 120 }

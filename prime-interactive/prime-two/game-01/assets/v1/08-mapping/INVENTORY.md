@@ -6,6 +6,19 @@ referência visual apenas. Falta de asset → marcar **PENDENTE**, sem gambiarra
 
 ---
 
+## ✅ STATUS: PACKS 01–04 INTEGRADOS (v8)
+Os 4 packs oficiais foram recebidos (ZIP), extraídos, **originais preservados** em
+`00-originals/`, otimizados para WebP (transparência/proporções preservadas) em
+`01-characters / 02-backgrounds / 03-items / 04-ui`, e **integrados no jogo**:
+- Personagens Alex/Emma reais em Home, Intro, Listening, Conversation, Language, Result.
+- Fundos de Londres por fase (Pack 02). Objetos reais no Vocabulary (Pack 03).
+- UI premium (Pack 04): botões, **cards de 4 estados** (default/selected/correct/wrong),
+  ícones ligados às funções (HUD), painel e barra de progresso.
+- Carregamento por nome de arquivo (`asset-manifest.js`) — o jogo NÃO depende da
+  pasta de referências. Lógica/idiomas/sequência preservados (EN+ES, 0 erros).
+- **PENDENTE:** bandeiras realistas (Pack 06 não veio nestes 4); exports oficiais
+  light/dark/símbolo da marca (fonte vetorial no Drive).
+
 ## A. JÁ EXISTE (utilizável)
 | Asset | Onde | Observação |
 |------|------|-----------|

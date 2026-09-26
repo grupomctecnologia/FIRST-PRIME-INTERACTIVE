@@ -28,7 +28,7 @@ class ConversationScene extends Phaser.Scene {
 
   buildCharacter(x, y, tex, name, role, flip, face) {
     const T = this.T, c = this.add.container(x, y);
-    const artKey = (tex === "av_emma") ? "girl" : "boy";
+    const artKey = (tex === "av_emma") ? "girl_speak" : "boy_speak";
     let av;
     if (window.Art && window.Art.ready(this)) {
       // protagonista real (arte oficial aprovada)

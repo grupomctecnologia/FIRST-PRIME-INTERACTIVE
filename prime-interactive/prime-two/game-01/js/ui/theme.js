@@ -351,6 +351,8 @@ window.Theme = {
      claro→escuro, gloss superior, filete de brilho no topo, borda fina.
      c.body guarda o graphics do corpo (usado por Quiz._recolor). */
   button(scene, x, y, w, h, label, opts = {}) {
+    // usa o botão de imagem oficial (Pack 04) quando disponível
+    if (window.UI && window.UI.ready(scene)) return window.UI.button(scene, x, y, w, h, label, opts);
     const c = scene.add.container(x, y);
     c.width = w; c.height = h;
     const r = Math.min(opts.radius || 16, h / 2, w / 2);   // clamp p/ pílula
@@ -416,6 +418,10 @@ window.Theme = {
 
   /* Botão-ícone em CHIP de vidro (HUD) — hit via Zone (touch-safe) */
   iconButton(scene, x, y, glyph, opts = {}) {
+    // ícone de imagem oficial (Pack 04) quando há mapeamento por nome
+    if (window.UI && window.UI.ready(scene) && opts.iconName) {
+      return window.UI.icon(scene, x, y, (opts.radius || 26) * 1.8, opts.iconName, { onClick: opts.onClick });
+    }
     const c = scene.add.container(x, y);
     const rad = opts.radius || 26;
     const border = opts.border || this.colors.accent;

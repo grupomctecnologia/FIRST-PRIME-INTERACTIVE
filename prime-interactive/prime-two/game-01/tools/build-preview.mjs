@@ -17,9 +17,9 @@ const read = (p) => readFileSync(join(ROOT, p), 'utf8');
 
 const scripts = [
   'lib/phaser.min.js',
-  'js/data/strings.js', 'js/data/content.en.js', 'js/data/content.es.js', 'js/data/brand-logo.js', 'js/data/brand.js', 'js/data/art-assets.js',
+  'js/data/strings.js', 'js/data/content.en.js', 'js/data/content.es.js', 'js/data/brand-logo.js', 'js/data/brand.js', 'js/data/asset-manifest.js',
   'js/managers/GameState.js', 'js/managers/AudioManager.js', 'js/managers/SubtitleManager.js',
-  'js/ui/theme.js', 'js/ui/brand.js', 'js/ui/art.js', 'js/ui/flags.js', 'js/ui/quiz.js', 'js/ui/hud.js', 'js/ui/flow.js',
+  'js/ui/theme.js', 'js/ui/brand.js', 'js/ui/art.js', 'js/ui/uikit.js', 'js/ui/flags.js', 'js/ui/quiz.js', 'js/ui/hud.js', 'js/ui/flow.js',
   'js/scenes/BootScene.js', 'js/scenes/PreloadScene.js', 'js/scenes/LanguageSelectScene.js', 'js/scenes/MenuScene.js',
   'js/scenes/IntroScene.js', 'js/scenes/VocabularyScene.js', 'js/scenes/ListeningScene.js',
   'js/scenes/ConversationScene.js', 'js/scenes/LanguageScene.js', 'js/scenes/FinalScene.js',
@@ -27,7 +27,20 @@ const scripts = [
 ];
 
 const css = read('css/style.css');
-const bundleJs = scripts.map(p => `\n/* ===== ${p} ===== */\n` + read(p)).join('\n');
+
+/* Prévia single-file: embute os assets (packs 01–04) em base64 (PRIME_ART_DATA),
+   já que não há servidor para servir os arquivos no Artifact. */
+const manifestSrc = read('js/data/asset-manifest.js');
+const PRIME_ASSETS = Function('window', manifestSrc + '; return window.PRIME_ASSETS;')({});
+const ext = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg' };
+const dataEntries = Object.entries(PRIME_ASSETS).map(([k, rel]) => {
+  const buf = readFileSync(join(ROOT, rel));
+  const mime = ext[rel.slice(rel.lastIndexOf('.'))] || 'image/webp';
+  return `  ${k}: "data:${mime};base64,${buf.toString('base64')}"`;
+});
+const artData = `\n/* ===== assets embutidos (packs 01–04) ===== */\nwindow.PRIME_ART_DATA = {\n${dataEntries.join(',\n')}\n};\n`;
+
+const bundleJs = artData + scripts.map(p => `\n/* ===== ${p} ===== */\n` + read(p)).join('\n');
 
 const html = `<!DOCTYPE html>
 <html lang="pt-BR">
