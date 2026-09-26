@@ -26,7 +26,7 @@ window.PRIME_CONTENT_ALL.es = {
       { id: "v1", icon: "suitcase", word: "Maleta", prompt: "Esta es mi ___.", options: ["Maleta", "Billete", "Mapa", "Cámara"] },
       { id: "v2", icon: "ticket", word: "Billete", prompt: "Necesito mi ___ para embarcar.", options: ["Pasaporte", "Billete", "Maleta", "Llave"] },
       { id: "v3", icon: "map", word: "Mapa", prompt: "Vamos a mirar el ___.", options: ["Mapa", "Teléfono", "Cámara", "Billete"] },
-      { id: "v4", icon: "passport", word: "Pasaporte", prompt: "Muestre su ___, por favor.", options: ["Cartera", "Mapa", "Pasaporte", "Llave"] },
+      { id: "v4", icon: "passport", word: "Pasaporte", prompt: "Muestra tu ___, por favor.", options: ["Cartera", "Mapa", "Pasaporte", "Llave"] },
       { id: "v5", icon: "camera", word: "Cámara", prompt: "Saca una foto con la ___.", options: ["Cámara", "Teléfono", "Mapa", "Billete"] }
     ]
   },
