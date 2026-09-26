@@ -41,8 +41,8 @@ window.Brand = {
       const img = scene.add.image(0, 0, key);
       const scale = Math.min(maxW / img.width, maxH / img.height);
       img.setScale(scale);
-      // subtle premium glow behind the official logo
-      if (opts.glow !== false) {
+      // brilho circular atrás do logo: OPT-IN (evita "anel/Saturno" indesejado)
+      if (opts.glow === true) {
         const gl = scene.add.graphics();
         gl.fillStyle(T.colors.accent2, 0.12);
         gl.fillCircle(0, 0, Math.max(img.displayWidth, img.displayHeight) * 0.62);

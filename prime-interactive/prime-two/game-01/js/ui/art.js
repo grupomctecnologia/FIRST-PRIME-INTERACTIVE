@@ -42,14 +42,12 @@ window.Art = {
     const img = scene.add.image(w / 2, h / 2, scene.textures.exists(tex) ? tex : "art_bg_wide").setDepth(-14);
     const s = Math.max(w / img.width, h / img.height); img.setScale(s);
 
-    // grade de clima
+    // grade de clima (bem leve — sem faixas escuras nas bordas)
     const grade = scene.add.graphics().setDepth(-12);
     grade.fillStyle(g.t, g.a); grade.fillRect(0, 0, w, h);
-    // scrims: topo (HUD) e base (opções) para legibilidade
+    // apenas um degradê suave na base, para assentar as opções (sem barra no topo/laterais)
     const scrim = scene.add.graphics().setDepth(-10);
-    scrim.fillStyle(0x05070f, 0.55); scrim.fillRect(0, 0, w, h * 0.16);
-    scrim.fillStyle(0x05070f, 0.42); scrim.fillRect(0, h * 0.52, w, h * 0.48);
-    scrim.fillStyle(0x05070f, 0.30); scrim.fillRect(0, 0, w * 0.06, h); scrim.fillRect(w * 0.94, 0, w * 0.06, h);
+    scrim.fillStyle(0x05070f, 0.30); scrim.fillRect(0, h * 0.62, w, h * 0.38);
     return img;
   },
 

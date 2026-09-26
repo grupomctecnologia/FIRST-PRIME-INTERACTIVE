@@ -19,16 +19,7 @@ class MenuScene extends Phaser.Scene {
       window.Art.character(this, "girl", w * 0.865, h + 8, h * 0.82, { flip: true });
     }
 
-    // scrim escuro atrás da marca (legibilidade sobre a foto)
-    const scrim = this.add.graphics();
-    scrim.fillStyle(0x05070f, 0.5); scrim.fillEllipse(w / 2, 132, 620, 280);
-    // holofote suave (foco / hierarquia)
-    const spot = this.add.graphics();
-    spot.fillStyle(T.colors.accent, 0.10); spot.fillEllipse(w / 2, 120, 560, 240);
-    spot.fillStyle(T.colors.accent2, 0.06); spot.fillEllipse(w / 2, 96, 360, 170);
-    spot.setBlendMode(Phaser.BlendModes.ADD);
-
-    window.Brand.render(this, w / 2, 72, 214, 116, { onDark: true, glow: true });
+    window.Brand.render(this, w / 2, 72, 214, 116, { onDark: true });
     const pt = this.add.text(w / 2, 158, "PRIME TWO", { fontFamily: T.font, fontSize: "40px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
     pt.setShadow(0, 3, "rgba(0,0,0,0.55)", 12, true, true);
     pt.setLetterSpacing && pt.setLetterSpacing(4);
@@ -37,8 +28,8 @@ class MenuScene extends Phaser.Scene {
     div.fillGradientStyle(T.colors.accent, T.colors.accent2, T.colors.accent2, T.colors.accent, 1);
     div.fillRoundedRect(w / 2 - 120, 184, 240, 3, 2);
     div.setBlendMode(Phaser.BlendModes.ADD);
-    this.add.text(w / 2, 200, window.S("subTagline"), { fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5);
-    this.add.text(w / 2, 224, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.textDim }).setOrigin(0.5);
+    this.add.text(w / 2, 200, window.S("subTagline"), { fontFamily: T.font, fontSize: "18px", fontStyle: "bold", color: T.hex(T.colors.accent2) }).setOrigin(0.5).setShadow(0, 2, "rgba(0,0,0,0.85)", 6);
+    this.add.text(w / 2, 224, window.S("demoNote"), { fontFamily: T.font, fontSize: "12px", color: T.colors.text }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 5);
 
     // Single PLAY / JUGAR button (pílula dourada — CTA da referência)
     const play = T.button(this, w / 2, 300, 320, 82, window.S("play"), T.goldOpts({

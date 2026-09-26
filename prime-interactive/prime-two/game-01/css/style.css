@@ -29,11 +29,10 @@ html, body {
 #game-container {
   position: fixed; inset: 0;
   width: 100vw; height: 100vh; height: 100dvh;
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  /* sem padding de safe-area: o canvas preenche toda a área (sem faixas no topo/lados) */
+  padding: 0;
   display: flex; align-items: center; justify-content: center;
-  background:
-    radial-gradient(1200px 600px at 50% -10%, rgba(56,225,255,0.10), transparent 60%),
-    linear-gradient(180deg, #0b1026 0%, #1b2450 100%);
+  background: #0b1026;   /* cor sólida = eventual letterbox some no fundo do jogo */
 }
 
 canvas { display: block; touch-action: none; }

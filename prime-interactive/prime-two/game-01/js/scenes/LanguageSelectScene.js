@@ -18,7 +18,7 @@ class LanguageSelectScene extends Phaser.Scene {
     // Bilingual prompt is acceptable ONLY on this language-choice screen
     this.add.text(w / 2, 202, "Choose your language  ·  Elige tu idioma", {
       fontFamily: T.font, fontSize: "17px", fontStyle: "bold", color: T.hex(T.colors.accent2)
-    }).setOrigin(0.5);
+    }).setOrigin(0.5).setShadow(0, 2, "rgba(0,0,0,0.85)", 6);
 
     this.makeLangButton(w / 2 - 250, 372, "us", "ENGLISH", "PLAY", T.colors.accent, 0x6b8bff, "en");
     this.makeLangButton(w / 2 + 250, 372, "es", "ESPAÑOL", "JUGAR", T.colors.accent2, 0xff9f43, "es");

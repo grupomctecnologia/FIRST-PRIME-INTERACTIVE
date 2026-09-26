@@ -29,7 +29,7 @@ class ResultScene extends Phaser.Scene {
     title.setShadow(0, 4, "rgba(0,0,0,0.6)", 14, true, true);
     this.tweens.add({ targets: title, scale: { from: 0.7, to: 1 }, duration: 600, ease: "Back.out" });
 
-    this.add.text(w / 2, 100, this.gameOver ? window.S("gameOverSub") : window.S("subTagline"), { fontFamily: T.font, fontSize: "16px", color: T.colors.textDim }).setOrigin(0.5);
+    this.add.text(w / 2, 100, this.gameOver ? window.S("gameOverSub") : window.S("subTagline"), { fontFamily: T.font, fontSize: "16px", color: T.colors.text }).setOrigin(0.5).setShadow(0, 1, "rgba(0,0,0,0.9)", 5);
 
     T.card(this, w / 2, 300, 540, 300, { border: this.gameOver ? T.colors.bad : T.colors.accent2 });
 
