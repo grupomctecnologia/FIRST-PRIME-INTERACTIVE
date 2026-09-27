@@ -1,16 +1,18 @@
 /* =============================================================================
  *  PRIME TWO — Mission Map · lógica do mapa de progressão compartilhado.
- *  - 15 casas conectadas por uma trilha (posições em % → layout fluido que
- *    preenche a tela em paisagem, sem barras laterais).
- *  - Casa 1 -> Game 01, Casa 2 -> Game 02. Cada jogo abre num <iframe> (mesma
- *    origem); a conclusão é detectada por polling da cena ativa "ResultScene"
- *    com gameOver falso (não altera os jogos).
- *  - Ao concluir: salva, libera a próxima casa e Alex/Emma CAMINHAM (passos
- *    visíveis) até a nova casa, que pulsa ao chegar e vira a casa atual.
+ *  - 15 casas posicionadas SOBRE a estrada dourada do cenário. As posições são
+ *    dadas em FRAÇÕES da imagem de fundo (1672x941) e mapeadas pela mesma
+ *    transformação "cover" do <img>, de modo que casas, trilha e caminhada
+ *    ficam sempre alinhadas à estrada em qualquer tela (iPhone/desktop).
+ *  - A caminhada de Alex/Emma segue a estrada (spline Catmull-Rom pelos pontos
+ *    da estrada), na ordem 1 → 2 → … → 15, chegando ao centro da casa, que
+ *    acende/pulsa. Não há linha independente cruzando o cenário.
+ *  - Casa 1 -> Game 01, Casa 2 -> Game 02. Conclusão detectada por polling da
+ *    cena "ResultScene" (gameOver falso) no <iframe> — não altera os jogos.
  *  - Casas 3–15 bloqueadas até serem desenvolvidas (15 = Master).
  *  - Progresso salvo separado dos jogos (localStorage: prime2_map_v1).
- *  - Modo de demonstração da caminhada: ?previewWalk=1 (NÃO altera o progresso
- *    salvo do aluno) com botões para simular a conclusão das Casas 1 e 2.
+ *  - Modo demo (botão "Demo" no HUD ou ?previewWalk=1): simula as caminhadas
+ *    sem jogar e SEM alterar o progresso salvo.
  * ===========================================================================*/
 (function () {
   "use strict";
@@ -18,14 +20,15 @@
   var CFG = window.MAP_CONFIG || {};
   var GAMES = CFG.games || { 1: "../game-01/index.html", 2: "../game-02/index.html" };
   var STORAGE_KEY = "prime2_map_v1";
-  // demo pode vir pela URL (?previewWalk=1 ou #previewWalk) OU ser ligado pelo botão do HUD
   var demoMode = /previewWalk=1/.test(location.search) || /previewWalk/.test(location.hash);
 
-  /* ---- posições das 15 casas em % (x,y) do palco, formando a trilha ---- */
+  var IMG_W = 1672, IMG_H = 941;   // dimensões intrínsecas do fundo (map-bg)
+
+  /* 15 casas em FRAÇÕES (fx,fy) da imagem — sobre a estrada dourada, 1→15 */
   var NODES = [
-    [12, 88], [27, 82], [15, 68], [31, 60], [44, 66],
-    [33, 50], [21, 40], [40, 34], [55, 40], [50, 25],
-    [64, 30], [77, 22], [67, 11], [83, 15], [92, 30]
+    [0.375, 0.805], [0.475, 0.790], [0.545, 0.680], [0.450, 0.622], [0.442, 0.545],
+    [0.512, 0.482], [0.556, 0.402], [0.560, 0.340], [0.616, 0.332], [0.586, 0.270],
+    [0.660, 0.256], [0.706, 0.222], [0.760, 0.256], [0.836, 0.232], [0.792, 0.150]
   ];
 
   var HOUSES = {
@@ -60,124 +63,109 @@
   function save() { if (demoMode) return; try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch (e) {} }
   function L() { return I18N[progress.lang] || I18N.en; }
 
-  function stateOf(n) {
-    if (progress.completed[n]) return "completed";
-    if (n <= progress.unlockedMax) return "current";
-    return "locked";
-  }
+  function stateOf(n) { if (progress.completed[n]) return "completed"; if (n <= progress.unlockedMax) return "current"; return "locked"; }
   function currentHouse() { var c = progress.unlockedMax; return c > 15 ? 15 : c; }
 
-  var stage, travellers, housesLayer, toastEl, svg, houseEls = {},
-      poll = null, launchedHouse = null, completedThisLaunch = false, avatarAt = 1, walking = false;
+  var stage, travellers, housesLayer, toastEl, houseEls = {},
+      poll = null, launchedHouse = null, completedThisLaunch = false, avatarAt = 1, walking = false,
+      pathPts = [], nodeIdx = [];
 
   function el(tag, cls, parent) { var e = document.createElement(tag); if (cls) e.className = cls; if (parent) parent.appendChild(e); return e; }
-  function px(pct, dim) { return pct / 100 * dim; }
 
-  /* ---- render ---- */
+  /* ---- mapeamento cover (fração da imagem -> px do palco) ---- */
+  function coverPoint(f) {
+    var w = stage.clientWidth, h = stage.clientHeight;
+    var sc = Math.max(w / IMG_W, h / IMG_H);
+    var rw = IMG_W * sc, rh = IMG_H * sc, ox = (w - rw) / 2, oy = (h - rh) / 2;
+    return { x: ox + f[0] * rw, y: oy + f[1] * rh };
+  }
+
+  /* ---- spline Catmull-Rom pela estrada (para a caminhada) ---- */
+  function catmull(p0, p1, p2, p3, u) {
+    var u2 = u * u, u3 = u2 * u;
+    return {
+      x: 0.5 * ((2 * p1.x) + (-p0.x + p2.x) * u + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * u2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * u3),
+      y: 0.5 * ((2 * p1.y) + (-p0.y + p2.y) * u + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * u2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * u3)
+    };
+  }
+  function buildPath() {
+    var pts = NODES.map(coverPoint), SEG = 18;
+    pathPts = []; nodeIdx = [];
+    for (var i = 0; i < pts.length - 1; i++) {
+      nodeIdx[i] = pathPts.length;
+      var p0 = pts[i - 1] || pts[i], p1 = pts[i], p2 = pts[i + 1], p3 = pts[i + 2] || pts[i + 1];
+      for (var t = 0; t < SEG; t++) pathPts.push(catmull(p0, p1, p2, p3, t / SEG));
+    }
+    nodeIdx[pts.length - 1] = pathPts.length; pathPts.push(pts[pts.length - 1]);
+  }
+
+  /* ---- render (DOM das casas) + layout (posições em px) ---- */
   function render(skipAvatar) {
     var t = L();
     document.getElementById("hud-sub").textContent = t.sub;
-    var done = Object.keys(progress.completed).length;
-    document.getElementById("progress-pill").textContent = t.progress + ": " + done + " / 15";
+    document.getElementById("progress-pill").textContent = t.progress + ": " + Object.keys(progress.completed).length + " / 15";
     document.getElementById("lang-btn").textContent = progress.lang === "es" ? "🇪🇸 ES" : "🇺🇸 EN";
 
     housesLayer.innerHTML = ""; houseEls = {};
     for (var n = 1; n <= 15; n++) {
-      var st = stateOf(n), node = NODES[n - 1];
+      var st = stateOf(n);
       var h = el("div", "house " + st + (n === 15 ? " master" : ""), housesLayer);
-      h.style.left = node[0] + "%"; h.style.top = node[1] + "%";
-      var badge = el("div", "badge", h);
-      badge.textContent = (n === 15 ? "★" : n);
+      var badge = el("div", "badge", h); badge.textContent = (n === 15 ? "★" : n);
       if (st === "completed") { var ck = el("div", "check", h); ck.textContent = "✓"; }
       if (st === "locked") { var lp = el("div", "lock-pin", h); lp.textContent = "🔒"; }
-      // nome só para casas concluídas/atual (evita sobreposição de rótulos)
-      if (st !== "locked" || n === 15) {
-        var label = el("div", "label", h);
-        label.textContent = n === 15 ? t.masterName : houseTitle(n);
-      }
+      if (st !== "locked" || n === 15) { var label = el("div", "label", h); label.textContent = n === 15 ? t.masterName : houseTitle(n); }
       houseEls[n] = h;
       (function (num) { h.addEventListener("click", function () { onHouse(num); }); })(n);
     }
-    if (!skipAvatar) { positionTravellers(currentHouse()); avatarAt = currentHouse(); }
-    drawPaths();
+    layout(skipAvatar);
   }
 
-  function houseTitle(n) {
-    var H = HOUSES[n];
-    if (n === 15) return L().masterName;
-    if (H) return H[progress.lang] ? H[progress.lang].name : H.en.name;
-    return L().coming;
-  }
-
-  function stageSize() { return { w: stage.clientWidth, h: stage.clientHeight }; }
-
-  function drawPaths() {
-    var s = stageSize();
-    svg.setAttribute("viewBox", "0 0 " + s.w + " " + s.h);
-    svg.setAttribute("width", s.w); svg.setAttribute("height", s.h);
-    var pt = function (i) { return [px(NODES[i][0], s.w), px(NODES[i][1], s.h)]; };
-    var p0 = pt(0), d = "M " + p0[0] + " " + p0[1];
-    for (var i = 1; i < NODES.length; i++) {
-      var a = pt(i - 1), b = pt(i), mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2 - 18;
-      d += " Q " + mx + " " + my + " " + b[0] + " " + b[1];
+  function layout(skipAvatar) {
+    buildPath();
+    for (var n = 1; n <= 15; n++) {
+      var el2 = houseEls[n]; if (!el2) continue;
+      var p = coverPoint(NODES[n - 1]);
+      el2.style.left = p.x + "px"; el2.style.top = p.y + "px";
     }
-    svg.innerHTML =
-      '<path d="' + d + '" fill="none" stroke="rgba(6,9,22,.6)" stroke-width="18" stroke-linecap="round"/>' +
-      '<path d="' + d + '" fill="none" stroke="rgba(255,207,92,.9)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 15"/>';
+    if (!skipAvatar && !walking) { positionTravellers(currentHouse()); avatarAt = currentHouse(); }
+    else if (!walking) positionTravellers(avatarAt);
   }
+
+  function houseTitle(n) { var H = HOUSES[n]; if (n === 15) return L().masterName; if (H) return H[progress.lang] ? H[progress.lang].name : H.en.name; return L().coming; }
 
   /* ---- avatar ---- */
   function positionTravellers(house) {
-    var node = NODES[house - 1];
+    var p = coverPoint(NODES[house - 1]);
     travellers.style.transition = "";
-    travellers.style.left = node[0] + "%"; travellers.style.top = node[1] + "%";
+    travellers.style.left = p.x + "px"; travellers.style.top = p.y + "px";
   }
-
-  /* caminhada com passos visíveis ao longo da curva entre casas adjacentes */
   function walkTo(target, done) {
     if (walking) { if (done) done(); return; }
     var from = avatarAt;
     if (from === target) { positionTravellers(target); if (done) done(); return; }
-    walking = true;
-    travellers.classList.add("walking");
+    walking = true; travellers.classList.add("walking");
     if (target < from) travellers.classList.add("flip"); else travellers.classList.remove("flip");
-    var seq = []; var dir = target > from ? 1 : -1;
-    for (var n = from; dir > 0 ? n < target : n > target; n += dir) seq.push([n, n + dir]);
-    var si = 0;
-    function segment() {
-      if (si >= seq.length) { arrive(target); return; }
-      var a = NODES[seq[si][0] - 1], b = NODES[seq[si][1] - 1];
-      var cx = (a[0] + b[0]) / 2, cy = (a[1] + b[1]) / 2 - 2; // controle da curva (em %)
-      var STEPS = 26, k = 0;
-      travellers.style.transition = "left .05s linear, top .05s linear";
-      function step() {
-        if (k > STEPS) { si++; segment(); return; }
-        var u = k / STEPS, iu = 1 - u;
-        var x = iu * iu * a[0] + 2 * iu * u * cx + u * u * b[0];
-        var y = iu * iu * a[1] + 2 * iu * u * cy + u * u * b[1];
-        travellers.style.left = x + "%"; travellers.style.top = y + "%";
-        k++; setTimeout(step, 40);
-      }
-      step();
+    var iStart = nodeIdx[from - 1], iEnd = nodeIdx[target - 1];
+    var dir = iEnd > iStart ? 1 : -1, idx = iStart;
+    travellers.style.transition = "left .05s linear, top .05s linear";
+    function step() {
+      if ((dir > 0 && idx > iEnd) || (dir < 0 && idx < iEnd)) return arrive(target);
+      var pt = pathPts[idx]; if (pt) { travellers.style.left = pt.x + "px"; travellers.style.top = pt.y + "px"; }
+      idx += dir; setTimeout(step, 30);
     }
     function arrive(house) {
-      travellers.classList.remove("walking");
-      travellers.style.transition = "";
-      avatarAt = house; walking = false;
+      travellers.classList.remove("walking"); travellers.style.transition = "";
+      positionTravellers(house); avatarAt = house; walking = false;
       var hEl = houseEls[house];
       if (hEl) { hEl.classList.add("arriving"); setTimeout(function () { if (hEl) hEl.classList.remove("arriving"); }, 1500); }
       if (done) done();
     }
-    segment();
+    step();
   }
 
-  /* ---- clique numa casa ---- */
-  function onHouse(n) {
-    if (walking) return;
-    var st = stateOf(n), t = L();
-    if (st === "locked") { toast(t.locked + " · " + t.lockedDesc); return; }
-    openModal(n, st);
-  }
+  /* ---- clique / modal ---- */
+  function onHouse(n) { if (walking) return; var st = stateOf(n), t = L();
+    if (st === "locked") { toast(t.locked + " · " + t.lockedDesc); return; } openModal(n, st); }
   function openModal(n, st) {
     var t = L(), H = HOUSES[n];
     document.getElementById("mc-num").textContent = n === 15 ? t.master : (t.house + " " + n);
@@ -188,16 +176,13 @@
       var b = el("button", st === "completed" ? "mc-replay" : "mc-play", actions);
       b.textContent = st === "completed" ? t.replay : t.play;
       b.addEventListener("click", function () { closeModal(); launch(n); });
-    } else {
-      var info = el("button", "mc-replay", actions);
-      info.textContent = t.coming; info.disabled = true; info.style.opacity = ".7"; info.style.cursor = "default";
-    }
+    } else { var info = el("button", "mc-replay", actions); info.textContent = t.coming; info.disabled = true; info.style.opacity = ".7"; info.style.cursor = "default"; }
     var c = el("button", "mc-close", actions); c.textContent = t.close; c.addEventListener("click", closeModal);
     document.getElementById("modal").classList.add("show");
   }
   function closeModal() { document.getElementById("modal").classList.remove("show"); }
 
-  /* ---- lançar jogo (iframe) + detecção de conclusão ---- */
+  /* ---- lançar jogo + detecção ---- */
   function launch(house) {
     launchedHouse = house; completedThisLaunch = false;
     var t = L();
@@ -212,26 +197,16 @@
         var win = frame.contentWindow; if (!win || !win.PRIME_GAME) return;
         var scenes = win.PRIME_GAME.scene.getScenes(true); var key = null;
         for (var i = scenes.length - 1; i >= 0; i--) { if (scenes[i].scene.key) { key = scenes[i].scene.key; break; } }
-        if (key === "ResultScene") {
-          var rs = win.PRIME_GAME.scene.getScene("ResultScene");
-          if (rs && !rs.gameOver && !completedThisLaunch) { completedThisLaunch = true; onGameComplete(house); }
-        }
+        if (key === "ResultScene") { var rs = win.PRIME_GAME.scene.getScene("ResultScene");
+          if (rs && !rs.gameOver && !completedThisLaunch) { completedThisLaunch = true; onGameComplete(house); } }
       } catch (e) {}
     }, 600);
   }
-  function onGameComplete(house) {
-    markComplete(house);
-    var t = L();
-    document.getElementById("db-text").textContent = t.houseDone.replace("%s", house);
-    document.getElementById("done-banner").classList.add("show");
-  }
-  function markComplete(house) {
-    if (!progress.completed[house]) {
-      progress.completed[house] = true;
-      if (house + 1 > progress.unlockedMax) progress.unlockedMax = Math.min(15, house + 1);
-      save();
-    }
-  }
+  function onGameComplete(house) { markComplete(house);
+    document.getElementById("db-text").textContent = L().houseDone.replace("%s", house);
+    document.getElementById("done-banner").classList.add("show"); }
+  function markComplete(house) { if (!progress.completed[house]) { progress.completed[house] = true;
+    if (house + 1 > progress.unlockedMax) progress.unlockedMax = Math.min(15, house + 1); save(); } }
   function closeGame() {
     if (poll) { clearInterval(poll); poll = null; }
     document.getElementById("game-frame").src = "about:blank";
@@ -242,57 +217,36 @@
     if (newCurrent !== avatarAt) walkTo(newCurrent); else positionTravellers(avatarAt);
   }
 
-  /* ---- toast ---- */
   var toastTimer = null;
   function toast(msg) { toastEl.textContent = msg; toastEl.classList.add("show");
     if (toastTimer) clearTimeout(toastTimer); toastTimer = setTimeout(function () { toastEl.classList.remove("show"); }, 2600); }
 
-  function fit() { drawPaths(); }
+  function fit() { if (walking) { layout(true); return; } render(true); positionTravellers(avatarAt); }
   function toggleLang() { progress.lang = progress.lang === "es" ? "en" : "es"; save(); render(true); positionTravellers(avatarAt); }
 
-  /* ---- modo demonstração da caminhada ---- */
+  /* ---- modo demonstração ---- */
   function demoComplete(house) {
     if (walking) return;
-    // garante pré-requisito
     if (house === 2 && !progress.completed[1]) { progress.completed[1] = true; progress.unlockedMax = Math.max(progress.unlockedMax, 2); }
     var prevAvatar = avatarAt;
     progress.completed[house] = true;
     progress.unlockedMax = Math.min(15, Math.max(progress.unlockedMax, house + 1));
-    render(true);                 // atualiza estados (destino vira "current")
-    positionTravellers(prevAvatar);
-    avatarAt = prevAvatar;
-    walkTo(currentHouse());       // caminha com passos visíveis + pulso na chegada
+    render(true); positionTravellers(prevAvatar); avatarAt = prevAvatar;
+    walkTo(currentHouse());
   }
-  function demoReset() {
-    if (walking) return;
-    progress.completed = {}; progress.unlockedMax = 1;
-    render(); avatarAt = 1; positionTravellers(1);
-  }
+  function demoReset() { if (walking) return; progress.completed = {}; progress.unlockedMax = 1; render(); avatarAt = 1; positionTravellers(1); }
   function buildDemoBar() {
-    var t = L();
-    var bar = document.getElementById("demo-bar");
-    bar.style.display = "flex";
-    bar.innerHTML = '<span class="demo-title" id="demo-title"></span>';
-    var mk = function (txt, fn) { var b = document.createElement("button"); b.className = "demo-btn"; b.textContent = txt; b.addEventListener("click", fn); bar.appendChild(b); return b; };
+    var t = L(), bar = document.getElementById("demo-bar");
+    bar.style.display = "flex"; bar.innerHTML = '<span class="demo-title" id="demo-title"></span>';
+    var mk = function (txt, fn) { var b = document.createElement("button"); b.className = "demo-btn"; b.textContent = txt; b.addEventListener("click", fn); bar.appendChild(b); };
     document.getElementById("demo-title").textContent = t.demoTitle;
-    mk(t.demo1, function () { demoComplete(1); });
-    mk(t.demo2, function () { demoComplete(2); });
-    mk(t.demoReset, demoReset);
+    mk(t.demo1, function () { demoComplete(1); }); mk(t.demo2, function () { demoComplete(2); }); mk(t.demoReset, demoReset);
   }
   function hideDemoBar() { var bar = document.getElementById("demo-bar"); bar.style.display = "none"; bar.innerHTML = ""; }
-
-  /* liga/desliga o modo demo pelo botão do HUD (não afeta o progresso salvo) */
   function toggleDemo() {
-    demoMode = !demoMode;
-    var btn = document.getElementById("demo-toggle");
-    if (demoMode) {
-      progress.completed = {}; progress.unlockedMax = 1;   // demo começa limpa (memória)
-      render(); avatarAt = 1; positionTravellers(1);
-      buildDemoBar(); if (btn) btn.classList.add("active");
-    } else {
-      progress.completed = {}; progress.unlockedMax = 1; load();   // restaura progresso real salvo
-      hideDemoBar(); render(); if (btn) btn.classList.remove("active");
-    }
+    demoMode = !demoMode; var btn = document.getElementById("demo-toggle");
+    if (demoMode) { progress.completed = {}; progress.unlockedMax = 1; render(); avatarAt = 1; positionTravellers(1); buildDemoBar(); if (btn) btn.classList.add("active"); }
+    else { progress.completed = {}; progress.unlockedMax = 1; load(); hideDemoBar(); render(); if (btn) btn.classList.remove("active"); }
   }
 
   /* ---- init ---- */
@@ -302,32 +256,28 @@
     travellers = document.getElementById("travellers");
     housesLayer = document.getElementById("houses");
     toastEl = document.getElementById("toast");
-    svg = document.getElementById("paths");
     if (window.PRIME_BRAND_LOGO) document.getElementById("brand-logo").src = window.PRIME_BRAND_LOGO;
-
     document.getElementById("lang-btn").addEventListener("click", toggleLang);
     document.getElementById("demo-toggle").addEventListener("click", toggleDemo);
     document.getElementById("backMap").addEventListener("click", closeGame);
     document.getElementById("db-return").addEventListener("click", closeGame);
-
     travellers.innerHTML = '<img class="alex" src="assets/avatar-alex.webp" alt="Alex">' +
                            '<img class="emma" src="assets/avatar-emma.webp" alt="Emma">';
-
     render();
-    fit();
     window.addEventListener("resize", fit);
     window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
-
+    // reajusta após o fundo carregar (garante alinhamento com a estrada)
+    var bg = document.getElementById("bg"); if (bg) { if (bg.complete) fit(); else bg.addEventListener("load", fit); }
     if (demoMode) { buildDemoBar(); var dt = document.getElementById("demo-toggle"); if (dt) dt.classList.add("active"); }
   }
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
-  else init();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
 
   window.PRIME_MAP = {
     get progress() { return progress; }, get demo() { return demoMode; },
     stateOf: stateOf, currentHouse: currentHouse, launch: launch, closeGame: closeGame,
     onGameComplete: onGameComplete, demoComplete: demoComplete, demoReset: demoReset,
-    toggleDemo: toggleDemo, toggleLang: toggleLang, render: render, isWalking: function () { return walking; }
+    toggleDemo: toggleDemo, toggleLang: toggleLang, render: render, isWalking: function () { return walking; },
+    _nodePx: function (n) { return coverPoint(NODES[n - 1]); }, _avatarAt: function () { return avatarAt; }
   };
 })();
