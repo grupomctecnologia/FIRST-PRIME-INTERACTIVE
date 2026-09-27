@@ -124,15 +124,17 @@ html,body{margin:0;height:100%;background:#070b1c;color:var(--text);font-family:
 .mc-close{background:transparent;color:var(--dim);border:0}
 .modal-card button{font-family:var(--font);font-weight:800;font-size:15px;padding:12px 20px;border-radius:12px;cursor:pointer;border:0}
 
-/* barra do modo demonstração (só com ?previewWalk=1) */
-#demo-bar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:30;display:none;
-  align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;max-width:96vw;
-  background:rgba(9,12,32,.92);border:1px solid rgba(255,207,92,.55);border-radius:14px;padding:10px 14px;
+/* barra do modo demonstração — canto superior esquerdo (área livre, não cobre
+   as casas nem a caminhada 1→2→3, que fica embaixo-centro) */
+#demo-bar{position:fixed;left:12px;top:70px;z-index:30;display:none;
+  flex-direction:column;align-items:stretch;gap:8px;width:min(300px,52vw);
+  background:rgba(9,12,32,.9);border:1px solid rgba(255,207,92,.55);border-radius:14px;padding:10px 12px;
   box-shadow:0 12px 34px rgba(0,0,0,.6)}
-#demo-bar .demo-title{font-size:12px;color:var(--gold);font-weight:700;margin-right:4px}
+#demo-bar .demo-title{font-size:11px;color:var(--gold);font-weight:700;line-height:1.25}
 #demo-bar .demo-btn{background:linear-gradient(180deg,#243056,#141a38);border:1px solid rgba(56,225,255,.5);
-  color:var(--text);font-family:var(--font);font-weight:700;font-size:13px;padding:9px 14px;border-radius:11px;cursor:pointer}
+  color:var(--text);font-family:var(--font);font-weight:700;font-size:clamp(11px,1.4vw,13px);padding:8px 10px;border-radius:11px;cursor:pointer;text-align:left}
 #demo-bar .demo-btn:hover{filter:brightness(1.18)}
+@media (max-width:640px){#demo-bar{top:58px;width:min(260px,58vw);padding:8px 10px}}
 
 /* rotate hint (celular em retrato) */
 #rotate{position:fixed;inset:0;z-index:80;display:none;flex-direction:column;align-items:center;justify-content:center;
