@@ -1,0 +1,133 @@
+/* =============================================================================
+ *  PRIME TWO — Mission Map (mapa de progressão compartilhado)
+ *  Cenário London (imagem de referência) + 15 casas funcionais sobre um palco
+ *  16:9 escalado para caber em qualquer tela (desktop, tablet, celular).
+ * ===========================================================================*/
+:root{
+  --gold:#ffcf5c; --gold2:#ef9f2e; --cyan:#38e1ff; --good:#4ee39a; --bad:#ff5d6c;
+  --ink:#0b1026; --panel:#141a38; --panelL:#1e2750; --text:#eef3ff; --dim:#c3cdea;
+  --font:"Segoe UI","Trebuchet MS",system-ui,-apple-system,Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#070b1c;color:var(--text);font-family:var(--font);
+  overflow:hidden;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#070b1c}
+/* palco de referência 1600x900, escalado por JS via transform */
+#stage{position:relative;width:1600px;height:900px;transform-origin:center center;
+  background:#0b1026;overflow:hidden;border-radius:2px}
+#bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+#bg-scrim{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(6,9,24,.45),rgba(6,9,24,0) 22%,rgba(6,9,24,0) 62%,rgba(6,9,24,.55));pointer-events:none}
+
+/* trilha (SVG) */
+#paths{position:absolute;inset:0;width:1600px;height:900px;pointer-events:none}
+
+/* casas */
+.house{position:absolute;transform:translate(-50%,-50%);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:6px;user-select:none}
+.house .badge{width:76px;height:76px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:30px;color:#08122c;position:relative;
+  background:radial-gradient(circle at 38% 32%,#3a4576,#141a38);
+  border:3px solid #2a355f;box-shadow:0 8px 20px rgba(0,0,0,.5),inset 0 2px 6px rgba(255,255,255,.12)}
+.house .label{font-size:15px;font-weight:700;color:var(--text);text-shadow:0 2px 6px rgba(0,0,0,.9);
+  background:rgba(9,12,32,.62);padding:3px 10px;border-radius:10px;white-space:nowrap;max-width:230px;
+  overflow:hidden;text-overflow:ellipsis}
+.house .sub{font-size:11px;color:var(--dim);text-shadow:0 1px 4px #000}
+
+/* estados */
+.house.locked{cursor:not-allowed}
+.house.locked .badge{background:radial-gradient(circle at 38% 32%,#2a3153,#0e1430);border-color:#26304f;color:#7f8bb5;opacity:.9}
+.house.locked .label{color:#9aa6cc}
+.house.current .badge{color:#20140a;background:radial-gradient(circle at 38% 30%,#ffe9a8,var(--gold2));
+  border-color:#fff2c2;box-shadow:0 0 0 6px rgba(255,207,92,.25),0 10px 26px rgba(0,0,0,.55);
+  animation:pulse 1.6s ease-in-out infinite}
+.house.completed .badge{color:#052015;background:radial-gradient(circle at 38% 30%,#a9f6cf,#25b47f);
+  border-color:#d6ffe9;box-shadow:0 8px 22px rgba(0,0,0,.5)}
+.house.master .badge{width:88px;height:88px;font-size:24px}
+.house .glyph{position:absolute;font-size:26px}
+.house .stars{display:flex;gap:2px;font-size:14px;color:var(--gold);height:16px;line-height:1;text-shadow:0 1px 3px #000}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+
+.house .lock-pin{position:absolute;top:-8px;right:-8px;font-size:20px}
+.house.completed .check{position:absolute;top:-10px;right:-10px;background:var(--good);color:#052015;
+  width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;
+  border:2px solid #d6ffe9;box-shadow:0 3px 8px rgba(0,0,0,.5)}
+
+/* viajantes (Alex + Emma) */
+#travellers{position:absolute;transform:translate(-50%,-100%);transition:left .05s linear,top .05s linear;
+  display:flex;align-items:flex-end;gap:-10px;pointer-events:none;filter:drop-shadow(0 8px 10px rgba(0,0,0,.5))}
+#travellers img{height:150px;width:auto}
+#travellers img.emma{margin-left:-38px}
+
+/* HUD do mapa */
+#hud{position:absolute;top:0;left:0;right:0;height:64px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;background:linear-gradient(180deg,rgba(6,9,24,.85),rgba(6,9,24,0));z-index:5}
+#hud .brand{display:flex;align-items:center;gap:12px}
+#hud .brand img{height:40px}
+#hud .titles .t{font-size:20px;font-weight:800;letter-spacing:1px}
+#hud .titles .s{font-size:13px;color:var(--gold);font-weight:700;margin-top:-2px}
+#hud .right{display:flex;align-items:center;gap:10px}
+.progress-pill{background:rgba(9,12,32,.7);border:1px solid rgba(56,225,255,.4);border-radius:20px;
+  padding:6px 14px;font-size:13px;font-weight:700;color:var(--text)}
+.map-btn{background:linear-gradient(180deg,#243056,#141a38);border:1px solid rgba(56,225,255,.45);
+  color:var(--text);font-weight:700;font-size:14px;padding:8px 14px;border-radius:12px;cursor:pointer;font-family:var(--font)}
+.map-btn:hover{filter:brightness(1.15)}
+.lang-btn{min-width:64px}
+
+/* overlay do jogo (iframe) */
+#game-overlay{position:fixed;inset:0;z-index:40;background:#05070f;display:none;flex-direction:column}
+#game-overlay.show{display:flex}
+#game-bar{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 12px;
+  background:#0b1026;border-bottom:1px solid rgba(56,225,255,.3)}
+#game-bar .gb-title{font-size:14px;font-weight:700;color:var(--text)}
+#game-frame{flex:1;border:0;width:100%;background:#0b1026}
+#backMap{background:linear-gradient(180deg,#ffd35c,#ef9f2e);color:#20140a;border:0;font-weight:800;
+  padding:8px 16px;border-radius:10px;cursor:pointer;font-family:var(--font);font-size:14px}
+
+/* banner de conclusão dentro do overlay */
+#done-banner{position:absolute;top:56px;left:50%;transform:translateX(-50%);z-index:50;
+  background:linear-gradient(180deg,#25b47f,#16794f);color:#eafff5;border:2px solid #d6ffe9;
+  border-radius:14px;padding:12px 18px;display:none;align-items:center;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,.6)}
+#done-banner.show{display:flex;animation:drop .4s ease}
+#done-banner b{font-size:16px}
+#done-banner .db-btn{background:#fff;color:#0b3d28;border:0;font-weight:800;padding:8px 14px;border-radius:10px;cursor:pointer}
+@keyframes drop{from{transform:translate(-50%,-20px);opacity:0}to{transform:translate(-50%,0);opacity:1}}
+
+/* toast */
+#toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:60;
+  background:rgba(9,12,32,.94);border:1px solid rgba(255,207,92,.5);color:var(--text);
+  padding:12px 20px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .25s}
+#toast.show{opacity:1}
+
+/* modal de casa (info + jogar/em breve) */
+#modal{position:fixed;inset:0;z-index:55;background:rgba(5,7,15,.7);display:none;align-items:center;justify-content:center}
+#modal.show{display:flex}
+.modal-card{width:min(92vw,440px);background:linear-gradient(180deg,#1a2145,#0e1430);border:2px solid rgba(255,207,92,.55);
+  border-radius:20px;padding:24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal-card .mc-num{font-size:15px;color:var(--gold);font-weight:800;letter-spacing:2px}
+.modal-card .mc-title{font-size:24px;font-weight:800;margin:6px 0 4px}
+.modal-card .mc-desc{font-size:14px;color:var(--dim);margin-bottom:18px;line-height:1.4}
+.modal-card .mc-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.mc-play{background:linear-gradient(180deg,#ffd35c,#ef9f2e);color:#20140a}
+.mc-replay{background:linear-gradient(180deg,#243056,#141a38);color:var(--text);border:1px solid rgba(56,225,255,.45)}
+.mc-close{background:transparent;color:var(--dim);border:0}
+.modal-card button{font-family:var(--font);font-weight:800;font-size:15px;padding:12px 20px;border-radius:12px;cursor:pointer;border:0}
+
+/* rotate hint (celular em retrato) */
+#rotate{position:fixed;inset:0;z-index:80;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;text-align:center;padding:30px;background:linear-gradient(180deg,#0b1026,#1b2450)}
+#rotate .ic{font-size:56px;animation:rock 1.6s ease-in-out infinite}
+#rotate .rt{font-size:22px;font-weight:800;color:var(--cyan)}
+#rotate .rx{font-size:15px;color:var(--dim);max-width:320px}
+@keyframes rock{0%,100%{transform:rotate(-12deg)}50%{transform:rotate(12deg)}}
+@media (max-width:820px) and (orientation:portrait){#rotate{display:flex}}
+
+/* HUD compacto em telas estreitas */
+@media (max-width:640px){
+  #hud{height:52px;padding:0 10px}
+  #hud .titles .t{font-size:16px}#hud .titles .s{font-size:11px}
+  #hud .brand img{height:30px}
+  .map-btn{padding:6px 10px;font-size:12px}
+  .progress-pill{padding:5px 10px;font-size:12px}
+}

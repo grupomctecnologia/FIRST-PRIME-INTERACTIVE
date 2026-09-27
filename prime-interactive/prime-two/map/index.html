@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1026" />
+  <meta name="description" content="PRIME TWO — Mission Map · mapa de progressão compartilhado da First Prime Interactive." />
+  <title>PRIME TWO — Mission Map | First Prime Interactive</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1026'/%3E%3Cpath d='M6 22 L13 8 L19 18 L26 6' fill='none' stroke='%23ffcf5c' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='26' cy='6' r='2.4' fill='%2338e1ff'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="css/map.css" />
+</head>
+<body>
+  <!-- Configuração: caminhos dos jogos (relativos a esta página) -->
+  <script>
+    window.MAP_CONFIG = { games: { 1: "../game-01/index.html", 2: "../game-02/index.html" } };
+  </script>
+
+  <div id="viewport">
+    <div id="stage">
+      <img id="bg" src="assets/map-bg.webp" alt="London map" />
+      <div id="bg-scrim"></div>
+      <svg id="paths" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg"></svg>
+      <div id="houses"></div>
+      <div id="travellers"></div>
+
+      <div id="hud">
+        <div class="brand">
+          <img id="brand-logo" alt="First Prime" />
+          <div class="titles">
+            <div class="t">PRIME TWO</div>
+            <div class="s" id="hud-sub">Mission Map</div>
+          </div>
+        </div>
+        <div class="right">
+          <span class="progress-pill" id="progress-pill">Progress: 0 / 15</span>
+          <button class="map-btn lang-btn" id="lang-btn">🇺🇸 EN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay do jogo (iframe) -->
+  <div id="game-overlay">
+    <div id="game-bar">
+      <div class="gb-title" id="gb-title"></div>
+      <button id="backMap">≡ Back to map</button>
+    </div>
+    <iframe id="game-frame" src="about:blank" allow="autoplay; fullscreen" title="game"></iframe>
+    <div id="done-banner">
+      <b id="db-text">House complete!</b>
+      <button class="db-btn" id="db-return">Return to map</button>
+    </div>
+  </div>
+
+  <!-- Modal de casa -->
+  <div id="modal">
+    <div class="modal-card">
+      <div class="mc-num" id="mc-num"></div>
+      <div class="mc-title" id="mc-title"></div>
+      <div class="mc-desc" id="mc-desc"></div>
+      <div class="mc-actions" id="mc-actions"></div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <div id="rotate">
+    <div class="ic">📱↻</div>
+    <div class="rt">Rotate your device · Gira tu dispositivo</div>
+    <div class="rx">The map looks best in landscape · El mapa se ve mejor en horizontal</div>
+  </div>
+
+  <script src="js/brand-logo.js"></script>
+  <script src="js/map.js"></script>
+</body>
+</html>
