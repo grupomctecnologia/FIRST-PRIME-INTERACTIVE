@@ -18,7 +18,8 @@
   var CFG = window.MAP_CONFIG || {};
   var GAMES = CFG.games || { 1: "../game-01/index.html", 2: "../game-02/index.html" };
   var STORAGE_KEY = "prime2_map_v1";
-  var DEMO = /[?&]previewWalk=1\b/.test(location.search);
+  // demo pode vir pela URL (?previewWalk=1 ou #previewWalk) OU ser ligado pelo botão do HUD
+  var demoMode = /previewWalk=1/.test(location.search) || /previewWalk/.test(location.hash);
 
   /* ---- posições das 15 casas em % (x,y) do palco, formando a trilha ---- */
   var NODES = [
@@ -54,9 +55,9 @@
   };
 
   var progress = { completed: {}, unlockedMax: 1, lang: "en" };
-  function load() { if (DEMO) return; try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) { var p = JSON.parse(raw);
+  function load() { if (demoMode) return; try { var raw = localStorage.getItem(STORAGE_KEY); if (raw) { var p = JSON.parse(raw);
       progress.completed = p.completed || {}; progress.unlockedMax = p.unlockedMax || 1; progress.lang = p.lang || "en"; } } catch (e) {} }
-  function save() { if (DEMO) return; try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch (e) {} }
+  function save() { if (demoMode) return; try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch (e) {} }
   function L() { return I18N[progress.lang] || I18N.en; }
 
   function stateOf(n) {
@@ -278,6 +279,21 @@
     mk(t.demo2, function () { demoComplete(2); });
     mk(t.demoReset, demoReset);
   }
+  function hideDemoBar() { var bar = document.getElementById("demo-bar"); bar.style.display = "none"; bar.innerHTML = ""; }
+
+  /* liga/desliga o modo demo pelo botão do HUD (não afeta o progresso salvo) */
+  function toggleDemo() {
+    demoMode = !demoMode;
+    var btn = document.getElementById("demo-toggle");
+    if (demoMode) {
+      progress.completed = {}; progress.unlockedMax = 1;   // demo começa limpa (memória)
+      render(); avatarAt = 1; positionTravellers(1);
+      buildDemoBar(); if (btn) btn.classList.add("active");
+    } else {
+      progress.completed = {}; progress.unlockedMax = 1; load();   // restaura progresso real salvo
+      hideDemoBar(); render(); if (btn) btn.classList.remove("active");
+    }
+  }
 
   /* ---- init ---- */
   function init() {
@@ -290,6 +306,7 @@
     if (window.PRIME_BRAND_LOGO) document.getElementById("brand-logo").src = window.PRIME_BRAND_LOGO;
 
     document.getElementById("lang-btn").addEventListener("click", toggleLang);
+    document.getElementById("demo-toggle").addEventListener("click", toggleDemo);
     document.getElementById("backMap").addEventListener("click", closeGame);
     document.getElementById("db-return").addEventListener("click", closeGame);
 
@@ -301,16 +318,16 @@
     window.addEventListener("resize", fit);
     window.addEventListener("orientationchange", function () { setTimeout(fit, 200); });
 
-    if (DEMO) buildDemoBar();
+    if (demoMode) { buildDemoBar(); var dt = document.getElementById("demo-toggle"); if (dt) dt.classList.add("active"); }
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
 
   window.PRIME_MAP = {
-    get progress() { return progress; }, get demo() { return DEMO; },
+    get progress() { return progress; }, get demo() { return demoMode; },
     stateOf: stateOf, currentHouse: currentHouse, launch: launch, closeGame: closeGame,
     onGameComplete: onGameComplete, demoComplete: demoComplete, demoReset: demoReset,
-    toggleLang: toggleLang, render: render, isWalking: function () { return walking; }
+    toggleDemo: toggleDemo, toggleLang: toggleLang, render: render, isWalking: function () { return walking; }
   };
 })();
