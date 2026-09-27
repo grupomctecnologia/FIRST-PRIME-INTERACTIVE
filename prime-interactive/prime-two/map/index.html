@@ -33,8 +33,6 @@
         </div>
         <div class="right">
           <span class="progress-pill" id="progress-pill">Progress: 0 / 15</span>
-          <button class="map-btn" id="demo-toggle">🛠 ADM</button>
-          <button class="map-btn lang-btn" id="lang-btn">🇺🇸 EN</button>
         </div>
       </div>
     </div>
@@ -63,7 +61,13 @@
     </div>
   </div>
 
-  <!-- Barra do modo de demonstração (aparece só com ?previewWalk=1) -->
+  <!-- Controles flutuantes (abaixo da barra do Artifact, área livre à esquerda) -->
+  <div id="fab-stack">
+    <button class="map-btn" id="demo-toggle">🛠 ADM</button>
+    <button class="map-btn lang-btn" id="lang-btn">🇺🇸 EN</button>
+  </div>
+
+  <!-- Painel ADM/Teste (aparece ao tocar em ADM ou com ?adm=1) -->
   <div id="demo-bar"></div>
 
   <div id="toast"></div>
