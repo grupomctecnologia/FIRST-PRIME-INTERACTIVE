@@ -63,36 +63,58 @@ window.AudioManager = {
     this.stopMusic();
     this._currentTrack = track;
 
-    // Progressões harmônicas simples por faixa
+    /* Trilha original, atmosférica (aventura + mistério). Sem batida de
+     * relógio: acordes sustentados que evoluem por uma progressão em tom menor,
+     * baixo suave (nota longa, não percussivo) e melodia esparsa/variável. */
     const palettes = {
-      menu:      { root: 220.0, scale: [0, 3, 5, 7, 10], tempo: 2.2, wave: "sine" },   // Am pentatônica, calmo
-      adventure: { root: 261.63, scale: [0, 2, 4, 7, 9], tempo: 1.4, wave: "triangle" }, // C maior, animado
-      victory:   { root: 329.63, scale: [0, 4, 7, 11, 12], tempo: 1.0, wave: "sawtooth" }
+      // Am — Dm — E — Am (mistério calmo)  · menu
+      menu:      { rootHz: 220.0, chordDur: 4.2, wave: "sine",     prog: [[0, 3, 7], [5, 8, 12], [7, 11, 14], [0, 3, 7]], mel: [0, 3, 5, 7, 10, 12] },
+      // Am — F — C — G (aventura em tom menor) · briefing + jogo
+      adventure: { rootHz: 196.0, chordDur: 3.6, wave: "triangle", prog: [[0, 3, 7], [8, 12, 15], [3, 7, 10], [10, 14, 17]], mel: [0, 2, 3, 5, 7, 10, 12] },
+      // C — G — Am — F (triunfal) · resultado
+      victory:   { rootHz: 261.63, chordDur: 2.6, wave: "triangle", prog: [[0, 4, 7], [7, 11, 14], [9, 12, 16], [5, 9, 12]], mel: [0, 4, 7, 12, 16] }
     };
     const p = palettes[track] || palettes.adventure;
+    const hz = (semi, octShift) => p.rootHz * Math.pow(2, (semi + (octShift || 0) * 12) / 12);
 
-    // Pad de fundo (acorde sustentado suave)
-    const padFreqs = [p.root / 2, (p.root / 2) * Math.pow(2, 4 / 12), (p.root / 2) * Math.pow(2, 7 / 12)];
-    padFreqs.forEach(f => {
-      const o = this.ctx.createOscillator();
-      const g = this.ctx.createGain();
-      o.type = "sine"; o.frequency.value = f;
-      g.gain.value = 0.06;
-      o.connect(g); g.connect(this.musicGain); o.start();
-      this._musicNodes.push(o, g);
-    });
+    let idx = 0;
+    const playChord = () => {
+      if (this._currentTrack !== track || !this.ctx) return;
+      const t = this.ctx.currentTime, dur = p.chordDur;
+      const chord = p.prog[idx % p.prog.length];
 
-    // Arpejo rítmico
-    let step = 0;
-    const beat = () => {
-      if (this._currentTrack !== track) return;
-      const semis = p.scale[step % p.scale.length] + (step % (p.scale.length * 2) >= p.scale.length ? 12 : 0);
-      const freq = p.root * Math.pow(2, semis / 12);
-      this._blip(freq, p.wave, 0.16, this.musicGain, 0.12);
-      step++;
-      this._musicTimer = setTimeout(beat, (p.tempo / 2) * 1000);
+      // Pad sustentado (tríade uma oitava abaixo) — envelope suave (sem clique)
+      chord.forEach((s) => {
+        const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = "sine"; o.frequency.value = hz(s, -1);
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.05, t + 0.7);
+        g.gain.setValueAtTime(0.05, t + dur - 0.7);
+        g.gain.linearRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(this.musicGain); o.start(t); o.stop(t + dur + 0.05);
+        this._musicNodes.push(o, g);
+      });
+      // Baixo grave e longo (não percussivo)
+      const bo = this.ctx.createOscillator(), bg = this.ctx.createGain();
+      bo.type = "sine"; bo.frequency.value = hz(chord[0], -2);
+      bg.gain.setValueAtTime(0.0001, t);
+      bg.gain.linearRampToValueAtTime(0.09, t + 0.4);
+      bg.gain.linearRampToValueAtTime(0.0001, t + dur * 0.9);
+      bo.connect(bg); bg.connect(this.musicGain); bo.start(t); bo.stop(t + dur + 0.05);
+      this._musicNodes.push(bo, bg);
+
+      // Melodia esparsa e variável (2–3 notas em tempos aleatórios)
+      const notes = 2 + Math.floor(Math.random() * 2);
+      for (let k = 0; k < notes; k++) {
+        const deg = p.mel[Math.floor(Math.random() * p.mel.length)];
+        const oct = Math.random() < 0.3 ? 1 : 0;
+        const when = (0.4 + Math.random() * (dur - 0.9)) * 1000;
+        setTimeout(() => { if (this._currentTrack === track) this._blip(hz(deg, oct), p.wave, 0.55, this.musicGain, 0.06); }, when);
+      }
+      idx++;
+      this._musicTimer = setTimeout(playChord, dur * 1000);
     };
-    beat();
+    playChord();
   },
 
   stopMusic() {
@@ -123,7 +145,9 @@ window.AudioManager = {
       case "click":
         this._blip(660, "square", 0.08, this.sfxGain, 0.18); break;
       case "hover":
-        this._blip(880, "sine", 0.05, this.sfxGain, 0.08); break;
+        // Silenciado de propósito: mover o cursor sobre botões/cartas disparava
+        // "hover" repetidamente (pointerover), causando chiadeira contínua.
+        break;
       case "correct": // arpejo maior ascendente
         [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
           setTimeout(() => this._blip(f, "triangle", 0.18, this.sfxGain, 0.22), i * 70)); break;

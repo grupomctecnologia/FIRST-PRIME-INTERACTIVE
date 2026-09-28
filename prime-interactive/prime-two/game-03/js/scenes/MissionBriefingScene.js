@@ -10,7 +10,7 @@ class MissionBriefingScene extends Phaser.Scene {
     this.cameras.main.fadeIn(320, 5, 7, 20);
     window.SubtitleManager.mount(this);
     T.scene(this, "intro");
-    window.AudioManager.playMusic("menu");
+    window.AudioManager.playMusic("adventure");
 
     const intro = window.PRIME_CONTENT.intro;
 
@@ -47,10 +47,11 @@ class MissionBriefingScene extends Phaser.Scene {
     if (!this.sys.isActive()) return;
     if (this.nIdx >= this.narration.length) return;
     const line = this.narration[this.nIdx++];
+    // Legenda ÚNICA da abertura: só a linha central (this.narrText). Não
+    // duplicar no rodapé (SubtitleManager) — mantém uma legenda, numa posição.
     this.narrText.setText(line);
     this.narrText.setAlpha(0);
     this.tweens.add({ targets: this.narrText, alpha: 1, duration: 300 });
-    window.SubtitleManager.show(line);
     window.AudioManager.speak(line);
     const est = Math.min(6000, 1200 + line.length * 55);
     this.time.delayedCall(est, () => this.nextLine());

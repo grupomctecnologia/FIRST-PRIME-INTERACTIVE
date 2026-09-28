@@ -68,6 +68,12 @@ window.GameState = {
     this._pr(phaseKey).total++;
   },
 
+  /* One-off score penalty (e.g. Memory Match countdown reaching zero). Never
+   * touches lives and never reveals answers. Score is clamped at 0. */
+  applyScorePenalty(points) {
+    this.session.score = Math.max(0, this.session.score - points);
+  },
+
   /* Wrong attempt: lose a life, allow retry (no reveal) */
   loseLife(phaseKey) {
     this.session.wrongAttempts++;

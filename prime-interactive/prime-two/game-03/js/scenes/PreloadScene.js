@@ -10,7 +10,10 @@ class PreloadScene extends Phaser.Scene {
 
     const T = window.Theme, w = this.scale.width, h = this.scale.height;
     T.background(this, 0);
-    window.Brand.render(this, w / 2, h / 2 - 46, 360, 96, { onDark: true });
+    // Logo OFICIAL apenas se já estiver carregado (via BootScene). Nunca mostrar
+    // o marcador técnico/placeholder na tela do jogador — se não houver logo, a
+    // tela fica limpa (só título + barra de progresso).
+    if (window.Brand.hasOfficial(this)) window.Brand.render(this, w / 2, h / 2 - 46, 360, 96, { onDark: true });
     const sub = this.add.text(w / 2, h / 2 + 34, "PRIME TWO", {
       fontFamily: T.font, fontSize: "38px", fontStyle: "bold", color: T.colors.text
     }).setOrigin(0.5);

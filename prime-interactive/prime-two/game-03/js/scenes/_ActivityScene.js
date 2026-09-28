@@ -13,6 +13,9 @@ class ActivityScene extends Phaser.Scene {
     window.SubtitleManager.mount(this);
     T.scene(this, opts.bgKey);
     this.hud = new window.Hud(this, {});
+    // Trilha de fundo de aventura/mistério durante o jogo (no-op se já tocando).
+    this.input.once("pointerdown", () => window.AudioManager.unlock());
+    window.AudioManager.playMusic("adventure");
 
     // Step header
     const label = window.S("step") + " " + opts.stepNumber + " · " + window.S(opts.titleKey);

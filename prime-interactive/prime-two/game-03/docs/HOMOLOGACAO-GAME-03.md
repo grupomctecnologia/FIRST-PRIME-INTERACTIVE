@@ -109,6 +109,35 @@ Modo normal (progresso real), Casas 1 e 2 concluídas, Casa 3 liberada:
   o registro da Casa 3). Game 01 e Game 02 continuam inicializando (`PRIME_GAME`
   presente), sem 404 reproduzível e Game 02 sem erros de console.
 
+## 2.10 Correções da revisão da prévia
+
+- **Marcador técnico removido:** a tela de carregamento não exibe mais
+  "OFFICIAL LOGO / awaiting official file / do not recreate". O logo OFICIAL
+  First Prime é pré-carregado no Boot e mostrado na tela de carregamento; se por
+  algum motivo não carregar, a tela fica limpa (título + barra), nunca com
+  placeholder. O fallback da marca virou um wordmark neutro "FIRST PRIME"
+  (sem texto de instrução).
+- **Legenda única na abertura:** a fala do Mission Briefing aparece em UMA só
+  posição (linha central). A cópia duplicada no rodapé (SubtitleManager) foi
+  removida — validado EN e ES (`subtitleVisible=false`).
+- **Chiadeira do mouse:** o efeito sonoro de "hover" foi silenciado (era
+  disparado por `pointerover` a cada movimento do cursor sobre botões/cartas).
+  Nenhum som contínuo dispara ao mover o cursor (`hoverSilent=true`).
+- **Trilha sonora:** substituída a arpeggio repetitiva ("batida de relógio") por
+  uma trilha atmosférica original (acordes sustentados em tom menor + baixo
+  longo + melodia esparsa), com clima de aventura/mistério, na abertura e como
+  fundo durante o jogo. Toca após interação do jogador (política do navegador) e
+  respeita som/mudo.
+- **Memory Match — cronômetro 60→0:** cronômetro digital visível conta
+  60, 59, 58 … 0 (native timer, independente do render-loop). Ao chegar a zero
+  aplica **uma única** redução de **100 pontos** (= um par correto, coerente com
+  a escala +100/acerto), **sem** revelar cartas e **sem** descontar vidas; a
+  penalidade **não se repete** após o zero. Este cronômetro é independente do
+  critério de estrelas por tempo da etapa final. Validado: 60→57 em tempo real,
+  penalidade 500→400 uma vez, vidas 3, cartas não reveladas, sem repetição.
+
+**Valor da penalidade do Memory Match: 100 pontos (uma única vez).**
+
 ## 3. Conclusão
 
 Game 03 aprovado nos testes automatizados: 43 assets válidos e carregados, 7

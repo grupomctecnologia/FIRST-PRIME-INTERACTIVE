@@ -54,37 +54,19 @@ window.Brand = {
       return c;
     }
 
-    // 2) PLACEHOLDER TÉCNICO (neutro, sem recriar a marca)
-    const w = maxW, h = maxH;
-    const g = scene.add.graphics();
-    g.fillStyle(0x0f1636, 0.55);
-    g.fillRoundedRect(-w / 2, -h / 2, w, h, 12);
-    // borda tracejada
-    g.lineStyle(2, T.colors.accent, 0.6);
-    const dash = 12, gap = 8;
-    const drawDashed = (x1, y1, x2, y2) => {
-      const dx = x2 - x1, dy = y2 - y1, len = Math.hypot(dx, dy);
-      const steps = Math.floor(len / (dash + gap));
-      const ux = dx / len, uy = dy / len;
-      for (let i = 0; i < steps; i++) {
-        const sx = x1 + (dash + gap) * i * ux, sy = y1 + (dash + gap) * i * uy;
-        g.lineBetween(sx, sy, sx + dash * ux, sy + dash * uy);
-      }
-    };
-    drawDashed(-w / 2, -h / 2, w / 2, -h / 2);
-    drawDashed(w / 2, -h / 2, w / 2, h / 2);
-    drawDashed(w / 2, h / 2, -w / 2, h / 2);
-    drawDashed(-w / 2, h / 2, -w / 2, -h / 2);
-    c.add(g);
-
-    const t1 = scene.add.text(0, -h * 0.14, "OFFICIAL LOGO · FIRST PRIME", {
-      fontFamily: T.font, fontSize: Math.max(13, Math.round(h * 0.16)) + "px",
-      fontStyle: "bold", color: T.hex(T.colors.accent), align: "center"
+    // 2) Fallback LIMPO (sem marcador técnico visível ao jogador): um wordmark
+    //    neutro "FIRST PRIME". Nunca exibe texto de placeholder/instrução.
+    const h = maxH;
+    const t1 = scene.add.text(0, -h * 0.12, "FIRST PRIME", {
+      fontFamily: T.font, fontSize: Math.max(14, Math.round(h * 0.26)) + "px",
+      fontStyle: "bold", color: T.hex(T.colors.accent2), align: "center"
     }).setOrigin(0.5);
-    const t2 = scene.add.text(0, h * 0.20, "awaiting official file — do not recreate", {
-      fontFamily: T.font, fontSize: Math.max(10, Math.round(h * 0.12)) + "px",
-      color: T.colors.textDim, align: "center"
+    t1.setShadow(0, 2, "rgba(0,0,0,0.6)", 6);
+    const t2 = scene.add.text(0, h * 0.22, "INTERACTIVE", {
+      fontFamily: T.font, fontSize: Math.max(10, Math.round(h * 0.14)) + "px",
+      fontStyle: "bold", color: T.colors.text, align: "center"
     }).setOrigin(0.5);
+    if (t2.setLetterSpacing) t2.setLetterSpacing(4);
     c.add(t1); c.add(t2);
     c.official = false;
     return c;

@@ -37,6 +37,8 @@ window.PRIME_STRINGS = {
     /* per-activity instructions */
     memoryInstr: "Find the matching pairs. Tap two cards.",
     matchFound: "Pair found!",
+    timeUp: "Time's up!  −%a points",
+    timeLeftShort: "Time",
     wordBuilderInstr: "Tap the letters in order to build the word.",
     matchInstr: "Which word matches the picture?",
     matchInstrWord: "Which picture matches the word?",
@@ -85,6 +87,8 @@ window.PRIME_STRINGS = {
 
     memoryInstr: "Encuentra las parejas. Toca dos cartas.",
     matchFound: "¡Pareja encontrada!",
+    timeUp: "¡Se acabó el tiempo!  −%a puntos",
+    timeLeftShort: "Tiempo",
     wordBuilderInstr: "Toca las letras en orden para formar la palabra.",
     matchInstr: "¿Qué palabra corresponde a la imagen?",
     matchInstrWord: "¿Qué imagen corresponde a la palabra?",
