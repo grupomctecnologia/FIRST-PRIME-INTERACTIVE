@@ -7,6 +7,7 @@ class PreloadScene extends Phaser.Scene {
   preload() {
     // logo OFICIAL First Prime (se configurado) + arte oficial do Game 02
     window.Brand.preload(this);
+    if (window.FlagImage) window.FlagImage.preload(this);
     if (window.Art) window.Art.preload(this);
 
     // barra de progresso ligada ao loader real

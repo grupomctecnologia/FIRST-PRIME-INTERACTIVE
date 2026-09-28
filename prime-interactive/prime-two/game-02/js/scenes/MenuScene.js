@@ -36,7 +36,7 @@ class MenuScene extends Phaser.Scene {
     window.Shop.button(this, w / 2, 300, 320, 82, window.S("play"), { fontSize: 32, onClick: () => this.startGame() });
 
     // Change-language button (small)
-    window.Shop.button(this, w / 2, 402, 260, 48, (window.GameState.settings.lang === "es" ? "🇪🇸 Español" : "🇺🇸 English") + "  ▾", {
+    window.Shop.button(this, w / 2, 402, 260, 48, (window.GameState.settings.lang === "es" ? "Español" : "English") + "  ▾", {
       secondary: true, fontSize: 18, textColor: T.colors.text,
       onClick: () => { window.AudioManager.sfx("click"); this.scene.start("LanguageSelectScene"); }
     });

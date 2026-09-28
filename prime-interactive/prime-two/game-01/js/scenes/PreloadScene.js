@@ -6,6 +6,7 @@ class PreloadScene extends Phaser.Scene {
   preload() {
     // carrega o logo OFICIAL da First Prime, se configurado (senão, placeholder)
     window.Brand.preload(this);
+    if (window.FlagImage) window.FlagImage.preload(this);
     // carrega a arte cinematográfica (casal + Londres) da referência aprovada
     if (window.Art) window.Art.preload(this);
   }

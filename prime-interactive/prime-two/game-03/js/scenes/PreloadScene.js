@@ -6,6 +6,7 @@ class PreloadScene extends Phaser.Scene {
 
   preload() {
     window.Brand.preload(this);
+    if (window.FlagImage) window.FlagImage.preload(this);
     if (window.Art) window.Art.preload(this);
 
     const T = window.Theme, w = this.scale.width, h = this.scale.height;

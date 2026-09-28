@@ -41,7 +41,7 @@ class LanguageSelectScene extends Phaser.Scene {
       g.fillStyle(0xffffff, 0.05); g.fillRoundedRect(-cw / 2, -ch / 2, cw, ch * 0.4, { tl: 24, tr: 24, bl: 0, br: 0 });
     };
     draw(false); c.add(g);
-    window.Flags.draw(this, x, y - 56, 152, 100, flag);
+    const flagImg = window.FlagImage.wave(this, x, y - 56, 178, 120, flag);
     c.add(this.add.text(0, 40, name, { fontFamily: T.font, fontSize: "34px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5));
     const pill = this.add.graphics();
     pill.fillGradientStyle(c1, c1, c2, c2, 1); pill.fillRoundedRect(-120, ch / 2 - 62, 240, 46, 23);
@@ -51,8 +51,8 @@ class LanguageSelectScene extends Phaser.Scene {
     c.setSize(cw, ch);
     const hit = this.add.zone(0, 0, cw, ch).setOrigin(0.5).setInteractive({ useHandCursor: true });
     c.add(hit);
-    hit.on("pointerover", () => { draw(true); window.AudioManager.sfx("hover"); });
-    hit.on("pointerout", () => draw(false));
+    hit.on("pointerover", () => { draw(true); if (flagImg.setHover) flagImg.setHover(true); });
+    hit.on("pointerout", () => { draw(false); if (flagImg.setHover) flagImg.setHover(false); });
     hit.on("pointerup", () => this.choose(lang));
     return c;
   }

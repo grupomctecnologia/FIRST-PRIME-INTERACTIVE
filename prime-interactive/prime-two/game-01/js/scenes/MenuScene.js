@@ -38,7 +38,7 @@ class MenuScene extends Phaser.Scene {
     }));
 
     // Change-language button (small)
-    const langBtn = T.button(this, w / 2, 400, 260, 48, (window.GameState.settings.lang === "es" ? "🇪🇸 Español" : "🇺🇸 English") + "  ▾", {
+    const langBtn = T.button(this, w / 2, 400, 260, 48, (window.GameState.settings.lang === "es" ? "Español" : "English") + "  ▾", {
       color: T.colors.panelLight, color2: T.colors.panel, textColor: T.colors.text, fontSize: 18,
       onClick: () => { window.AudioManager.sfx("click"); this.scene.start("LanguageSelectScene"); }
     });
