@@ -18,7 +18,7 @@
   "use strict";
 
   var CFG = window.MAP_CONFIG || {};
-  var GAMES = CFG.games || { 1: "../game-01/index.html", 2: "../game-02/index.html" };
+  var GAMES = CFG.games || { 1: "../game-01/index.html", 2: "../game-02/index.html", 3: "../game-03/index.html" };
   var STORAGE_KEY = "prime2_map_v1";
   var admMode = /(previewWalk=1|[?&]adm=1)/.test(location.search) || /(previewWalk|adm)/.test(location.hash);
 
@@ -35,7 +35,9 @@
     1: { game: 1, en: { name: "The English Adventure", desc: "Explore London, learn new words and complete every mission." },
                   es: { name: "La Aventura del Inglés", desc: "Explora Londres, aprende palabras nuevas y completa cada misión." } },
     2: { game: 2, en: { name: "London Shopping Mission", desc: "Go shopping in London across seven steps: find items, colours, sizes, prices and pay at the checkout." },
-                  es: { name: "Misión de Compras en Londres", desc: "Ve de compras en Londres en siete pasos: artículos, colores, tallas, precios y paga en la caja." } }
+                  es: { name: "Misión de Compras en Londres", desc: "Ve de compras en Londres en siete pasos: artículos, colores, tallas, precios y paga en la caja." } },
+    3: { game: 3, en: { name: "London Underground Mystery", desc: "Solve the Underground mystery across seven steps: memory, words, images, directions, sentences and a timed final challenge." },
+                  es: { name: "El Misterio del Metro de Londres", desc: "Resuelve el misterio del metro en siete pasos: memoria, palabras, imágenes, direcciones, frases y un reto final cronometrado." } }
   };
 
   var I18N = {
