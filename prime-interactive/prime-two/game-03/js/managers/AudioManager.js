@@ -124,6 +124,29 @@ window.AudioManager = {
     this._musicNodes = [];
   },
 
+  /* Jingle marcante de abertura (fanfarra curta, uma única vez). Toca por cima
+   * da trilha sem reiniciá-la; respeita som/mudo (via masterGain). */
+  playJingle() {
+    if (!this.ctx) this.init();
+    if (!this.ctx) return;
+    // arpejo ascendente G4–C5–E5–G5
+    const notes = [392.0, 523.25, 659.25, 783.99];
+    notes.forEach((f, i) => setTimeout(() => this._blip(f, "triangle", 0.22, this.sfxGain, 0.18), i * 135));
+    // acorde final triunfal (C maior) sustentado
+    setTimeout(() => {
+      if (!this.ctx) return;
+      [523.25, 659.25, 783.99, 1046.5].forEach((f) => {
+        const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+        o.type = "triangle"; o.frequency.value = f;
+        const t = this.ctx.currentTime;
+        g.gain.setValueAtTime(0.0001, t);
+        g.gain.linearRampToValueAtTime(0.11, t + 0.05);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+        o.connect(g); g.connect(this.sfxGain); o.start(t); o.stop(t + 1.25);
+      });
+    }, notes.length * 135);
+  },
+
   _blip(freq, type, dur, dest, peak = 0.2) {
     if (!this.ctx) return;
     const o = this.ctx.createOscillator();
@@ -145,9 +168,8 @@ window.AudioManager = {
       case "click":
         this._blip(660, "square", 0.08, this.sfxGain, 0.18); break;
       case "hover":
-        // Silenciado de propósito: mover o cursor sobre botões/cartas disparava
-        // "hover" repetidamente (pointerover), causando chiadeira contínua.
-        break;
+        // Som suave de hover (mesmo padrão dos Games 01 e 02).
+        this._blip(880, "sine", 0.05, this.sfxGain, 0.08); break;
       case "correct": // arpejo maior ascendente
         [523.25, 659.25, 783.99, 1046.5].forEach((f, i) =>
           setTimeout(() => this._blip(f, "triangle", 0.18, this.sfxGain, 0.22), i * 70)); break;

@@ -38,7 +38,7 @@ window.PRIME_CONTENT_ALL.en = {
       { word: "TICKET",   item: "ticket" },
       { word: "TRAIN",    item: "underground_train" },
       { word: "EXIT",     item: "exit_door" },
-      { word: "PLATFORM", item: "platform" }
+      { word: "STATION",  item: "station_entrance" }
     ]
   },
 

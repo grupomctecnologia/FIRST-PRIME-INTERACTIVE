@@ -11,7 +11,12 @@ class MenuScene extends Phaser.Scene {
     T.scene(this, "home");
     window.GameState.resetSession();
 
-    const unlock = () => { window.AudioManager.unlock(); window.AudioManager.playMusic("menu"); };
+    const unlock = () => {
+      window.AudioManager.unlock();
+      // Jingle marcante de abertura — uma única vez por sessão, após o gesto.
+      if (!window.AudioManager._jingledOnce) { window.AudioManager._jingledOnce = true; window.AudioManager.playJingle(); }
+      window.AudioManager.playMusic("menu");
+    };
     this.input.once("pointerdown", unlock);
     this.input.keyboard.once("keydown", unlock);
 

@@ -40,7 +40,7 @@ window.PRIME_CONTENT_ALL.es = {
       { word: "TICKET",   item: "ticket" },
       { word: "TRAIN",    item: "underground_train" },
       { word: "EXIT",     item: "exit_door" },
-      { word: "PLATFORM", item: "platform" }
+      { word: "STATION",  item: "station_entrance" }
     ]
   },
 
