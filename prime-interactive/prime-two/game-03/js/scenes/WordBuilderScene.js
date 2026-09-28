@@ -12,18 +12,13 @@ class WordBuilderScene extends ActivityScene {
 
   create() {
     this.buildBase({ phaseKey: "WordBuilder", bgKey: "wordbuilder", stepNumber: 3, titleKey: "wordBuilderTitle", instr: window.S("wordBuilderInstr") });
-    // Slot centres measured from the official panel (g03-ui-word-assembly-slots).
-    this.SLOT_FX = [0.1517, 0.2670, 0.3837, 0.5000, 0.6151, 0.7318, 0.8469];
-    this.SLOT_FY = 0.491;           // vertical centre of the blue slots
-    this.SLOTS = this.SLOT_FX.length;
-    this.PANEL_AR = 724 / 2172;     // panel height / width
     this.words = window.PRIME_CONTENT.wordBuilder.words;
     this.wIdx = 0;
     this.loadWord();
   }
 
   loadWord() {
-    const w = this.scale.width, h = this.scale.height, T = window.Theme;
+    const w = this.scale.width, h = this.scale.height, T = window.Theme, CELL = window.UI.CELL;
     if (this._layer) { this._layer.destroy(); this._layer = null; }
     this._layer = this.add.container(0, 0);
 
@@ -31,16 +26,19 @@ class WordBuilderScene extends ActivityScene {
     this.word = data.word.toUpperCase();
     this.nextIndex = 0;
     this.slotEls = [];
-    const n = Math.min(this.word.length, this.SLOTS);
+    // The slot row ALWAYS has exactly one cell per letter of the round's word.
+    const n = this.word.length;
 
-    // --- word-assembly panel (official) geometry ---
-    const panelW = Math.min(w - 200, 700);
-    const panelH = panelW * this.PANEL_AR;
-    const panelCx = w / 2, panelCy = h * 0.60;
-    const panelLeft = panelCx - panelW / 2, panelTop = panelCy - panelH / 2;
+    // --- dynamic slot row: N square blue cells, same size, centred ---
+    const availW = w - 220;
+    const cell = Math.max(58, Math.min(104, Math.floor((availW - (n - 1) * CELL.GAP) / n)));
+    const rowW = n * cell + (n - 1) * CELL.GAP;
+    const rowX = w / 2 - rowW / 2 + cell / 2;
+    const rowY = h * 0.55;
+    const font = Math.round(cell * 0.56);
 
-    // --- picture of the word (above the panel) ---
-    const picH = 150, picY = panelTop - picH * 0.55;
+    // --- picture of the word (above the row) ---
+    const picH = 148, picY = rowY - cell / 2 - picH * 0.5 - 12;
     if (window.Art && window.Art.itemExists(this, data.item)) {
       const im = window.Art.item(this, data.item, w / 2, picY, picH, { depth: 5 });
       if (im) {
@@ -49,33 +47,25 @@ class WordBuilderScene extends ActivityScene {
       }
     }
 
-    // --- official panel with its real blue slots ---
-    this._layer.add(window.UI.panel(this, panelCx, panelCy, panelW, panelH, "word"));
-
-    // --- letters go INTO the existing slots (centred, no extra frame drawn) ---
-    const start = Math.floor((this.SLOTS - n) / 2);
-    const pitchPx = (this.SLOT_FX[1] - this.SLOT_FX[0]) * panelW;
-    const font = Math.round(Math.min(pitchPx * 0.52, panelH * 0.30));
-    const slotY = panelTop + this.SLOT_FY * panelH;
     for (let i = 0; i < n; i++) {
-      const sx = panelLeft + this.SLOT_FX[start + i] * panelW;
-      const t = this.add.text(sx, slotY, "", { fontFamily: T.font, fontSize: font + "px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
+      const sx = rowX + i * (cell + CELL.GAP);
+      this._layer.add(window.UI.emptySlot(this, sx, rowY, cell, cell));
+      const t = this.add.text(sx, rowY, "", { fontFamily: T.font, fontSize: font + "px", fontStyle: "bold", color: T.colors.text }).setOrigin(0.5);
       t.setShadow(0, 2, "rgba(0,0,0,0.7)", 5);
       this._layer.add(t);
-      this.slotEls.push({ x: sx, y: slotY, txt: t });
+      this.slotEls.push({ x: sx, y: rowY, txt: t });
     }
 
     // --- scrambled letter tiles (bottom) ---
     const letters = this.word.split("");
     this._shuffle(letters);
-    const tileSize = Math.min(72, (w - 220) / n - 8);
-    const tgap = 14;
-    const tW = n * tileSize + (n - 1) * tgap;
+    const tileSize = Math.max(52, Math.min(78, Math.floor((availW - (n - 1) * CELL.GAP) / n)));
+    const tW = n * tileSize + (n - 1) * CELL.GAP;
     const tx = w / 2 - tW / 2 + tileSize / 2;
-    const ty = h - 82;
+    const ty = h - 78;
     this.tiles = [];
     letters.forEach((ch, i) => {
-      const x = tx + i * (tileSize + tgap);
+      const x = tx + i * (tileSize + CELL.GAP);
       const tile = window.UI.letterTile(this, x, ty, tileSize, ch, { onClick: (c) => this.onLetter(c) });
       this._layer.add(tile); this.tiles.push(tile);
     });

@@ -265,5 +265,56 @@ window.UI = {
       if (withSfx) window.AudioManager.sfx("star");
     };
     return c;
+  },
+
+  /* =========================================================================
+   *  Coherent measure shared by Word Builder (Step 3) and Sentence Puzzle
+   *  (Step 6): same height, inner padding and spacing; width stays dynamic
+   *  (per letter or per word). One layout at the logical 1280x720 scales to
+   *  tablet/phone via Phaser FIT.
+   * =======================================================================*/
+  CELL: { H: 76, PAD: 26, GAP: 16, RADIUS: 15, FONT: 36 },
+
+  /* Measure the pixel width of a word at a given font size (temp text). */
+  measureText(scene, text, fontSize) {
+    const t = scene.add.text(0, 0, text, { fontFamily: this.font, fontSize: fontSize + "px", fontStyle: "bold" }).setVisible(false);
+    const w = t.width; t.destroy(); return w;
+  },
+
+  /* Empty target socket (dark inset blue + neon + gold frame). Returns graphics. */
+  emptySlot(scene, x, y, w, h) {
+    const g = scene.add.graphics();
+    const r = this.CELL.RADIUS;
+    g.fillStyle(0x000000, 0.28); g.fillRoundedRect(x - w / 2 + 2, y - h / 2 + 4, w, h, r);
+    g.fillStyle(0x0e2044, 0.9); g.fillRoundedRect(x - w / 2, y - h / 2, w, h, r);
+    g.lineStyle(2, 0x2f6fd0, 0.85); g.strokeRoundedRect(x - w / 2 + 3, y - h / 2 + 3, w - 6, h - 6, r - 3);
+    g.lineStyle(2.5, 0xc9a24b, 0.55); g.strokeRoundedRect(x - w / 2, y - h / 2, w, h, r);
+    return g;
+  },
+
+  /* Filled cell/block (bright blue + gloss + neon + gold frame + centred text).
+     Interactive when opts.onClick is given (has .setUsed / .word / .w / .h). */
+  filledBlock(scene, x, y, w, h, word, fontSize, opts) {
+    opts = opts || {};
+    const T = window.Theme, r = this.CELL.RADIUS;
+    const c = scene.add.container(x, y); c.w = w; c.h = h; c.word = word;
+    const g = scene.add.graphics();
+    g.fillStyle(0x000000, 0.32); g.fillRoundedRect(-w / 2 + 2, -h / 2 + 4, w, h, r);
+    g.fillGradientStyle(0x3a86e6, 0x3a86e6, 0x1c4fa2, 0x1c4fa2, 1); g.fillRoundedRect(-w / 2, -h / 2, w, h, r);
+    g.fillStyle(0xffffff, 0.16); g.fillRoundedRect(-w / 2 + 3, -h / 2 + 3, w - 6, h * 0.42, { tl: r, tr: r, bl: 0, br: 0 });
+    g.lineStyle(2, 0x9ad4ff, 0.85); g.strokeRoundedRect(-w / 2 + 2, -h / 2 + 2, w - 4, h - 4, r - 2);
+    g.lineStyle(2.5, 0xc9a24b, 0.7); g.strokeRoundedRect(-w / 2, -h / 2, w, h, r);
+    c.add(g);
+    const t = scene.add.text(0, -1, word, { fontFamily: this.font, fontSize: fontSize + "px", fontStyle: "bold", color: "#f8fbff" }).setOrigin(0.5);
+    t.setShadow(0, 2, "rgba(0,0,0,0.6)", 5); c.add(t); c.label = t;
+    if (opts.onClick) {
+      const hit = scene.add.zone(0, 0, w, h).setOrigin(0.5).setInteractive({ useHandCursor: true });
+      c.add(hit); c.hit = hit;
+      hit.on("pointerover", () => { if (c.used) return; scene.tweens.add({ targets: c, scale: 1.05, duration: 90 }); window.AudioManager.sfx("hover"); });
+      hit.on("pointerout", () => { if (c.used) return; scene.tweens.add({ targets: c, scale: 1.0, duration: 90 }); });
+      hit.on("pointerup", () => { if (c.used) return; opts.onClick(c); });
+      c.setUsed = (u) => { c.used = u; c.setAlpha(u ? 0.25 : 1); if (u) hit.disableInteractive(); else hit.setInteractive({ useHandCursor: true }); };
+    }
+    return c;
   }
 };
