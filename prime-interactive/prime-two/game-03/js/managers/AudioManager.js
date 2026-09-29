@@ -256,6 +256,63 @@ window.AudioManager = {
 
   stopVoice() { if ("speechSynthesis" in window) { try { speechSynthesis.cancel(); } catch (e) {} } },
 
+  /* ---- MUSIC DUCKING (lower BG music smoothly while narration speaks) ----- */
+  MUSIC_LEVEL: 0.35,
+  MUSIC_DUCK: 0.10,
+  duck() {
+    if (!this.musicGain || this._ducked) return;
+    this._ducked = true;
+    try { const t = this.ctx.currentTime; this.musicGain.gain.cancelScheduledValues(t); this.musicGain.gain.setTargetAtTime(this.MUSIC_DUCK, t, 0.18); }
+    catch (e) { this.musicGain.gain.value = this.MUSIC_DUCK; }
+  },
+  unduck() {
+    if (!this.musicGain) return;
+    this._ducked = false;
+    try { const t = this.ctx.currentTime; this.musicGain.gain.cancelScheduledValues(t); this.musicGain.gain.setTargetAtTime(this.MUSIC_LEVEL, t, 0.30); }
+    catch (e) { this.musicGain.gain.value = this.MUSIC_LEVEL; }
+  },
+
+  /* ---- NARRATION (story + per-step guidance) ------------------------------
+   * Speaks each line in the selected language (en-GB / es-ES) and shows it as a
+   * SINGLE bottom subtitle, in sync. Ducks the background music while speaking
+   * and restores it at the end. Starts only after a user gesture unlocked audio.
+   * Stopped cleanly on scene shutdown, pause and mute. */
+  narrate(scene, lines, opts) {
+    this.stopNarration();
+    opts = opts || {};
+    const arr = Array.isArray(lines) ? lines.slice() : [lines];
+    this._narr = { scene, lines: arr, idx: 0, active: true, onDone: opts.onDone };
+    this.duck();
+    this._narrStep();
+  },
+  _narrStep() {
+    const n = this._narr; if (!n || !n.active) return;
+    const scene = n.scene;
+    if (!scene || !scene.sys || !scene.sys.isActive()) { this._narrEnd(); return; }
+    if (n.idx >= n.lines.length) { this._narrEnd(); return; }
+    const line = n.lines[n.idx++];
+    try { window.SubtitleManager.show(line); } catch (e) {}
+    this.speak(line);
+    const est = Math.min(6500, 1300 + line.length * 55);
+    try { n.timer = scene.time.delayedCall(est, () => this._narrStep()); }
+    catch (e) { n.timer = setTimeout(() => this._narrStep(), est); }
+  },
+  _narrEnd() {
+    const n = this._narr;
+    this.unduck();
+    try { window.SubtitleManager.hide(); } catch (e) {}
+    if (n) { n.active = false; if (n.onDone) { try { n.onDone(); } catch (e) {} } }
+    this._narr = null;
+  },
+  stopNarration() {
+    const n = this._narr;
+    if (n) { n.active = false; if (n.timer) { try { n.timer.remove ? n.timer.remove(false) : clearTimeout(n.timer); } catch (e) {} } }
+    this._narr = null;
+    this.stopVoice();
+    this.unduck();
+    try { window.SubtitleManager.hide(); } catch (e) {}
+  },
+
   _playFile(url) {
     if (!this.ctx) this.init();
     const s = window.GameState.settings;

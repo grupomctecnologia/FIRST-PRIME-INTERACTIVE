@@ -28,38 +28,24 @@ class MissionBriefingScene extends Phaser.Scene {
     this.tweens.add({ targets: big, scale: { from: 0.8, to: 1 }, duration: 600, ease: "Back.out" });
 
     this.narration = intro.narration || [];
-    this.nIdx = 0;
-    this.narrText = this.add.text(w / 2, h * 0.52, "", {
-      fontFamily: T.font, fontSize: "24px", fontStyle: "bold", color: T.colors.text, align: "center", wordWrap: { width: w - 200 }
-    }).setOrigin(0.5).setShadow(0, 2, "rgba(0,0,0,0.9)", 8);
 
     window.UI.button(this, w / 2, h - 66, 300, 58, window.S("startMission"), { fontSize: 24, onClick: () => this.start() });
     T.button(this, w - 96, h - 66, 150, 46, window.S("skip"), {
       secondary: true, textColor: T.colors.text, fontSize: 18, onClick: () => this.start()
     });
 
+    // Story narration: voice in the selected language + a SINGLE bottom subtitle
+    // (SubtitleManager), in sync. Nothing is shown in the centre. Starts after a
+    // gesture (audio already unlocked by the language/menu clicks).
     this.input.once("pointerdown", () => window.AudioManager.unlock());
-    this.time.delayedCall(500, () => this.nextLine());
+    this.time.delayedCall(450, () => { if (this.sys.isActive()) window.AudioManager.narrate(this, this.narration); });
     this.input.keyboard.on("keydown-ENTER", () => this.start());
-  }
-
-  nextLine() {
-    if (!this.sys.isActive()) return;
-    if (this.nIdx >= this.narration.length) return;
-    const line = this.narration[this.nIdx++];
-    // Legenda ÚNICA da abertura: só a linha central (this.narrText). Não
-    // duplicar no rodapé (SubtitleManager) — mantém uma legenda, numa posição.
-    this.narrText.setText(line);
-    this.narrText.setAlpha(0);
-    this.tweens.add({ targets: this.narrText, alpha: 1, duration: 300 });
-    window.AudioManager.speak(line);
-    const est = Math.min(6000, 1200 + line.length * 55);
-    this.time.delayedCall(est, () => this.nextLine());
+    this.events.once("shutdown", () => window.AudioManager.stopNarration());
   }
 
   start() {
     if (this._starting) return; this._starting = true;
-    window.AudioManager.stopVoice(); window.SubtitleManager.hide();
+    window.AudioManager.stopNarration();
     window.AudioManager.sfx("transition");
     this.scene.start("MemoryMatchScene");
   }

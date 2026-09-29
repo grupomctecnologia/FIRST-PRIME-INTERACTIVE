@@ -11,9 +11,9 @@ window.PRIME_CONTENT_ALL.en = {
   intro: {
     titleLines: ["FIRST PRIME INTERACTIVE", "PRIME TWO", "LONDON UNDERGROUND MYSTERY"],
     narration: [
-      "Welcome to the London Underground! I'm Alex.",
-      "And I'm Emma. A mystery is waiting for us down here.",
-      "Match the words, build the sentences and follow the right routes",
+      "Welcome to the London Underground! I'm Alex, and this is Emma.",
+      "We're starting a new adventure, and there's a mystery to solve down here.",
+      "Help us match the words, build the sentences and follow the right routes",
       "to reach the final destination. Mind the gap — let's go!"
     ]
   },

@@ -92,7 +92,7 @@ window.Hud = class {
   togglePause() {
     if (this.paused) return this.resume();
     this.paused = true;
-    window.AudioManager.stopVoice();
+    window.AudioManager.stopNarration();
     const scene = this.scene, T = this.T, w = scene.scale.width, h = scene.scale.height;
     const c = scene.add.container(0, 0).setDepth(95); this.pauseOverlay = c;
     const bg = scene.add.graphics(); bg.fillStyle(0x05070f, 0.85); bg.fillRect(0, 0, w, h); c.add(bg);
@@ -111,7 +111,7 @@ window.Hud = class {
     if (this.pauseBtn.setGlyph) this.pauseBtn.setGlyph("⏸");
   }
 
-  goMenu() { window.AudioManager.stopVoice(); window.SubtitleManager.hide(); this.scene.scene.start("MenuScene"); }
+  goMenu() { window.AudioManager.stopNarration(); window.SubtitleManager.hide(); this.scene.scene.start("MenuScene"); }
 
   destroy() { if (this.pauseOverlay) { this.pauseOverlay.destroy(); this.pauseOverlay = null; } }
 };

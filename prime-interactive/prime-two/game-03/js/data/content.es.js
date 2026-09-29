@@ -7,15 +7,15 @@
  * ===========================================================================*/
 window.PRIME_CONTENT_ALL = window.PRIME_CONTENT_ALL || {};
 window.PRIME_CONTENT_ALL.es = {
-  meta: { book: "PRIME TWO", unit: "El Misterio del Metro de Londres", language: "es", voice: "en-GB" },
+  meta: { book: "PRIME TWO", unit: "El Misterio del Metro de Londres", language: "es", voice: "es-ES" },
 
   /* PASO 1 — INSTRUCCIONES DE LA MISIÓN */
   intro: {
     titleLines: ["FIRST PRIME INTERACTIVE", "PRIME TWO", "EL MISTERIO DEL METRO DE LONDRES"],
     narration: [
-      "¡Bienvenido al metro de Londres! Soy Alex.",
-      "Y yo soy Emma. Un misterio nos espera aquí abajo.",
-      "Une las palabras, forma las frases y sigue las rutas correctas",
+      "¡Bienvenido al metro de Londres! Soy Alex, y esta es Emma.",
+      "Empezamos una nueva aventura, y hay un misterio que resolver aquí abajo.",
+      "Ayúdanos a unir las palabras, formar las frases y seguir las rutas correctas",
       "para llegar al destino final. Cuidado con el hueco — ¡vamos!"
     ]
   },

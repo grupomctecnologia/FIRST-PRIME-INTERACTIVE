@@ -28,7 +28,11 @@ class ActivityScene extends Phaser.Scene {
       this.add.text(w / 2, 104, opts.instr, {
         fontFamily: T.font, fontSize: "16px", color: T.hex(T.colors.accent2), align: "center", wordWrap: { width: w - 160 }
       }).setOrigin(0.5).setDepth(40).setShadow(0, 2, "rgba(0,0,0,0.85)", 6);
+      // Narrated step guidance: voice in the selected language + a SINGLE bottom
+      // subtitle, in sync. Music ducks while it speaks, then restores.
+      this.time.delayedCall(350, () => { if (this.sys.isActive()) window.AudioManager.narrate(this, [opts.instr]); });
     }
+    this.events.once("shutdown", () => window.AudioManager.stopNarration());
   }
 
   /* Floating feedback toast at mid-height */
